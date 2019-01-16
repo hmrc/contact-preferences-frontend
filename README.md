@@ -1,7 +1,9 @@
 
-# software-choices-frontend
+# Contact Preferences Frontend
 
-This is a placeholder README.md for a new repository
+This frontend microservice provides UI functionality to set communication(contact) preferences for taxpayers.
+
+It calls down into the APIs in the Contact Preferences Backend microservice.
 
 ### License
 
