@@ -52,4 +52,6 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   lazy val whitelistExcludedPaths: Seq[Call] = whitelistConfig(ConfigKeys.whitelistExcludedPaths).map(path => Call("GET", path))
   lazy val whiteListEnabled: Boolean = getBoolean(ConfigKeys.whitelistEnabled)
 
+
+
 }
