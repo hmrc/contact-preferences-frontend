@@ -1,7 +1,6 @@
 common.back = Back
 common.errorSummary.heading = There is a problem
 common.error = Error:
-common.newTab = opens in a new tab
 base.continue = Continue
 
 #Feedback
