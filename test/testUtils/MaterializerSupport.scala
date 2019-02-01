@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package controllers
+package testUtils
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc._
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 
-import scala.concurrent.Future
-import play.api.i18n.{I18nSupport, MessagesApi}
-import config.AppConfig
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.hello_world
-
-@Singleton
-class HelloWorld @Inject()(val messagesApi: MessagesApi, implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
-
-  val helloWorld = Action.async { implicit request =>
-    Future.successful(Ok(hello_world()))
-  }
-
+trait MaterializerSupport {
+  implicit val system = ActorSystem("Sys")
+  implicit val materializer = ActorMaterializer()
 }

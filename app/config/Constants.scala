@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package controllers
+package config
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc._
+object Constants {
 
-import scala.concurrent.Future
-import play.api.i18n.{I18nSupport, MessagesApi}
-import config.AppConfig
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.hello_world
+  val MtdContactPreferencesEnrolmentKey: String = "HMRC-MTD-VAT"
+  val MtdContactPreferencesReferenceKey: String = "VRN"
+  val MtdContactPreferencesDelegatedAuth: String = "mtd-vat-auth"
 
-@Singleton
-class HelloWorld @Inject()(val messagesApi: MessagesApi, implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
-
-  val helloWorld = Action.async { implicit request =>
-    Future.successful(Ok(hello_world()))
-  }
-
+  val AgentServicesEnrolment: String = "HMRC-AS-AGENT"
+  val AgentServicesReference: String = "AgentReferenceNumber"
 }
+
