@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package config
 
-sealed trait YesNo
+import javax.inject.Inject
 
-object Yes extends YesNo
+import play.api.i18n.MessagesApi
+import uk.gov.hmrc.auth.core.AuthConnector
 
-object No extends YesNo
+class ControllerComponents @Inject()(val messagesApi: MessagesApi,
+                                     val appConfig: AppConfig,
+                                     val authConnector: AuthConnector)
