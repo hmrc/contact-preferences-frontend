@@ -17,43 +17,35 @@
 package controllers
 
 
-import config.{AppConfig, ControllerComponents}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import javax.inject.{Inject, Singleton}
-
-import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import config.AppConfig
 import forms.ContactPreferencesForm._
+import javax.inject.{Inject, Singleton}
 import models.{No, Yes}
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
 
-import scala.concurrent.Future
-
 @Singleton
-class ContactPreferencesController @Inject()(val controllerComponents: ControllerComponents) extends FrontendController with I18nSupport {
+class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
+                                             val authConnector: AuthConnector,
+                                             implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
-  override val messagesApi: MessagesApi = controllerComponents.messagesApi
-
-  implicit val appConfig: AppConfig = controllerComponents.appConfig
-
-  val show: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(
-      Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit()))
-    )
+  val show: Action[AnyContent] = Action { implicit request =>
+    Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit()))
   }
 
-  val submit: Action[AnyContent] = Action.async { implicit request =>
+  val submit: Action[AnyContent] = Action{ implicit request =>
     contactPreferencesForm.bindFromRequest.fold(
       formWithErrors =>
-        Future.successful(
-          BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit()))
-        ), {
+          BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit())), {
         case Yes =>
           //TODO
-          Future.successful(Redirect(routes.ContactPreferencesController.submit()))
+          Redirect(routes.ContactPreferencesController.submit())
         case No =>
           //TODO
-          Future.successful(Redirect(routes.ContactPreferencesController.submit()))
+          Redirect(routes.ContactPreferencesController.submit())
       }
     )
   }

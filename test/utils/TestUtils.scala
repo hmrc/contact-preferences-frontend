@@ -22,14 +22,19 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.Injector
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
+import org.scalamock.scalatest.MockFactory
 
-trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
+
+trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockFactory {
 
   implicit lazy val fakeRequest = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
   lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = Messages(Lang("en-GB"), messagesApi)
   implicit lazy val appConfig = injector.instanceOf[AppConfig]
+  lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
+
 
 }
