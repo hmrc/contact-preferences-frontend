@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package models.requests
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc._
+import play.api.mvc.{Request, WrappedRequest}
 
-import scala.concurrent.Future
-import play.api.i18n.{I18nSupport, MessagesApi}
-import config.AppConfig
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.hello_world
-
-@Singleton
-class HelloWorld @Inject()(val messagesApi: MessagesApi, implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
-
-  val helloWorld = Action.async { implicit request =>
-    Future.successful(Ok(hello_world()))
-  }
-
+case class User[A](vrn: String, arn: Option[String] = None, credId: String)(implicit request: Request[A]) extends WrappedRequest[A](request) {
+  val isAgent: Boolean = arn.isDefined
 }
