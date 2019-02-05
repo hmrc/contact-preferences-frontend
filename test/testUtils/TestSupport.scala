@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package utils
+package testUtils
 
-import config.AppConfig
-import org.scalatest.BeforeAndAfterEach
+import com.typesafe.config.Config
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.{Lang, Messages, MessagesApi}
-import play.api.inject.Injector
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import org.scalamock.scalatest.MockFactory
 
+import scala.concurrent.ExecutionContext
 
-trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockFactory {
+trait TestSupport extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterAll with BeforeAndAfterEach with MaterializerSupport {
 
-  implicit lazy val fakeRequest = FakeRequest("GET", "/")
-  lazy val injector: Injector = app.injector
-  lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = Messages(Lang("en-GB"), messagesApi)
-  implicit lazy val appConfig = injector.instanceOf[AppConfig]
-  lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+
+  implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+
+  implicit val config: Config = app.configuration.underlying
 
 }
