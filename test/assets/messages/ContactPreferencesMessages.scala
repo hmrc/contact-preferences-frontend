@@ -19,13 +19,12 @@ package assets.messages
 object ContactPreferencesMessages {
 
   val title = "Does the business want to receive VAT email notifications?"
-  val text = "When the business has a new message about VAT in its HMRC account, we can let you know by sending an email to"
+  val text1: String => String = email => s"When the business has a new message about VAT in its HMRC account, we can let you know by sending an email to $email"
 
-  val email = "yourname@company.com"
-  val textP1 = "You may continue to receive letters in the post for a while. These will be sent to your principal place of business."
-  val textP2 = "For security reasons, we do not include any information or links in the email itself. Sign in to your HMRC account to read the content of the message."
+  val text2 = "You may continue to receive letters in the post for a while. These will be sent to your principal place of business."
+  val text3 = "For security reasons, we do not include any information or links in the email itself. Sign in to your HMRC account to read the content of the message."
   val radioYes = "Yes, send email notifications"
   val radioNo = "No, send me letters only"
-  val summary = "Choose yes or no, if you are ready to set your contact preferences"
+  val errorSummary = "Choose yes or no, if you are ready to set your contact preferences"
 
 }

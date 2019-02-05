@@ -16,7 +16,7 @@
 
 package utils
 
-import config.mocks.MockAppConfig
+import config.AppConfig
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
@@ -30,6 +30,6 @@ trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEac
   lazy val injector: Injector = app.injector
   lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = Messages(Lang("en-GB"), messagesApi)
-  implicit lazy val appConfig = injector.instanceOf[MockAppConfig]
+  implicit lazy val appConfig = injector.instanceOf[AppConfig]
 
 }

@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package mocks
-
-import config.AppConfig
-import config.features.Features
-import javax.inject.Inject
-import org.scalamock.scalatest.MockFactory
-import play.api.{Configuration, Environment}
-
-class MockAppConfig @Inject()(implicit override val runModeConfiguration: Configuration, environment: Environment)
-  extends AppConfig with MockFactory {
-
-  lazy val mockFeatures: Features = mock[Features]
-
-  def progressiveDisclosureEnabled(enabled: Boolean): Unit = mockFeatures.progressiveDisclosureEnabled(enabled)
-
-  override val features = mockFeatures
-
-}
+//
+//package mocks
+//
+//import config.AppConfig
+//import config.features.Features
+//import javax.inject.Inject
+//import org.scalamock.scalatest.MockFactory
+//import play.api.{Configuration, Environment}
+//
+//class MockAppConfig @Inject()(implicit override val runModeConfiguration: Configuration, environment: Environment)
+//  extends AppConfig with MockFactory {
+//
+//  lazy val mockFeatures: Features = mock[Features]
+//
+//  def progressiveDisclosureEnabled(enabled: Boolean): Unit = mockFeatures.progressiveDisclosureEnabled(enabled)
+//
+//  override val features = mockFeatures
+//
+//}
