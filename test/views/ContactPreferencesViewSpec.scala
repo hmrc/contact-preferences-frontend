@@ -17,95 +17,89 @@
 package views
 
 import assets.messages.{CommonMessages, ContactPreferencesMessages}
+import controllers.routes
 import forms.ContactPreferencesForm
-import forms.ContactPreferencesForm._
-import jdk.nashorn.internal.codegen.CompilerConstants.Call
-import views.ViewTestUtils
+import utils.ViewTestUtils
 
 
 class ContactPreferencesViewSpec extends ViewTestUtils {
 
   object Selectors {
     val pageHeading = "h1"
-    val letterHeaderSelector: Int => String = header => s"article h2:nth-of-type($header)"
-    val letterHeaderDetailsSelector: Int => String = header => s"article details h2:nth-of-type($header)"
-    val providerSelector: (Int, Int)=> String = (section, provider) =>
-      s"article ul:nth-of-type($section) > li:nth-of-type($provider) > a"
-    val errorSummaryDisplay = "#error-summary-display"
-    val termFieldError = "#term-error-summary"
-    val formFieldError = ".form-field--error"
-    val fieldErrorMessage = ".error-message"
-    val clearSearchLink = "article > div > a:nth-of-type(1)"
+    val text1 = "#content > article > p:nth-child(2)"
+    val text2 = "#content > article > div > p"
+    val text3 = "#content > article > p:nth-child(4)"
+    val radioYes = "#yes_no > div:nth-child(2) > label"
+    val radioNo = "#yes_no > div:nth-child(3) > label"
+    val continue = "#continue-button"
+
+    val errorHeading = "#error-summary-display > ul > li > a"
+    val error = "#error-message-yes_no"
   }
 
   "The software choices search page" when {
 
-    "the progressive disclosure is enabled" should {
+    "the page has no errors" should {
 
-      lazy val document = parseView(views.html.contact_preferences(ContactPreferencesForm,postAction = ))
+      lazy val document = parseView(views.html.contact_preferences(
+        ContactPreferencesForm.contactPreferencesForm,
+        routes.ContactPreferencesController.submit())
+      )
 
       s"have the correct document title" in {
-        document.title shouldBe SoftwareChoicesMessages.title
+        document.title shouldBe ContactPreferencesMessages.title
       }
 
       s"have a the correct page heading" in {
-        document.select(Selectors.pageHeading).text() shouldBe SoftwareChoicesMessages.title
+        document.select(Selectors.pageHeading).text() shouldBe ContactPreferencesMessages.title
       }
 
-      s"have a show all link" in {
-        document.select(Selectors.showAllLink).text() shouldBe SoftwareChoicesMessages.showAll
+      s"have the correct first paragraph text" in {
+        document.select(Selectors.text1).text() shouldBe ContactPreferencesMessages.text1("yourname@company.com")
       }
 
-      s"have a clear search link" in {
-        val element = document.select(Selectors.clearSearchLink)
-        element.text() shouldBe SearchMessages.clear
-        element.attr("href") shouldBe "#"
-        element.attr("onClick") shouldBe s"clearField('term');"
+      s"have a the correct second paragraph text" in {
+        document.select(Selectors.text2).text() shouldBe ContactPreferencesMessages.text2
       }
 
-      "have a single provider for A section" in {
-        document.select(Selectors.providerSelector(1, 1)).text() shouldBe opensInANewTabSuffix(providers.allProviders.head.name)
-      }
-    }
-
-    "the progressive disclosure is disabled" should {
-
-      lazy val document = parseView(views.html.software_choices_search(providers, SearchForm.form))
-
-      s"NOT have a show all link" in {
-        appConfig.progressiveDisclosureEnabled(false)
-        document.select(Selectors.showAllLink).isEmpty shouldBe true
+      s"have the correct third paragraph text" in {
+        document.select(Selectors.text3).text() shouldBe ContactPreferencesMessages.text3
       }
 
-      "have a single provider for A section" in {
-        document.select(Selectors.providerSelector(1, 1)).text() shouldBe opensInANewTabSuffix(providers.allProviders.head.name)
+      s"have a the correct Yes Option" in {
+        document.select(Selectors.radioYes).text() shouldBe ContactPreferencesMessages.radioYes
+      }
+
+      s"have the correct No Option" in {
+        document.select(Selectors.radioNo).text() shouldBe ContactPreferencesMessages.radioNo
+      }
+
+      s"have a the correct continue button" in {
+        document.select(Selectors.continue).attr("value") shouldBe CommonMessages.continue
       }
     }
 
-    "the search contains errors" should {
+    "the page has errors" should {
 
-      val errorForm = SearchForm.form.withError("term","AN ERROR")
+      lazy val document = parseView(views.html.contact_preferences(
+        ContactPreferencesForm.contactPreferencesForm.bind(Map("yes_no" -> "")),
+        routes.ContactPreferencesController.submit())
+      )
 
-      lazy val document = parseView(views.html.software_choices_search(providers, errorForm))
-
-      "page title should be prefixed with Error" in {
-        document.title shouldBe s"${CommonMessages.error} ${SoftwareChoicesMessages.title}"
+      s"have the correct document title" in {
+        document.title shouldBe ContactPreferencesMessages.title
       }
 
-      "show the error summary" in {
-        document.select(Selectors.errorSummaryDisplay).isEmpty shouldBe false
+      s"have a the correct page heading" in {
+        document.select(Selectors.pageHeading).text() shouldBe ContactPreferencesMessages.title
       }
 
-      "have an error message with link to the term field" in {
-        val summaryError = document.select(Selectors.termFieldError)
-        summaryError.text shouldBe errorForm.errors.head.message
-        summaryError.attr("href") shouldBe "#term"
-        summaryError.attr("data-focuses") shouldBe "term"
+      s"have a the correct page error heading" in {
+        document.select(Selectors.errorHeading).text() shouldBe ContactPreferencesMessages.errorSummary
       }
 
-      "highlight the errored field" in {
-        document.select(Selectors.formFieldError).isEmpty shouldBe false
-        document.select(Selectors.fieldErrorMessage).text shouldBe "AN ERROR"
+      s"have a the correct page error" in {
+        document.select(Selectors.error).text() shouldBe ContactPreferencesMessages.errorSummary
       }
     }
   }
