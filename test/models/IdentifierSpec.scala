@@ -20,7 +20,7 @@ import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import utils.TestUtils
 
-class IdentifierSpecSetup extends Identifier {
+class IdentifierSetup extends Identifier {
 
   override val value: String = "A-KEY"
 
@@ -31,7 +31,7 @@ class IdentifierSpecSetup extends Identifier {
 class IdentifierSpec extends TestUtils {
 
   "Identifier" should {
-    "contain a key" in new IdentifierSpecSetup {
+    "contain a key" in new IdentifierSetup {
 
       val actualResult = value
       val expectedResult = "A-KEY"
@@ -39,7 +39,7 @@ class IdentifierSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "yield a VRN object when passed VRN string" in new IdentifierSpecSetup {
+    "yield a VRN object when passed VRN string" in new IdentifierSetup {
 
       val actualResult = Identifier.apply("VRN")
       val expectedResult = VRN
@@ -47,14 +47,16 @@ class IdentifierSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "throw an JsResultException when passed an invalid identifier" in new IdentifierSpecSetup {
+    "throw an JsResultException when passed an invalid identifier" in new IdentifierSetup {
 
-      intercept[JsResultException] {
+      val actualResult = intercept[JsResultException] {
         Identifier.apply("INVALID_IDENTIFIER")
-      } shouldBe JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid Identifier: INVALID_IDENTIFIER, valid identifiers: VRN")))))
+      }
+      val expectedResult = JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid Identifier: INVALID_IDENTIFIER, valid identifiers: VRN")))))
+      actualResult shouldBe expectedResult
     }
 
-    "deconstruct it's value when incorrectly pattern matched" in new IdentifierSpecSetup {
+    "deconstruct it's value when incorrectly pattern matched" in new IdentifierSetup {
 
       val actualResult = Identifier.unapply(VRN)
       val expectedResult = "VRN"
@@ -62,7 +64,7 @@ class IdentifierSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "read an incoming js string and construct into a scala model" in new IdentifierSpecSetup {
+    "read an incoming js string and construct into a scala model" in new IdentifierSetup {
 
       val actualResult = jsString.as[Identifier]
       val expectedResult = model
@@ -70,7 +72,7 @@ class IdentifierSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "write an outgoing model to a js string" in new IdentifierSpecSetup {
+    "write an outgoing model to a js string" in new IdentifierSetup {
 
       val actualResult = Json.toJson(model)
       val expectedResult = jsString

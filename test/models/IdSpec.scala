@@ -19,21 +19,20 @@ package models
 import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.TestUtils
 
-class IdSpecSetup {
+class IdSetup {
 
   val idModel: Id = Id(VRN, "999999999")
   val idJson: JsObject = Json.obj(
     "key" -> VRN.value,
     "value" -> "999999999"
   )
-
 }
 
 class IdSpec extends TestUtils {
 
   "Id" should {
 
-    "contain an Identifier for the key" in new IdSpecSetup {
+    "contain an Identifier for the key" in new IdSetup {
 
       val actualResult: Identifier = idModel.key
       val expectedResult: VRN.type = VRN
@@ -41,7 +40,7 @@ class IdSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "contain an value" in new IdSpecSetup {
+    "contain an value" in new IdSetup {
 
       val actualResult: String = idModel.value
       val expectedResult: String = "999999999"
@@ -49,7 +48,7 @@ class IdSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "read from Json to the correct model" in new IdSpecSetup {
+    "read from Json to the correct model" in new IdSetup {
 
       val actualResult: Id = idJson.as[Id]
       val expectedResult: Id = idModel
@@ -57,7 +56,7 @@ class IdSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "write to Json correctly" in new IdSpecSetup {
+    "write to Json correctly" in new IdSetup {
 
       val actualResult: JsValue = Json.toJson(idModel)
       val expectedResult: JsObject = idJson
