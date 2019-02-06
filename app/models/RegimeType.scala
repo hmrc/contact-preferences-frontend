@@ -19,7 +19,7 @@ package models
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 
-sealed trait RegimeType {
+trait RegimeType {
   val id: String
   val enrolmentId: String
   val delegatedAuthRule: String
@@ -34,7 +34,7 @@ object RegimeType {
 
   def apply(arg: String): RegimeType = arg.toUpperCase match {
     case MTDVAT.id => MTDVAT
-    case x => throw JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid regime type: $x, valid regime type: TODO : Add list of all valid regime types")))))
+    case x => throw JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid regime type: $x, valid regime type: VAT")))))
   }
 
   def unapply(arg: RegimeType): String = arg match {
