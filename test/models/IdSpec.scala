@@ -16,10 +16,53 @@
 
 package models
 
-class Setup {
-  
+import play.api.libs.json.{JsObject, JsValue, Json}
+import utils.TestUtils
+
+class IdSpecSetup {
+
+  val idModel: Id = Id(VRN, "999999999")
+  val idJson: JsObject = Json.obj(
+    "key" -> VRN.value,
+    "value" -> "999999999"
+  )
+
 }
 
-class IdSpec {
+class IdSpec extends TestUtils {
 
+  "Id" should {
+
+    "contain an Identifier for the key" in new IdSpecSetup {
+
+      val actualResult: Identifier = idModel.key
+      val expectedResult: VRN.type = VRN
+
+      actualResult shouldBe expectedResult
+    }
+
+    "contain an value" in new IdSpecSetup {
+
+      val actualResult: String = idModel.value
+      val expectedResult: String = "999999999"
+
+      actualResult shouldBe expectedResult
+    }
+
+    "read from Json to the correct model" in new IdSpecSetup {
+
+      val actualResult: Id = idJson.as[Id]
+      val expectedResult: Id = idModel
+
+      actualResult shouldBe expectedResult
+    }
+
+    "write to Json correctly" in new IdSpecSetup {
+
+      val actualResult: JsValue = Json.toJson(idModel)
+      val expectedResult: JsObject = idJson
+
+      actualResult shouldBe expectedResult
+    }
+  }
 }
