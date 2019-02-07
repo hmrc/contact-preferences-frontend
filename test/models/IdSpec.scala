@@ -59,7 +59,7 @@ class IdSpec extends TestUtils {
     "write to Json correctly" in new IdSetup {
 
       val actualResult: JsValue = Json.toJson(idModel)
-      val expectedResult: JsObject = idJson
+      val expectedResult: JsValue = idJson
 
       actualResult shouldBe expectedResult
     }

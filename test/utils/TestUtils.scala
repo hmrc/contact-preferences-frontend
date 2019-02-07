@@ -25,6 +25,9 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.test.UnitSpec
 import org.scalamock.scalatest.MockFactory
+import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.ExecutionContext
 
 
 trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockFactory {
@@ -35,5 +38,6 @@ trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEac
   implicit lazy val messages: Messages = Messages(Lang("en-GB"), messagesApi)
   implicit lazy val appConfig = injector.instanceOf[AppConfig]
   lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
-
+  implicit lazy val executionContext: ExecutionContext = injector.instanceOf[ExecutionContext]
+  implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
 }
