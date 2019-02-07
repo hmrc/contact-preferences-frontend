@@ -16,84 +16,52 @@
 
 package models
 
-import play.api.libs.json.{JsObject, JsValue, Json}
+import assets.JourneyTestConstants._
+import play.api.libs.json.Json
 import utils.TestUtils
-
-class JourneySetup {
-
-  val regimeType = RegimeType(MTDVAT.id)
-  val identifier = Identifier(VRN.value)
-  val id = Id(identifier, "999999999")
-  val regime = Regime(regimeType, id)
-  val continueUrl: String =  "continue/url"
-  val journeyModel = Journey(regime, continueUrl, Some("email@email.com"))
-
-  val journeyJson: JsValue = Json.parse(
-    """
-      |{
-      | "regime": {
-      |   "regimeType": "VAT",
-      |   "identifier": {
-      |     "key": "VRN",
-      |     "value": "999999999"
-      |   }
-      | },
-      | "continueUrl": "continue/url",
-      | "email": "email@email.com"
-      |}
-    """.stripMargin)
-}
 
 class JourneySpec extends TestUtils {
 
   "Journey" should {
 
-    "have a regime" in new JourneySetup {
+    "have a regime" in {
 
-      val actualResult = journeyModel.regime
-      val expectedResult = regime
-
-      actualResult shouldBe expectedResult
-    }
-
-    "have a continueUrl" in new JourneySetup {
-
-      val actualResult = journeyModel.continueUrl
-      val expectedResult = "continue/url"
+      val actualResult = journeyModelMax.regime
+      val expectedResult = regimeModel
 
       actualResult shouldBe expectedResult
     }
 
-    "have an email" in new JourneySetup {
+    "have a continueUrl" in {
 
-      val actualResult = journeyModel.email
-      val expectedResult = Some("email@email.com")
-
-      actualResult shouldBe expectedResult
-    }
-
-    "read regime from Json to the correct Journey" in new JourneySetup {
-
-      val actualResult: Regime = journeyJson.as[Journey].regime
-      val expectedResult: Regime = regime
+      val actualResult = journeyModelMax.continueUrl
+      val expectedResult = continueUrl
 
       actualResult shouldBe expectedResult
     }
 
-    "read continueUrl from Json to the correct Journey" in new JourneySetup {
+    "have an email" in {
 
-      val actualResult: String = journeyJson.as[Journey].continueUrl
-      val expectedResult: String = continueUrl
+      val actualResult = journeyModelMax.email
+      val expectedResult = Some(email)
 
       actualResult shouldBe expectedResult
     }
 
-    /*"write to the correct Json" in new JourneySetup {
+    "read regime from Json to the correct Journey" in {
 
-      val actualResult: JsValue = Json.toJson(journeyModel)
-      val expectedResult: JsValue = journeyJson
+      val actualResult: Journey = journeyJsonMax.as[Journey]
+      val expectedResult: Journey = journeyModelMax
 
       actualResult shouldBe expectedResult
-    }*/
+    }
+
+    "write to the correct Json" in {
+
+      val actualResult = Json.toJson(journeyModelMax)
+      val expectedResult = journeyJsonMax
+
+      actualResult shouldBe expectedResult
+    }
   }
 }
