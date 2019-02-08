@@ -20,13 +20,19 @@ import connectors.httpParsers.JourneyHttpParser.Response
 import org.scalamock.scalatest.MockFactory
 import services.JourneyService
 import utils.TestUtils
+import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.{ExecutionContext, Future}
+
 
 trait MockJourneyService extends MockFactory with TestUtils {
 
   lazy val service = mock[JourneyService]
 
-//  def mockJourneyService(id: String)(response: Response): Unit = {
-//    (service.getJourney())
-//  }
+  def mockJourneyService(id: String)(response: Response): Unit = {
+    (service.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(id, *, *)
+      .returns(Future.successful(response))
+  }
 
 }

@@ -18,9 +18,9 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class Regime(regimeType: RegimeType,
-                  identifier: Id)
+case class RegimeModel(regimeType: RegimeType,
+                       identifier: Id)
 
-object Regime {
-  implicit val format: Format[Regime] = Json.format[Regime]
+object RegimeModel {
+  implicit val format: Format[RegimeModel] = Json.format[RegimeModel]
 }

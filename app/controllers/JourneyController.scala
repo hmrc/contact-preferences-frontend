@@ -16,6 +16,34 @@
 
 package controllers
 
-class JourneyController {
+import config.AppConfig
+import controllers.actions.AuthService
+import javax.inject.{Inject, Singleton}
+import play.api.i18n.Messages
+import play.api.mvc.{Action, AnyContent}
+import services.JourneyService
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
+
+import scala.concurrent.{ExecutionContext, Future}
+
+@Singleton
+class JourneyController @Inject()(journeyService: JourneyService, authService: AuthService)
+                                 (implicit ec: ExecutionContext, appConfig: AppConfig, messages: Messages) extends BaseController{
+
+  val show: String => Action[AnyContent] = id => Action.async { implicit request =>
+    journeyService.getJourney(id) flatMap {
+      case Right(journeyModel) =>
+        authService.authorise(journeyModel.regime) {
+          _ => Future.successful(
+            Ok(views.html.contact_preferences(
+              forms.ContactPreferencesForm.contactPreferencesForm,
+              controllers.routes.ContactPreferencesController.submit()
+            ))
+          )
+        }
+      case Left(errorModel) =>
+        Future.successful(Status(errorModel.status)(errorModel.body))
+    }
+  }
 
 }

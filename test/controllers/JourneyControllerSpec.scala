@@ -16,6 +16,8 @@
 
 package controllers
 
-class JourneyControllerSpec {
+import services.mocks.MockJourneyService
+
+class JourneyControllerSpec extends MockJourneyService {
 
 }

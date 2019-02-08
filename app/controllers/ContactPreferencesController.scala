@@ -18,28 +18,43 @@ package controllers
 
 
 import config.AppConfig
+import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
-import models.{No, Yes}
+import models.{Journey, No, Yes}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.auth.core.AuthConnector
+import play.api.mvc.{Action, AnyContent, Request, Result}
+import services.JourneyService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
 
+import scala.concurrent.Future
+
 @Singleton
 class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
-                                             val authConnector: AuthConnector,
+                                             authService: AuthService,
+                                             journeyService: JourneyService,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
-  val show: Action[AnyContent] = Action { implicit request =>
-    Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit()))
+  val show: String => Action[AnyContent] = id => Action.async { implicit request =>
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { _ =>
+        Future.successful(Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit())))
+      }
+    }
+  }
+
+  private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
+    journeyService.getJourney(id) flatMap {
+      case Right(journeyModel) => f(journeyModel)
+      case Left(errorModel) => Future.successful(Status(errorModel.status)(errorModel.body))
+    }
   }
 
   val submit: Action[AnyContent] = Action{ implicit request =>
     contactPreferencesForm.bindFromRequest.fold(
       formWithErrors =>
-          BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit())), {
+        BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit())), {
         case Yes =>
           //TODO
           Redirect(routes.ContactPreferencesController.submit())

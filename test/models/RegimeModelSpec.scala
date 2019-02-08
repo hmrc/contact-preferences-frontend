@@ -20,7 +20,7 @@ import play.api.libs.json.{JsObject, Json}
 import utils.TestUtils
 import assets.JourneyTestConstants._
 
-class RegimeSpec extends TestUtils {
+class RegimeModelSpec extends TestUtils {
 
   "Regime" should {
     "contain a regime type" in {
@@ -41,7 +41,7 @@ class RegimeSpec extends TestUtils {
 
     "read incoming json to a model" in {
 
-      val actualResult = regimeJson.as[Regime]
+      val actualResult = regimeJson.as[RegimeModel]
       val expectedResult = regimeModel
 
       actualResult shouldBe expectedResult

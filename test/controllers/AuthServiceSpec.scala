@@ -19,7 +19,7 @@ package controllers
 import assets.BaseTestConstants.testVatNumber
 import config.Constants
 import connectors.mocks.MockAuthConnector
-import controllers.actions.ContactPreferencesFrontendAuthorised
+import controllers.actions.AuthService
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.mvc.Results._
@@ -29,9 +29,9 @@ import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerTo
 import scala.concurrent.Future
 
 
-class ContactPreferencesFrontendAuthorisedSpec extends MockAuthConnector {
+class AuthServiceSpec extends MockAuthConnector {
 
-  object TestContactPreferencesAuthorised extends ContactPreferencesFrontendAuthorised(mockAuthConnector)
+  object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector)
 
   def result: Future[Result] = TestContactPreferencesAuthorised.async(testVatNumber) {
     implicit user =>

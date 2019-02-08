@@ -52,7 +52,7 @@ object JourneyTestConstants {
 
   val idModel = Id(VRN, testVatNumber)
 
-  val regimeModel = Regime(MTDVAT, idModel)
+  val regimeModel = RegimeModel(MTDVAT, idModel)
 
   val journeyModelMax = Journey(
     regime = regimeModel,
