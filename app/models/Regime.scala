@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package config
+package models
 
-object ConfigKeys {
+import play.api.libs.json.{Format, Json}
 
-  val contactFrontendService: String = "contact-frontend.host"
+case class Regime(regimeType: RegimeType,
+                  identifier: Id)
 
-  private val googleAnalyticsRoot: String = "google-analytics"
-
-  val googleAnalyticsToken: String = googleAnalyticsRoot + ".token"
-  val googleAnalyticsHost: String = googleAnalyticsRoot + ".host"
-
-  val host: String = "host"
-
-  val shutterPage: String = "whitelist.shutterPage"
-  val whitelistIps: String = "whitelist.ips"
-  val whitelistExcludedPaths: String = "whitelist.excludedPaths"
-  val whitelistEnabled: String = "whitelist.enabled"
-
-  val contactPreferencesService: String = "contact-preferences"
-
+object Regime {
+  implicit val format: Format[Regime] = Json.format[Regime]
 }
