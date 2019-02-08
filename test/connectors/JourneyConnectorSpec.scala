@@ -56,5 +56,21 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
         actualResult shouldBe expectedResult
       }
     }
+
+    "an id is given to journeyUrl" should {
+
+      object TestJourneyConnector extends JourneyConnector(
+        mockHttpClient,
+        appConfig
+      )
+
+      "have the correct url" in {
+
+        val actualResult = TestJourneyConnector.journeyUrl("anId")
+        val expectedResult = "http://localhost:9592/contact-preferences/journey/anId"
+
+        actualResult shouldBe expectedResult
+      }
+    }
   }
 }

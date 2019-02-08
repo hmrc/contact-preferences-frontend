@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class JourneyConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig) {
 
-  private[connectors] val journeyUrl = (id: String) => s"$id"
+  private[connectors] val journeyUrl = (id: String) => s"${appConfig.contactPreferencesUrl}/journey/$id"
 
   def getJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
     http.GET(journeyUrl(id))
