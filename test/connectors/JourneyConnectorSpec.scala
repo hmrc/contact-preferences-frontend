@@ -16,27 +16,26 @@
 
 package connectors
 
-import utils.{MockHttpClient, TestUtils}
 import assets.JourneyTestConstants._
-import models.{ErrorModel, Journey}
-import play.api.http.Status
+import connectors.httpParsers.JourneyHttpParser.NotFound
+import utils.{MockHttpClient, TestUtils}
 
 class JourneyConnectorSpec extends TestUtils with MockHttpClient {
 
-  def setup(response: Either[ErrorModel, Journey]): JourneyConnector = {
-    mockHttpGet[Either[ErrorModel, Journey]](response)
-    new JourneyConnector(mockHttpClient, appConfig)
-  }
+  object TestJourneyConnector extends JourneyConnector(
+    mockHttpClient,
+    appConfig
+  )
 
   "JourneyConnector" when {
 
     "getJourney is successful" should {
 
-      lazy val connector = setup(Right(journeyModelMax))
-
       "return a Journey model" in {
 
-        val actualResult = await(connector.getJourney("id"))
+        mockHttpGet(Right(journeyModelMax))
+
+        val actualResult = await(TestJourneyConnector.getJourney("id"))
         val expectedResult = Right(journeyModelMax)
 
         actualResult shouldBe expectedResult
@@ -45,24 +44,18 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
 
     "getJourney is unsuccessful" should {
 
-      val errorModel = ErrorModel(Status.INTERNAL_SERVER_ERROR, "Error Model")
-      lazy val connector = setup(Left(errorModel))
-
       "return an ErrorModel" in {
 
-        val actualResult = await(connector.getJourney("id"))
-        val expectedResult = Left(errorModel)
+        mockHttpGet(Left(NotFound))
+
+        val actualResult = await(TestJourneyConnector.getJourney("id"))
+        val expectedResult = Left(NotFound)
 
         actualResult shouldBe expectedResult
       }
     }
 
     "an id is given to journeyUrl" should {
-
-      object TestJourneyConnector extends JourneyConnector(
-        mockHttpClient,
-        appConfig
-      )
 
       "have the correct url" in {
 
