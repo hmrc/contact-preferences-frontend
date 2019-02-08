@@ -18,54 +18,39 @@ package models
 
 import play.api.libs.json.{JsObject, Json}
 import utils.TestUtils
-
-class RegimeSetup {
-
-  val regimeType = RegimeType(MTDVAT.id)
-  val identifier = Identifier(VRN.value)
-  val id = Id(identifier, "999999999")
-  val regime = Regime(regimeType, id)
-
-  val incomingRegimeJson: JsObject = Json.obj(
-    "regimeType" -> "VAT",
-    "identifier" -> Json.obj(
-      "key" -> VRN.value,
-              "value" -> "999999999"
-    )
-  )
-}
+import assets.JourneyTestConstants._
 
 class RegimeSpec extends TestUtils {
 
   "Regime" should {
-    "contain a regime type" in new RegimeSetup {
+    "contain a regime type" in {
 
-      val actualResult = regime.regimeType
-      val expectedResult = regimeType
-
-      actualResult shouldBe expectedResult
-    }
-
-    "contain an identifier" in new RegimeSetup {
-
-      val actualResult = regime.identifier
-      val expectedResult = id
+      val actualResult = regimeModel.regimeType
+      val expectedResult = MTDVAT
 
       actualResult shouldBe expectedResult
     }
 
-    "read incoming json to a model" in new RegimeSetup {
+    "contain an identifier" in {
 
-      val actualResult = incomingRegimeJson.as[Regime]
-      val expectedResult = regime
+      val actualResult = regimeModel.identifier
+      val expectedResult = idModel
 
       actualResult shouldBe expectedResult
     }
 
-    "write outgoing data to json" in new RegimeSetup {
+    "read incoming json to a model" in {
 
-      val actualResult = Json.toJson(regime)
-      val expectedResult = incomingRegimeJson
+      val actualResult = regimeJson.as[Regime]
+      val expectedResult = regimeModel
+
+      actualResult shouldBe expectedResult
+    }
+
+    "write outgoing data to json" in {
+
+      val actualResult = Json.toJson(regimeModel)
+      val expectedResult = regimeJson
 
       actualResult shouldBe expectedResult
     }
