@@ -35,7 +35,7 @@ class IdSpec extends TestUtils {
     "contain an Identifier for the key" in new IdSetup {
 
       val actualResult: Identifier = idModel.key
-      val expectedResult: VRN.type = VRN
+      val expectedResult: Identifier = VRN
 
       actualResult shouldBe expectedResult
     }
