@@ -16,20 +16,19 @@
 
 package connectors.httpParsers
 
-import connectors.httpParsers.JourneyHttpParser.JourneyHttpRead
-import models.ErrorModel
+import assets.JourneyTestConstants._
+import connectors.httpParsers.JourneyHttpParser._
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import utils.TestUtils
-import assets.JourneyTestConstants._
 
 
 class JourneyHttpParserSpec extends TestUtils {
 
-  "JourneyHttpParser" should {
+  "JourneyHttpParser.JourneyHttpRead" should {
 
-    "return a Journey model when given a valid Json model" in {
+    "return a Journey model when given a valid Json model and status is OK (200)" in {
 
       val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.OK, Some(journeyJsonMax)))
       val expectedResult = Right(journeyModelMax)
@@ -37,26 +36,65 @@ class JourneyHttpParserSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "return an Error when status returned is not Ok" in {
+    "return a NotFound Error when status is Not Found (404)" in {
 
-      val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.OK, Some(Json.obj())))
-      val expectedResult = Left(ErrorModel(
-        Status.INTERNAL_SERVER_ERROR,
-        "Invalid Json returned from contact-preferences"
-      ))
+      val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.NOT_FOUND))
+      val expectedResult = Left(NotFound)
 
       actualResult shouldBe expectedResult
     }
 
-    "return an Error when incorrect json is returned" in {
+    "return an InvalidJson Error when status returned is OK (200) but JSON is invalid" in {
 
-      val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.SERVICE_UNAVAILABLE, Some(journeyJsonMax)))
-      val expectedResult = Left(ErrorModel(
-        Status.SERVICE_UNAVAILABLE,
-        s"http status code ${Status.SERVICE_UNAVAILABLE} returned returned from contact-preferences"
-      ))
+      val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.OK, Some(Json.obj())))
+      val expectedResult = Left(InvalidJson)
 
       actualResult shouldBe expectedResult
+    }
+
+    "return a UnexpectedError when status is not in (200,404,503)" in {
+
+      val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.INTERNAL_SERVER_ERROR))
+      val expectedResult = Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"http status code ${Status.INTERNAL_SERVER_ERROR} returned returned from contact-preferences"))
+
+      actualResult shouldBe expectedResult
+    }
+  }
+
+
+  "JourneyHttpParser.ErrorResponse" when {
+
+    "extended as a concrete InvalidJson object" should {
+
+      "have the status ISE (500)" in {
+        InvalidJson.status shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+
+      "have the body 'Invalid JSON returned from contact-preferences'" in {
+        InvalidJson.body shouldBe "Invalid JSON returned from contact-preferences"
+      }
+    }
+
+    "extended as a concrete NotFound object" should {
+
+      "have the status Not Found (404)" in {
+        NotFound.status shouldBe Status.NOT_FOUND
+      }
+
+      "have the body 'No journey record could be found for journey ID supplied'" in {
+        NotFound.body shouldBe "No journey record could be found for journey ID supplied"
+      }
+    }
+
+    "extended as a concrete DependentSystemUnavailable object" should {
+
+      "have the status Service Unavailable (503)" in {
+        DependentSystemUnavailable.status shouldBe Status.SERVICE_UNAVAILABLE
+      }
+
+      "have the body 'contact-preferences reported issues communicating with the MongoDB repository'" in {
+        DependentSystemUnavailable.body shouldBe "contact-preferences reported issues communicating with the MongoDB repository"
+      }
     }
   }
 }
