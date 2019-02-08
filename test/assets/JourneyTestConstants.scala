@@ -17,18 +17,22 @@
 package assets
 
 import models._
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsString, Json}
 import assets.BaseTestConstants._
 
 object JourneyTestConstants {
 
+  val identifierJson = JsString(VRN.value)
+
   val idJson = Json.obj(
-    "key" -> VRN.value,
+    "key" -> identifierJson,
     "value" -> testVatNumber
   )
 
+  val regimeTypeJson: JsString = JsString(MTDVAT.id)
+
   val regimeJson = Json.obj(
-    "regimeType" -> MTDVAT.id,
+    "regimeType" -> regimeTypeJson,
     "identifier" -> idJson
   )
 

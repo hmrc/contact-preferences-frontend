@@ -19,21 +19,20 @@ package models
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import utils.TestUtils
+import assets.JourneyTestConstants._
 
-class RegimeTypeSetup extends RegimeType {
-
-  override val id: String = "id"
-  override val enrolmentId: String = "enrolmentId"
-  override val delegatedAuthRule: String = "delegatedAuthRule"
-  override val desId: String = "desId"
-
-  val regimeTypeModel: RegimeType = RegimeType("VAT")
-  val regimeTypeJson: JsString = JsString("VAT")
-}
 
 class RegimeTypeSpec extends TestUtils {
 
   "RegimeType" should {
+
+    class RegimeTypeSetup extends RegimeType {
+
+      override val id: String = "id"
+      override val enrolmentId: String = "enrolmentId"
+      override val delegatedAuthRule: String = "delegatedAuthRule"
+      override val desId: String = "desId"
+    }
 
     "have an id" in new RegimeTypeSetup {
 
@@ -66,8 +65,11 @@ class RegimeTypeSpec extends TestUtils {
 
       actualResult shouldBe expectedResult
     }
+  }
 
-    "yield a specific RegimeType when applied" in new RegimeTypeSetup {
+  "MTDVAT" should {
+
+    "yield a specific RegimeType when applied" in {
 
       val actualResult: RegimeType = RegimeType.apply("VAT")
       val expectedResult = MTDVAT
@@ -75,7 +77,7 @@ class RegimeTypeSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "throw a JsResultException when an invalid RegimeType is given" in new RegimeTypeSetup {
+    "throw a JsResultException when an invalid RegimeType is given" in {
 
       val actualResult = intercept[JsResultException] {
         RegimeType.apply("invalid")
@@ -84,25 +86,25 @@ class RegimeTypeSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
-    "yield the correct RegimeType id when unnapplied" in new RegimeTypeSetup {
+    "yield the correct RegimeType id when unnapplied" in {
 
-      val actualResult = RegimeType.unapply(regimeTypeModel)
+      val actualResult = RegimeType.unapply(MTDVAT)
       val expectedResult = "VAT"
 
       actualResult shouldBe expectedResult
     }
 
-    "read correctly from Json to the correct RegimeType" in new RegimeTypeSetup {
+    "read correctly from Json to the correct RegimeType" in {
 
       val actualResult = regimeTypeJson.as[RegimeType]
-      val expectedResult = regimeTypeModel
+      val expectedResult = MTDVAT
 
       actualResult shouldBe expectedResult
     }
 
-    "write to Json correctly" in new RegimeTypeSetup {
+    "write to Json correctly" in {
 
-      val actualResult = Json.toJson(regimeTypeModel)
+      val actualResult = Json.toJson(MTDVAT)
       val expectedResult = regimeTypeJson
 
       actualResult shouldBe expectedResult
