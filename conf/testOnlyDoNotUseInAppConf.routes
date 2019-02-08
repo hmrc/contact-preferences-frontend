@@ -10,4 +10,17 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
+
+# NOCSRF
+POST        /mtd-contact-preferences/test-only/populate-stub                     testOnly.controllers.DynamicStubProxyController.populateStub
+
+# NOCSRF
+POST        /mtd-contact-preferences/test-only/populate-schema                   testOnly.controllers.DynamicStubProxyController.populateSchema
+
+# NOCSRF
+DELETE      /mtd-contact-preferences/test-only/clear-stub                        testOnly.controllers.DynamicStubProxyController.clearStub
+
+# NOCSRF
+DELETE      /mtd-contact-preferences/test-only/clear-schema                      testOnly.controllers.DynamicStubProxyController.clearSchema
+
 ->         /                          prod.Routes
