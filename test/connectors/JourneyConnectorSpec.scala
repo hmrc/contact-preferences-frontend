@@ -17,7 +17,8 @@
 package connectors
 
 import assets.JourneyTestConstants._
-import connectors.httpParsers.JourneyHttpParser.NotFound
+import connectors.httpParsers.JourneyHttpParser.{NotFound, UnexpectedFailure}
+import play.mvc.Http.Status
 import utils.{MockHttpClient, TestUtils}
 
 class JourneyConnectorSpec extends TestUtils with MockHttpClient {
@@ -44,14 +45,32 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
 
     "getJourney is unsuccessful" should {
 
-      "return an ErrorModel" in {
+      "return a NotFound ErrorResponse" when {
 
-        mockHttpGet(Left(NotFound))
+        "the response status is NotFound" in {
 
-        val actualResult = await(TestJourneyConnector.getJourney("id"))
-        val expectedResult = Left(NotFound)
+          mockHttpGet(Left(NotFound))
 
-        actualResult shouldBe expectedResult
+          val actualResult = await(TestJourneyConnector.getJourney("id"))
+          val expectedResult = Left(NotFound)
+
+          actualResult shouldBe expectedResult
+        }
+      }
+
+      "return a UnexpectedError" when {
+
+        "there is a failed future and exception thrown" in {
+
+          mockHttpGetFailed()
+
+          val actualResult = await(TestJourneyConnector.getJourney("id"))
+          val expectedResult = Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, "Unexpected Error: I Died"))
+
+          actualResult shouldBe expectedResult
+
+        }
+
       }
     }
 

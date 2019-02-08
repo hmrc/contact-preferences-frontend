@@ -14,30 +14,19 @@
  * limitations under the License.
  */
 
-package connectors.mocks
+package services.mocks
 
-import connectors.JourneyConnector
 import connectors.httpParsers.JourneyHttpParser.Response
 import org.scalamock.scalatest.MockFactory
-import uk.gov.hmrc.http.HeaderCarrier
+import services.JourneyService
 import utils.TestUtils
 
-import scala.concurrent.{ExecutionContext, Future}
+trait MockJourneyService extends MockFactory with TestUtils {
 
-trait MockJourneyConnector extends MockFactory with TestUtils {
+  lazy val service = mock[JourneyService]
 
-  lazy val connector = mock[JourneyConnector]
-
-  def mockJourneyConnector(id: String)(response: Response): Unit = {
-    (connector.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
-      .expects(id, *, *)
-      .returns(Future.successful(response))
-  }
-
-  def mockJourneyConnectorFailed(id: String): Unit = {
-    (connector.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
-      .expects(id, *, *)
-      .returns(Future.failed(new Exception))
-  }
+//  def mockJourneyService(id: String)(response: Response): Unit = {
+//    (service.getJourney())
+//  }
 
 }

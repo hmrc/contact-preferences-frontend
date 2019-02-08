@@ -31,4 +31,10 @@ trait MockHttpClient extends MockFactory {
       .expects(*, *, *, *)
       .returns(Future.successful(response))
   }
+
+  def mockHttpGetFailed(): Unit = {
+    (mockHttpClient.GET[Any](_: String)(_: HttpReads[Any], _: HeaderCarrier, _: ExecutionContext))
+      .expects(*, *, *, *)
+      .returns(Future.failed(new Exception("I Died")))
+  }
 }
