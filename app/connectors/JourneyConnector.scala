@@ -24,7 +24,7 @@ import connectors.httpParsers.JourneyHttpParser._
 import play.api.Logger
 
 import scala.concurrent.{ExecutionContext, Future}
-
+import play.api.http.Status
 
 @Singleton
 class JourneyConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig) {
@@ -33,7 +33,11 @@ class JourneyConnector @Inject()(val http: HttpClient, implicit val appConfig: A
 
   def getJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
     Logger.debug(s"[JourneyConnector][getJourney] Calling backend to retrieve preference for JourneyID: $id\n${journeyUrl(id)}")
-    http.GET(journeyUrl(id))
+    http.GET(journeyUrl(id)).recover {
+      case e =>
+        Logger.error(s"[JourneyConnector][getJourney] Unexpected Error: ${e.getMessage}")
+        Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
+    }
   }
 
 }

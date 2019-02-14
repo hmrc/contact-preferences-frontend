@@ -22,6 +22,8 @@ import assets.BaseTestConstants._
 
 object JourneyTestConstants {
 
+  val journeyId = "abcjdjd-121414-ascacfsf"
+
   val identifierJson = JsString(VRN.value)
 
   val idJson = Json.obj(
@@ -52,7 +54,7 @@ object JourneyTestConstants {
 
   val idModel = Id(VRN, testVatNumber)
 
-  val regimeModel = Regime(MTDVAT, idModel)
+  val regimeModel = RegimeModel(MTDVAT, idModel)
 
   val journeyModelMax = Journey(
     regime = regimeModel,

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package testUtils
+package models
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import play.api.libs.json.{Format, Json}
 
-trait MaterializerSupport {
-  implicit val system = ActorSystem("Sys")
-  implicit val materializer = ActorMaterializer()
+case class RegimeModel(regimeType: RegimeType,
+                       identifier: Id)
+
+object RegimeModel {
+  implicit val format: Format[RegimeModel] = Json.format[RegimeModel]
 }

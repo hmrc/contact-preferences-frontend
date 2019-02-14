@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package services
 
-import play.api.libs.json.{Format, Json}
+import connectors.JourneyConnector
+import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.http.HeaderCarrier
+import connectors.httpParsers.JourneyHttpParser.Response
 
-case class Regime(regimeType: RegimeType,
-                  identifier: Id)
+import scala.concurrent.{ExecutionContext, Future}
 
-object Regime {
-  implicit val format: Format[Regime] = Json.format[Regime]
+@Singleton
+class JourneyService @Inject()(journeyConnector: JourneyConnector){
+
+  def getJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+    journeyConnector.getJourney(id)
+  }
 }

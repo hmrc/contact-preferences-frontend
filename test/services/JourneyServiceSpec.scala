@@ -14,43 +14,31 @@
  * limitations under the License.
  */
 
-package models
+package services
 
-import play.api.libs.json.{JsObject, Json}
-import utils.TestUtils
 import assets.JourneyTestConstants._
+import connectors.httpParsers.JourneyHttpParser.InvalidJson
+import connectors.mocks.MockJourneyConnector
+class JourneyServiceSpec extends MockJourneyConnector {
 
-class RegimeSpec extends TestUtils {
+  object TestJourneyService extends JourneyService(connector)
 
-  "Regime" should {
-    "contain a regime type" in {
+  "JourneyService" should {
 
-      val actualResult = regimeModel.regimeType
-      val expectedResult = MTDVAT
+    "return a Journey model when getJourney is successful" in {
 
-      actualResult shouldBe expectedResult
-    }
-
-    "contain an identifier" in {
-
-      val actualResult = regimeModel.identifier
-      val expectedResult = idModel
+      mockJourneyConnector("testID")(Right(journeyModelMax))
+      val actualResult = await(TestJourneyService.getJourney("testID"))
+      val expectedResult = Right(journeyModelMax)
 
       actualResult shouldBe expectedResult
     }
 
-    "read incoming json to a model" in {
+    "return an Error model when getJourney is unsuccessful" in {
 
-      val actualResult = regimeJson.as[Regime]
-      val expectedResult = regimeModel
-
-      actualResult shouldBe expectedResult
-    }
-
-    "write outgoing data to json" in {
-
-      val actualResult = Json.toJson(regimeModel)
-      val expectedResult = regimeJson
+      mockJourneyConnector("testID")(Left(InvalidJson))
+      val actualResult = await(TestJourneyService.getJourney("testID"))
+      val expectedResult = Left(InvalidJson)
 
       actualResult shouldBe expectedResult
     }

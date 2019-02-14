@@ -17,9 +17,10 @@
 package controllers
 
 import assets.BaseTestConstants.testVatNumber
+import assets.JourneyTestConstants.regimeModel
 import config.Constants
 import connectors.mocks.MockAuthConnector
-import controllers.actions.ContactPreferencesFrontendAuthorised
+import controllers.actions.AuthService
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.mvc.Results._
@@ -29,19 +30,14 @@ import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerTo
 import scala.concurrent.Future
 
 
-class ContactPreferencesFrontendAuthorisedSpec extends MockAuthConnector {
+class AuthServiceSpec extends MockAuthConnector {
 
-  object TestContactPreferencesAuthorised extends ContactPreferencesFrontendAuthorised(mockAuthConnector)
+  object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector)
 
-  def result: Future[Result] = TestContactPreferencesAuthorised.async(testVatNumber) {
+  def result: Future[Result] = TestContactPreferencesAuthorised.authorise(regimeModel) {
     implicit user =>
       Future.successful(Ok)
-  }(ec)(fakeRequest)
-
-  val authPredicate: Predicate =
-    Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
-      .withIdentifier(Constants.MtdContactPreferencesReferenceKey, testVatNumber)
-      .withDelegatedAuthRule(Constants.MtdContactPreferencesDelegatedAuth)
+  }(ec, fakeRequest)
 
   "The ContactPreferencesAuthorised.async method" should {
 
@@ -50,7 +46,7 @@ class ContactPreferencesFrontendAuthorisedSpec extends MockAuthConnector {
       "an authorised result is returned from the Auth Connector" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveMtdVatEnrolled(authPredicate)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe OK
         }
       }
@@ -61,7 +57,7 @@ class ContactPreferencesFrontendAuthorisedSpec extends MockAuthConnector {
       "they are Signed Up to MTD ContactPreferences" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveAgentServicesEnrolled(authPredicate)
+          mockAuthRetrieveAgentServicesEnrolled(vatAuthPredicate)
           status(result) shouldBe OK
         }
       }
@@ -72,7 +68,7 @@ class ContactPreferencesFrontendAuthorisedSpec extends MockAuthConnector {
       "a NoActiveSession exception is returned from the Auth Connector" should {
 
         "Return a unauthorised response" in {
-          mockAuthorise(authPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
           status(result) shouldBe UNAUTHORIZED
         }
       }
@@ -80,7 +76,7 @@ class ContactPreferencesFrontendAuthorisedSpec extends MockAuthConnector {
       "an InsufficientAuthority exception is returned from the Auth Connector" should {
 
         "Return a forbidden response" in {
-          mockAuthorise(authPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
           status(result) shouldBe FORBIDDEN
         }
       }

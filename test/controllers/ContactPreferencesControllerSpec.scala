@@ -16,56 +16,139 @@
 
 package controllers
 
+import assets.JourneyTestConstants.{journeyId, journeyModelMax}
+import connectors.httpParsers.JourneyHttpParser.NotFound
+import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
 import play.api.http.Status
+import play.api.mvc.Result
 import play.api.test.FakeRequest
+import services.mocks.MockJourneyService
+import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import utils.TestUtils
 
-class ContactPreferencesControllerSpec extends TestUtils {
+import scala.concurrent.Future
 
-  object TestContactPreferencesController extends ContactPreferencesController(messagesApi, mockAuthConnector, appConfig)
+class ContactPreferencesControllerSpec extends TestUtils with MockJourneyService with MockAuthService {
 
-  "ContactPreferencesController.show" should {
+  object TestContactPreferencesController extends ContactPreferencesController(messagesApi, mockAuthService, mockJourneyService, appConfig)
 
-    lazy val result = TestContactPreferencesController.show(fakeRequest)
+  "ContactPreferencesController.show" when {
 
-    "return an OK (200)" in {
-      status(result) shouldBe Status.OK
+    def result: Future[Result] = TestContactPreferencesController.show(journeyId)(fakeRequest)
+
+    "a journey can be retrieved from the backend" when {
+
+      "the user is authorised" should {
+
+        "return an OK (200)" in {
+          mockJourney(journeyId)(Right(journeyModelMax))
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+          status(result) shouldBe Status.OK
+        }
+      }
+
+      "the user is NOT authorised" should {
+
+        "return an FORBIDDEN (403)" in {
+          mockJourney(journeyId)(Right(journeyModelMax))
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+
+          status(result) shouldBe Status.FORBIDDEN
+        }
+      }
+
     }
+
+    "a journey can NOT be retrieved from the backend" when {
+
+      "return an NOT_FOUND (404)" in {
+        mockJourney(journeyId)(Left(NotFound))
+
+        status(result) shouldBe Status.NOT_FOUND
+      }
+
+    }
+
   }
 
   "ContactPreferencesController.submit" when {
 
-    "'Yes' option is entered" should {
+    "a journey can be retrieved from the backend" when {
 
-      lazy val result = TestContactPreferencesController.submit(FakeRequest("POST", "/").withFormUrlEncodedBody(
-        ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
-      ))
+      "the user is authorised" when {
 
-      "return an SEE_OTHER (303)" in {
-        status(result) shouldBe Status.SEE_OTHER
+        "'Yes' option is entered" should {
+
+          //TODO: Currently not fully implemented
+          "return an NOT_IMPLEMENTED (501)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+            val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
+            ))
+
+            status(result) shouldBe Status.NOT_IMPLEMENTED
+          }
+        }
+
+        "'No' option is entered" should {
+
+          //TODO: Currently not fully implemented
+          "return an NOT_IMPLEMENTED (501)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+            val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.yesNo -> YesNoMapping.option_no
+            ))
+
+            status(result) shouldBe Status.NOT_IMPLEMENTED
+          }
+        }
+
+        "no radio option is selected" should {
+
+          "return a BAD_REQUEST (400)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+            val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/"))
+
+            status(result) shouldBe Status.BAD_REQUEST
+          }
+        }
+      }
+
+      "the user is NOT authorised" should {
+
+        //TODO: Currently not fully implemented
+        "return an FORBIDDEN (403)" in {
+          mockJourney(journeyId)(Right(journeyModelMax))
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+
+          val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
+          ))
+
+          status(result) shouldBe Status.FORBIDDEN
+        }
       }
     }
 
-    "'No' option is entered" should {
+    "a journey can NOT be retrieved from the backend" when {
 
-      lazy val result = TestContactPreferencesController.submit(FakeRequest("POST", "/").withFormUrlEncodedBody(
-        ContactPreferencesForm.yesNo -> YesNoMapping.option_no
-      ))
+      "return an NOT_FOUND (404)" in {
+        mockJourney(journeyId)(Left(NotFound))
 
-      "return an SEE_OTHER (303)" in {
-        status(result) shouldBe Status.SEE_OTHER
-      }
-    }
+        val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+          ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
+        ))
 
-    "no option is entered" should {
-
-      lazy val result = TestContactPreferencesController.submit(FakeRequest("POST", "/"))
-
-      "return a BAD_REQUEST (400)" in {
-        status(result) shouldBe Status.BAD_REQUEST
+        status(result) shouldBe Status.NOT_FOUND
       }
     }
   }
-
 }

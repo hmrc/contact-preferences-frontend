@@ -2,5 +2,5 @@
 
 GET        /hello-world             controllers.HelloWorld.helloWorld
 
-GET        /contact-preferences     controllers.ContactPreferencesController.show
-POST       /contact-preferences     controllers.ContactPreferencesController.submit
+GET        /contact-preferences/:journeyId     controllers.ContactPreferencesController.show(journeyId: String)
+POST       /contact-preferences/:journeyId     controllers.ContactPreferencesController.submit(journeyId: String)

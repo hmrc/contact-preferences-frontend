@@ -30,14 +30,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext
 
 
-trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockFactory {
+trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   implicit lazy val fakeRequest = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
   lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = Messages(Lang("en-GB"), messagesApi)
   implicit lazy val appConfig = injector.instanceOf[AppConfig]
-  lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  implicit lazy val executionContext: ExecutionContext = injector.instanceOf[ExecutionContext]
-  implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
+  implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 }

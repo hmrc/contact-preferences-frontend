@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package utils
+package connectors.mocks
 
+import connectors.JourneyConnector
+import connectors.httpParsers.JourneyHttpParser.Response
 import org.scalamock.scalatest.MockFactory
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.TestUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockHttpClient extends MockFactory {
+trait MockJourneyConnector extends MockFactory with TestUtils {
 
-  lazy val mockHttpClient: HttpClient = mock[HttpClient]
+  lazy val connector = mock[JourneyConnector]
 
-  def mockHttpGet[A](response: A): Unit = {
-    (mockHttpClient.GET[A](_: String)(_: HttpReads[A], _: HeaderCarrier, _: ExecutionContext))
-      .expects(*, *, *, *)
+  def mockJourneyConnector(id: String)(response: Response): Unit = {
+    (connector.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(id, *, *)
       .returns(Future.successful(response))
   }
 
-  def mockHttpGetFailed(): Unit = {
-    (mockHttpClient.GET[Any](_: String)(_: HttpReads[Any], _: HeaderCarrier, _: ExecutionContext))
-      .expects(*, *, *, *)
-      .returns(Future.failed(new Exception("I Died")))
+  def mockJourneyConnectorFailed(id: String): Unit = {
+    (connector.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(id, *, *)
+      .returns(Future.failed(new Exception))
   }
+
 }
