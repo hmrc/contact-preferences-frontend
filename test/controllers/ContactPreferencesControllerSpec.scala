@@ -16,20 +16,26 @@
 
 package controllers
 
+import assets.JourneyTestConstants.{journeyId, journeyModelMax}
+import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
 import play.api.http.Status
 import play.api.test.FakeRequest
+import services.mocks.MockJourneyService
 import utils.TestUtils
 
-class ContactPreferencesControllerSpec extends TestUtils {
+class ContactPreferencesControllerSpec extends TestUtils with MockJourneyService with MockAuthService {
 
-  object TestContactPreferencesController extends ContactPreferencesController(messagesApi, mockAuthConnector, appConfig)
+  object TestContactPreferencesController extends ContactPreferencesController(messagesApi, mockAuthService, mockJourneyService, appConfig)
 
   "ContactPreferencesController.show" should {
 
-    lazy val result = TestContactPreferencesController.show(fakeRequest)
-
     "return an OK (200)" in {
+      mockJourney(journeyId)(Right(journeyModelMax))
+      mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+      val result = TestContactPreferencesController.show(journeyId)(fakeRequest)
+
       status(result) shouldBe Status.OK
     }
   }
@@ -38,34 +44,44 @@ class ContactPreferencesControllerSpec extends TestUtils {
 
     "'Yes' option is entered" should {
 
-      lazy val result = TestContactPreferencesController.submit(FakeRequest("POST", "/").withFormUrlEncodedBody(
-        ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
-      ))
-
       "return an SEE_OTHER (303)" in {
-        status(result) shouldBe Status.SEE_OTHER
+        mockJourney(journeyId)(Right(journeyModelMax))
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+        val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+          ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
+        ))
+
+        //TODO
+        status(result) shouldBe Status.NOT_IMPLEMENTED
       }
     }
 
     "'No' option is entered" should {
 
-      lazy val result = TestContactPreferencesController.submit(FakeRequest("POST", "/").withFormUrlEncodedBody(
-        ContactPreferencesForm.yesNo -> YesNoMapping.option_no
-      ))
-
       "return an SEE_OTHER (303)" in {
-        status(result) shouldBe Status.SEE_OTHER
+        mockJourney(journeyId)(Right(journeyModelMax))
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+        val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+          ContactPreferencesForm.yesNo -> YesNoMapping.option_no
+        ))
+
+        //TODO
+        status(result) shouldBe Status.NOT_IMPLEMENTED
       }
     }
 
     "no option is entered" should {
 
-      lazy val result = TestContactPreferencesController.submit(FakeRequest("POST", "/"))
-
       "return a BAD_REQUEST (400)" in {
+        mockJourney(journeyId)(Right(journeyModelMax))
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+
+        val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/"))
+
         status(result) shouldBe Status.BAD_REQUEST
       }
     }
   }
-
 }

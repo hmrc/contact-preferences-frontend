@@ -17,6 +17,7 @@
 package controllers
 
 import assets.BaseTestConstants.testVatNumber
+import assets.JourneyTestConstants.regimeModel
 import config.Constants
 import connectors.mocks.MockAuthConnector
 import controllers.actions.AuthService
@@ -33,10 +34,10 @@ class AuthServiceSpec extends MockAuthConnector {
 
   object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector)
 
-  def result: Future[Result] = TestContactPreferencesAuthorised.async(testVatNumber) {
+  def result: Future[Result] = TestContactPreferencesAuthorised.authorise(regimeModel) {
     implicit user =>
       Future.successful(Ok)
-  }(ec)(fakeRequest)
+  }(ec, fakeRequest)
 
   val authPredicate: Predicate =
     Enrolment(Constants.MtdContactPreferencesEnrolmentKey)

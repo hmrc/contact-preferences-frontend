@@ -17,6 +17,7 @@
 package views
 
 import assets.messages.{CommonMessages, ContactPreferencesMessages}
+import assets.JourneyTestConstants.journeyId
 import controllers.routes
 import forms.ContactPreferencesForm
 import utils.ViewTestUtils
@@ -43,7 +44,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
       lazy val document = parseView(views.html.contact_preferences(
         ContactPreferencesForm.contactPreferencesForm,
-        routes.ContactPreferencesController.submit())
+        routes.ContactPreferencesController.submit(journeyId))
       )
 
       s"have the correct document title" in {
@@ -83,7 +84,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
       lazy val document = parseView(views.html.contact_preferences(
         ContactPreferencesForm.contactPreferencesForm.bind(Map("yes_no" -> "")),
-        routes.ContactPreferencesController.submit())
+        routes.ContactPreferencesController.submit(journeyId))
       )
 
       s"have the correct document title" in {

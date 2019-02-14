@@ -39,7 +39,26 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit())))
+        Future.successful(Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit(id))))
+      }
+    }
+  }
+
+  val submit: String => Action[AnyContent] = id => Action.async { implicit request =>
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { _ =>
+        Future.successful(contactPreferencesForm.bindFromRequest.fold(
+          formWithErrors =>
+            BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit(id)))
+          ,{
+            case Yes =>
+              //TODO
+              NotImplemented
+            case No =>
+              //TODO
+              NotImplemented
+          }
+        ))
       }
     }
   }
@@ -49,19 +68,5 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
       case Right(journeyModel) => f(journeyModel)
       case Left(errorModel) => Future.successful(Status(errorModel.status)(errorModel.body))
     }
-  }
-
-  val submit: Action[AnyContent] = Action{ implicit request =>
-    contactPreferencesForm.bindFromRequest.fold(
-      formWithErrors =>
-        BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit())), {
-        case Yes =>
-          //TODO
-          Redirect(routes.ContactPreferencesController.submit())
-        case No =>
-          //TODO
-          Redirect(routes.ContactPreferencesController.submit())
-      }
-    )
   }
 }

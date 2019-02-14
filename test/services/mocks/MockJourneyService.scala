@@ -27,10 +27,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait MockJourneyService extends MockFactory with TestUtils {
 
-  lazy val service = mock[JourneyService]
+  lazy val mockJourneyService = mock[JourneyService]
 
-  def mockJourneyService(id: String)(response: Response): Unit = {
-    (service.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
+  def mockJourney(id: String)(response: Response): Unit = {
+    (mockJourneyService.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
       .expects(id, *, *)
       .returns(Future.successful(response))
   }

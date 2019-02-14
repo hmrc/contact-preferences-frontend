@@ -22,6 +22,8 @@ import assets.BaseTestConstants._
 
 object JourneyTestConstants {
 
+  val journeyId = "abcjdjd-121414-ascacfsf"
+
   val identifierJson = JsString(VRN.value)
 
   val idJson = Json.obj(
