@@ -44,6 +44,14 @@ class JourneyHttpParserSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
+    "return a DependentSystemsUnavailable Error when status is Service Unavailable (503)" in {
+
+      val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.SERVICE_UNAVAILABLE))
+      val expectedResult = Left(DependentSystemUnavailable)
+
+      actualResult shouldBe expectedResult
+    }
+
     "return an InvalidJson Error when status returned is OK (200) but JSON is invalid" in {
 
       val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.OK, Some(Json.obj())))

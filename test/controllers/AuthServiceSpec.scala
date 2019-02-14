@@ -39,11 +39,6 @@ class AuthServiceSpec extends MockAuthConnector {
       Future.successful(Ok)
   }(ec, fakeRequest)
 
-  val authPredicate: Predicate =
-    Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
-      .withIdentifier(Constants.MtdContactPreferencesReferenceKey, testVatNumber)
-      .withDelegatedAuthRule(Constants.MtdContactPreferencesDelegatedAuth)
-
   "The ContactPreferencesAuthorised.async method" should {
 
     "For a Principal User" when {
@@ -51,7 +46,7 @@ class AuthServiceSpec extends MockAuthConnector {
       "an authorised result is returned from the Auth Connector" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveMtdVatEnrolled(authPredicate)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe OK
         }
       }
@@ -62,7 +57,7 @@ class AuthServiceSpec extends MockAuthConnector {
       "they are Signed Up to MTD ContactPreferences" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveAgentServicesEnrolled(authPredicate)
+          mockAuthRetrieveAgentServicesEnrolled(vatAuthPredicate)
           status(result) shouldBe OK
         }
       }
@@ -73,7 +68,7 @@ class AuthServiceSpec extends MockAuthConnector {
       "a NoActiveSession exception is returned from the Auth Connector" should {
 
         "Return a unauthorised response" in {
-          mockAuthorise(authPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
           status(result) shouldBe UNAUTHORIZED
         }
       }
@@ -81,7 +76,7 @@ class AuthServiceSpec extends MockAuthConnector {
       "an InsufficientAuthority exception is returned from the Auth Connector" should {
 
         "Return a forbidden response" in {
-          mockAuthorise(authPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
           status(result) shouldBe FORBIDDEN
         }
       }
