@@ -25,7 +25,7 @@ class RegimeModelSpec extends TestUtils {
   "Regime" should {
     "contain a regime type" in {
 
-      val actualResult = regimeModel.regimeType
+      val actualResult = regimeModel.`type`
       val expectedResult = MTDVAT
 
       actualResult shouldBe expectedResult
