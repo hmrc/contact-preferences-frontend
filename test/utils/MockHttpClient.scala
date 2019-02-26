@@ -17,6 +17,7 @@
 package utils
 
 import org.scalamock.scalatest.MockFactory
+import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -26,15 +27,23 @@ trait MockHttpClient extends MockFactory {
 
   lazy val mockHttpClient: HttpClient = mock[HttpClient]
 
-  def mockHttpGet[A](response: A): Unit = {
+  def mockHttpGet[A](response: A): Unit =
     (mockHttpClient.GET[A](_: String)(_: HttpReads[A], _: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)
       .returns(Future.successful(response))
-  }
 
-  def mockHttpGetFailed(): Unit = {
+  def mockHttpGetFailed(): Unit =
     (mockHttpClient.GET[Any](_: String)(_: HttpReads[Any], _: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)
       .returns(Future.failed(new Exception("I Died")))
-  }
+
+  def mockHttpPut[I,O](data: I)(response: O): Unit =
+    (mockHttpClient.PUT[I,O](_: String, _: I)(_: Writes[I], _: HttpReads[O], _: HeaderCarrier, _: ExecutionContext))
+      .expects(*, data, *, *, *, *)
+      .returns(Future.successful(response))
+
+  def mockHttpPutFailed(): Unit =
+    (mockHttpClient.PUT[Any, Any](_: String, _: Any)(_: Writes[Any], _: HttpReads[Any], _: HeaderCarrier, _: ExecutionContext))
+      .expects(*, *, *, *, *, *)
+      .returns(Future.failed(new Exception("I Died")))
 }
