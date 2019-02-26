@@ -32,9 +32,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthService @Inject()(val authConnector: AuthConnector) extends BaseController with AuthorisedFunctions {
 
   private def delegatedAuthRule(regime: RegimeModel): Enrolment =
-    Enrolment(regime.regimeType.enrolmentId)
+    Enrolment(regime.`type`.enrolmentId)
       .withIdentifier(regime.identifier.key.value, regime.identifier.value)
-      .withDelegatedAuthRule(regime.regimeType.delegatedAuthRule)
+      .withDelegatedAuthRule(regime.`type`.delegatedAuthRule)
 
   private val arn: Enrolments => Option[String] = _.getEnrolment(Constants.AgentServicesEnrolment) flatMap {
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)

@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class RegimeModel(regimeType: RegimeType,
+case class RegimeModel(`type`: RegimeType,
                        identifier: Id)
 
 object RegimeModel {

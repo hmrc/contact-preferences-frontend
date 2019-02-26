@@ -34,7 +34,7 @@ object JourneyTestConstants {
   val regimeTypeJson: JsString = JsString(MTDVAT.id)
 
   val regimeJson = Json.obj(
-    "regimeType" -> regimeTypeJson,
+    "type" -> regimeTypeJson,
     "identifier" -> idJson
   )
 
