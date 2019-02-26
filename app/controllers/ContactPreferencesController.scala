@@ -21,10 +21,10 @@ import config.AppConfig
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
-import models.{Journey, No, Yes}
+import models._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.JourneyService
+import services.{JourneyService, PreferenceService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
 
@@ -34,6 +34,7 @@ import scala.concurrent.Future
 class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              authService: AuthService,
                                              journeyService: JourneyService,
+                                             preferenceService: PreferenceService,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
@@ -47,18 +48,17 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val submit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(contactPreferencesForm.bindFromRequest.fold(
+        contactPreferencesForm.bindFromRequest.fold(
           formWithErrors =>
-            BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit(id)))
-          ,{
-            case Yes =>
-              //TODO
-              NotImplemented
-            case No =>
-              //TODO
-              NotImplemented
+            Future.successful(BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit(id)))),
+          answer => {
+            val preference = if (answer == Yes) Digital else Paper
+            preferenceService.storeJourneyPreference(id, preference).map {
+              case Right(_) => Redirect(journeyModel.continueUrl)
+              case Left(err) => Status(err.status)(err.body)
+            }
           }
-        ))
+        )
       }
     }
   }
