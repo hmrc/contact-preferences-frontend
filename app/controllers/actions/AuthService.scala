@@ -22,14 +22,14 @@ import models.RegimeModel
 import models.requests.User
 import play.api.Logger
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.retrieve.{Retrievals, ~}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
-class AuthService @Inject()(val authConnector: AuthConnector) extends BaseController with AuthorisedFunctions {
+class AuthService @Inject()(val authConnector: AuthConnector) extends FrontendController with AuthorisedFunctions {
 
   private def delegatedAuthRule(regime: RegimeModel): Enrolment =
     Enrolment(regime.`type`.enrolmentId)
@@ -40,7 +40,7 @@ class AuthService @Inject()(val authConnector: AuthConnector) extends BaseContro
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
-  def authorise(regime: RegimeModel)(f: User[_] => Future[Result])(implicit ec: ExecutionContext, request: Request[_]): Future[Result] =
+  def authorise(regime: RegimeModel)(f: User[_] => Future[Result])(implicit request : Request[_]): Future[Result] =
     authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) {
       enrolments =>
         f(User(regime.identifier.value, arn(enrolments))(request))

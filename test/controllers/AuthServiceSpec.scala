@@ -16,16 +16,13 @@
 
 package controllers
 
-import assets.BaseTestConstants.testVatNumber
 import assets.JourneyTestConstants.regimeModel
-import config.Constants
 import connectors.mocks.MockAuthConnector
 import controllers.actions.AuthService
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerToken}
+import uk.gov.hmrc.auth.core.{InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.Future
 
@@ -37,7 +34,7 @@ class AuthServiceSpec extends MockAuthConnector {
   def result: Future[Result] = TestContactPreferencesAuthorised.authorise(regimeModel) {
     implicit user =>
       Future.successful(Ok)
-  }(ec, fakeRequest)
+  }
 
   "The ContactPreferencesAuthorised.async method" should {
 
