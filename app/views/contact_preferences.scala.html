@@ -21,23 +21,17 @@
 @import models.YesNo
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@(contactPreferencesForm: Form[YesNo], postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(contactPreferencesForm: Form[YesNo], email: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = Messages("contactPreferences.title"), bodyClasses = None, showSignOutLink = false, form = Some(contactPreferencesForm)) {
+@main_template(title = messages("contactPreferences.title"), bodyClasses = None, showSignOutLink = false, form = Some(contactPreferencesForm)) {
 
     @summaryErrorHelper(contactPreferencesForm)
 
-    <h1 class="heading-large">@Messages("contactPreferences.title")</h1>
+    <h1 class="heading-large">@messages("contactPreferences.title")</h1>
 
-    <p>@Messages("contactPreferences.text") <span class="bold">@Messages("contactPreferences.email")</span></p>
+    <p>@messages("contactPreferences.text.p1")</p>
 
-    <div class="panel panel-border-wide">
-
-       <p>@Messages("contactPreferences.text.p1")</p>
-
-    </div>
-
-    <p>@Messages("contactPreferences.text.p2")</p>
+    <p>@messages("contactPreferences.text.p2")</p>
 
        @form(action = postAction) {
 
@@ -45,14 +39,18 @@
           parentForm = contactPreferencesForm,
           inline = false,
           options = Seq(
-              (option_yes, Messages("contactPreferences.radio.yes")),
-              (option_no, Messages("contactPreferences.radio.no"))
+              (option_yes, messages("contactPreferences.radio.yes", emailMessage)),
+              (option_no, messages("contactPreferences.radio.no"))
           ),
-          legend = Messages("contactPreferences.title"),
+          legend = messages("contactPreferences.title"),
           field = contactPreferencesForm(yesNo)
        )
 
        @continueButton()
     }
 
+}
+
+@emailMessage = {
+    @email.map(address => messages("contactPreferences.email.to", address))
 }

@@ -41,7 +41,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit(id))))
+        Future.successful(Ok(contact_preferences(contactPreferencesForm, journeyModel.email, routes.ContactPreferencesController.submit(id))))
       }
     }
   }
@@ -51,7 +51,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
       authService.authorise(journeyModel.regime) { _ =>
         contactPreferencesForm.bindFromRequest.fold(
           formWithErrors =>
-            Future.successful(BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit(id)))),
+            Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id)))),
           answer => {
             val preference = if (answer == Yes) Digital else Paper
             preferenceService.storeJourneyPreference(id, preference).map {
