@@ -12,15 +12,19 @@
 # Add all the application routes to the prod.routes file
 
 # NOCSRF
-POST        /mtd-contact-preferences/test-only/populate-stub                     testOnly.controllers.DynamicStubProxyController.populateStub
+POST        /contact-preferences/test-only/populate-stub                     testOnly.controllers.DynamicStubProxyController.populateStub
 
 # NOCSRF
-POST        /mtd-contact-preferences/test-only/populate-schema                   testOnly.controllers.DynamicStubProxyController.populateSchema
+POST        /contact-preferences/test-only/populate-schema                   testOnly.controllers.DynamicStubProxyController.populateSchema
 
 # NOCSRF
-DELETE      /mtd-contact-preferences/test-only/clear-stub                        testOnly.controllers.DynamicStubProxyController.clearStub
+DELETE      /contact-preferences/test-only/clear-stub                        testOnly.controllers.DynamicStubProxyController.clearStub
 
 # NOCSRF
-DELETE      /mtd-contact-preferences/test-only/clear-schema                      testOnly.controllers.DynamicStubProxyController.clearSchema
+DELETE      /contact-preferences/test-only/clear-schema                      testOnly.controllers.DynamicStubProxyController.clearSchema
+
+GET         /contact-preferences/test-only/simulate-journey                  testOnly.controllers.SimulateJourneyController.startJourneyShow
+POST        /contact-preferences/test-only/simulate-journey                  testOnly.controllers.SimulateJourneyController.startJourneySubmit
+GET         /contact-preferences/test-only/simulate-success                  testOnly.controllers.SimulateJourneyController.success
 
 ->         /                          prod.Routes

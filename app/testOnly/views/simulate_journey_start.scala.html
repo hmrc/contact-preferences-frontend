@@ -1,0 +1,79 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.AppConfig
+@import templates._
+@import testOnly.forms.SimulateJourneyForm._
+@import models.Journey
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@(journeyForm: Form[Journey], postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+
+@js = {
+    <script>
+        function setIdentifierValue() {
+            $("#identifier").html($("#regimeId").val() + " Value:");
+        }
+        $(document).ready(setIdentifierValue);
+        $("#regimeId").change(setIdentifierValue);
+    </script>
+}
+
+@main_template(title = "Simulate Contact Preference Journey", bodyClasses = None, showSignOutLink = false, form = Some(journeyForm), scriptElem = Some(js)) {
+
+    @summaryErrorHelper(journeyForm)
+
+    <h1 class="heading-medium">Simulate Contact Preference Journey</h1>
+
+    @form(action = postAction) {
+
+        <div class="form-group" style="border-radius:20px;padding:0 20px 20px 20px;background:#ececec;">
+            <fieldset>
+                <legend class="visuallyhidden">Tax Regime</legend>
+                    <h3>Regime Type:</h3>
+                    @dropdown(
+                        journeyForm(regime),
+                        Seq(
+                            ("VAT", "MTD VAT")
+                        ),
+                        false,
+                        '_labelClass -> "visuallyhidden"
+                    )
+                 <h3>Regime Identifier:</h3>
+                    @dropdown(
+                        journeyForm(regimeId),
+                        Seq(
+                            ("VRN", "VRN")
+                        ),
+                        false,
+                        '_labelClass -> "visuallyhidden"
+                    )
+
+                    <h3 id="identifier">Identifier Value:</h3>
+                    @input(journeyForm(regimeIdValue))
+            </fieldset>
+
+            <h3>Email (Optional):</h3>
+            @input(journeyForm(email))
+
+            <h3>ContinueURL:</h3>
+            <input style="width:100%;border:none;background:#ececec;" type="text" readonly id="@continueUrl" name="@continueUrl" value="@testOnly.controllers.routes.SimulateJourneyController.success().url">
+        </div>
+
+        @continueButton()
+    }
+
+}
