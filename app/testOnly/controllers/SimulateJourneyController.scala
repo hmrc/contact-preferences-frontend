@@ -16,7 +16,7 @@
 
 package testOnly.controllers
 
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
@@ -30,6 +30,7 @@ import scala.concurrent.Future
 
 @Singleton
 class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPreferencesConnector,
+                                          errorHandler: ErrorHandler,
                                           val messagesApi: MessagesApi,
                                           implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
@@ -41,7 +42,9 @@ class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPre
     preferenceId.fold(Future.successful(BadRequest("No preferenceId Query String provided!!!"))) { id =>
       contactPreferenceConnector.getPreference(id).map {
         case Right(data) => Ok(simulate_journey_success(data))
-        case Left(err) => Status(err.status)(err.body)
+        case Left(err) => InternalServerError(errorHandler.standardErrorTemplate(
+          "Error","Unexpected Error",s"Status: ${err.status} Message: ${err.body}"
+        ))
       }
     }
   }
@@ -53,7 +56,9 @@ class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPre
       data => {
         contactPreferenceConnector.startJourney(data).map {
           case Right(Success(url)) => Redirect(url)
-          case Left(err) => Status(err.status)(err.body)
+          case Left(err) => InternalServerError(errorHandler.standardErrorTemplate(
+            "Error","Unexpected Error",s"Status: ${err.status} Message: ${err.body}"
+          ))
         }
       }
     )
