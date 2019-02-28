@@ -14,9 +14,11 @@
  * limitations under the License.
  *@
 
-@import config.AppConfig
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = "Hello from contact-preferences-frontend", bodyClasses = None) {
-    <h1>Hello from contact-preferences-frontend !</h1>
+@views.html.main_template(title = messages("unauthorised.title"), bodyClasses = None) {
+
+  <h1 class="heading-large">@messages("unauthorised.title")</h1>
+
+  <p>@messages("unauthorised.instructions")</p>
 }

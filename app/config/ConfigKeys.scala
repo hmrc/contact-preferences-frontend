@@ -34,4 +34,7 @@ object ConfigKeys {
 
   val contactPreferencesService: String = "contact-preferences"
 
+  val appName: String = "appName"
+  val signInBaseUrl: String = "signIn.url"
+
 }

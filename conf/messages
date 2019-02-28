@@ -8,6 +8,10 @@ feedback.before = This is a new service – your
 feedback.link = feedback
 feedback.after = will help us to improve it.
 
+# Unauthorised
+unauthorised.title = Unauthorised access
+unauthorised.instructions = You are unauthorised from making changes to the contact preference.
+
 contactPreferences.title = Does the business want to receive VAT email notifications?
 contactPreferences.text = When the business has a new message about VAT in its HMRC account, we can let you know by sending an email to
 contactPreferences.email = yourname@company.com

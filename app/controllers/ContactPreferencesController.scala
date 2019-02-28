@@ -17,12 +17,11 @@
 package controllers
 
 
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{JourneyService, PreferenceService}
@@ -36,6 +35,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              authService: AuthService,
                                              journeyService: JourneyService,
                                              preferenceService: PreferenceService,
+                                             errorHandler: ErrorHandler,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
@@ -56,7 +56,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
             val preference = if (answer == Yes) Digital else Paper
             preferenceService.storeJourneyPreference(id, preference).map {
               case Right(_) => Redirect(journeyModel.continueUrl)
-              case Left(err) => Status(err.status)(err.body)
+              case Left(_) => errorHandler.showInternalServerError
             }
           }
         )
@@ -67,7 +67,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
     journeyService.getJourney(id) flatMap {
       case Right(journeyModel) => f(journeyModel)
-      case Left(errorModel) => Future.successful(Status(errorModel.status)(errorModel.body))
+      case Left(_) => Future.successful(errorHandler.showInternalServerError)
     }
   }
 }

@@ -16,11 +16,12 @@
 
 package controllers.actions
 
-import config.Constants
+import config.{AppConfig, Constants}
 import javax.inject.{Inject, Singleton}
 import models.RegimeModel
 import models.requests.User
 import play.api.Logger
+import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
@@ -29,7 +30,8 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import scala.concurrent.Future
 
 @Singleton
-class AuthService @Inject()(val authConnector: AuthConnector) extends FrontendController with AuthorisedFunctions {
+class AuthService @Inject()(val authConnector: AuthConnector, implicit val appConfig: AppConfig)
+  extends FrontendController with AuthorisedFunctions {
 
   private def delegatedAuthRule(regime: RegimeModel): Enrolment =
     Enrolment(regime.`type`.enrolmentId)
@@ -40,17 +42,17 @@ class AuthService @Inject()(val authConnector: AuthConnector) extends FrontendCo
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
-  def authorise(regime: RegimeModel)(f: User[_] => Future[Result])(implicit request : Request[_]): Future[Result] =
+  def authorise(regime: RegimeModel)(f: User[_] => Future[Result])(implicit request : Request[_], messages: Messages): Future[Result] =
     authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) {
       enrolments =>
         f(User(regime.identifier.value, arn(enrolments))(request))
     } recover {
       case _: NoActiveSession =>
         Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")
-        Unauthorized
+        Redirect(appConfig.signInUrl)
       case _: AuthorisationException =>
         Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
-        Forbidden
-  }
+        Forbidden(views.html.unauthorised())
+    }
 
 }

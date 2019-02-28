@@ -16,7 +16,7 @@
 
 package utils
 
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames
@@ -37,6 +37,7 @@ trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEac
   lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = Messages(Lang("en-GB"), messagesApi)
   implicit lazy val appConfig = injector.instanceOf[AppConfig]
+  lazy val errorHandler = injector.instanceOf[ErrorHandler]
   implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
   implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 

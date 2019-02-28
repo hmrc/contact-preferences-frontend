@@ -16,16 +16,11 @@
 
 package controllers.mocks
 
-import config.Constants
-import assets.BaseTestConstants.testVatNumber
 import connectors.mocks.MockAuthConnector
 import controllers.actions.AuthService
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, Retrievals}
-import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 
 trait MockAuthService extends MockAuthConnector {
 
-  lazy val mockAuthService = new AuthService(mockAuthConnector)
+  lazy val mockAuthService = new AuthService(mockAuthConnector, appConfig)
 
 }

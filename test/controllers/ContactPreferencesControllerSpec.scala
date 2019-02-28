@@ -22,7 +22,7 @@ import connectors.httpParsers.StorePreferenceHttpParser.{InvalidPreferencePayloa
 import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
 import models.{Digital, Paper}
-import play.api.http.{HeaderNames, Status}
+import play.api.http.Status
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import services.mocks.{MockJourneyService, MockPreferenceService}
@@ -34,7 +34,7 @@ import scala.concurrent.Future
 class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceService with MockJourneyService with MockAuthService {
 
   object TestContactPreferencesController extends ContactPreferencesController(
-    messagesApi, mockAuthService, mockJourneyService, mockPreferenceService, appConfig
+    messagesApi, mockAuthService, mockJourneyService, mockPreferenceService, errorHandler, appConfig
   )
 
   "ContactPreferencesController.show" when {
@@ -70,7 +70,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
       "return an NOT_FOUND (404)" in {
         mockJourney(journeyId)(Left(NotFound))
 
-        status(result) shouldBe Status.NOT_FOUND
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
       }
 
     }
@@ -117,11 +117,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
               mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
               mockStoreJourneyPreference(journeyId, Digital)(Left(InvalidPreferencePayload))
 
-              status(result) shouldBe InvalidPreferencePayload.status
-            }
-
-            "Return the appropriate error message" in {
-              await(bodyOf(result)) shouldBe InvalidPreferencePayload.body
+              status(result) shouldBe Status.INTERNAL_SERVER_ERROR
             }
           }
         }
@@ -160,11 +156,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
               mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
               mockStoreJourneyPreference(journeyId, Paper)(Left(InvalidPreferencePayload))
 
-              status(result) shouldBe InvalidPreferencePayload.status
-            }
-
-            "Return the appropriate error message" in {
-              await(bodyOf(result)) shouldBe InvalidPreferencePayload.body
+              status(result) shouldBe Status.INTERNAL_SERVER_ERROR
             }
           }
         }
@@ -206,7 +198,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
           ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
         ))
 
-        status(result) shouldBe Status.NOT_FOUND
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
       }
     }
   }

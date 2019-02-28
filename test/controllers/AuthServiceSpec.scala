@@ -29,7 +29,7 @@ import scala.concurrent.Future
 
 class AuthServiceSpec extends MockAuthConnector {
 
-  object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector)
+  object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector, appConfig)
 
   def result: Future[Result] = TestContactPreferencesAuthorised.authorise(regimeModel) {
     implicit user =>
@@ -64,9 +64,14 @@ class AuthServiceSpec extends MockAuthConnector {
 
       "a NoActiveSession exception is returned from the Auth Connector" should {
 
-        "Return a unauthorised response" in {
+        "Return a SEE_OTHER response" in {
           mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
-          status(result) shouldBe UNAUTHORIZED
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "Redirect to GG Sign In" in {
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          redirectLocation(result) shouldBe Some(appConfig.signInUrl)
         }
       }
 
