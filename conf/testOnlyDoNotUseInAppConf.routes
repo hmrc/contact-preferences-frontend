@@ -25,6 +25,6 @@ DELETE      /contact-preferences/test-only/clear-schema                      tes
 
 GET         /contact-preferences/test-only/simulate-journey                  testOnly.controllers.SimulateJourneyController.startJourneyShow
 POST        /contact-preferences/test-only/simulate-journey                  testOnly.controllers.SimulateJourneyController.startJourneySubmit
-GET         /contact-preferences/test-only/simulate-success                  testOnly.controllers.SimulateJourneyController.success
+GET         /contact-preferences/test-only/simulate-success                  testOnly.controllers.SimulateJourneyController.success(preferenceId: Option[String] ?= None)
 
 ->         /                          prod.Routes

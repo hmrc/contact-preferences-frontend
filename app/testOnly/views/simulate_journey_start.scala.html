@@ -70,7 +70,7 @@
             @input(journeyForm(email))
 
             <h3>ContinueURL:</h3>
-            <input style="width:100%;border:none;background:#ececec;" type="text" readonly id="@continueUrl" name="@continueUrl" value="@testOnly.controllers.routes.SimulateJourneyController.success().url">
+            <input style="width:100%;border:none;background:#ececec;" type="text" readonly id="@continueUrl" name="@continueUrl" value='@testOnly.controllers.routes.SimulateJourneyController.success().url'>
         </div>
 
         @continueButton()

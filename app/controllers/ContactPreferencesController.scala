@@ -55,7 +55,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
           answer => {
             val preference = if (answer == Yes) Digital else Paper
             preferenceService.storeJourneyPreference(id, preference).map {
-              case Right(_) => Redirect(journeyModel.continueUrl)
+              case Right(_) => Redirect(journeyModel.continueUrl, Map("preferenceId" -> Seq(id)))
               case Left(_) => errorHandler.showInternalServerError
             }
           }

@@ -101,7 +101,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
             }
 
             "redirect to the continueUrl posted as part of the JourneyModel" in {
-              redirectLocation(result) shouldBe Some(journeyModelMax.continueUrl)
+              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
             }
           }
 
@@ -140,7 +140,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
             }
 
             "redirect to the continueUrl posted as part of the JourneyModel" in {
-              redirectLocation(result) shouldBe Some(journeyModelMax.continueUrl)
+              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
             }
           }
 

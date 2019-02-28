@@ -37,10 +37,12 @@ class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPre
     Ok(simulate_journey_start(simulateJourneyForm, testOnly.controllers.routes.SimulateJourneyController.startJourneySubmit()))
   }
 
-  val success: Action[AnyContent] = Action.async { implicit request =>
-    contactPreferenceConnector.getPreference(request.session.get("CONTACT_PREFS_JOURNEY_ID").getOrElse("")).map {
-      case Right(data) => Ok(simulate_journey_success(data))
-      case Left(err) => Status(err.status)(err.body)
+  def success(preferenceId: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    preferenceId.fold(Future.successful(BadRequest("No preferenceId Query String provided!!!"))) { id =>
+      contactPreferenceConnector.getPreference(id).map {
+        case Right(data) => Ok(simulate_journey_success(data))
+        case Left(err) => Status(err.status)(err.body)
+      }
     }
   }
 
@@ -50,7 +52,7 @@ class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPre
         Future.successful(BadRequest(simulate_journey_start(formWithErrors, testOnly.controllers.routes.SimulateJourneyController.startJourneySubmit()))),
       data => {
         contactPreferenceConnector.startJourney(data).map {
-          case Right(Success(url)) => Redirect(url).addingToSession("CONTACT_PREFS_JOURNEY_ID" -> url.split("/").last)
+          case Right(Success(url)) => Redirect(url)
           case Left(err) => Status(err.status)(err.body)
         }
       }
