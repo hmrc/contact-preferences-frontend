@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.AppConfig
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+package services
 
-@main_template(title = "Hello from contact-preferences-frontend", bodyClasses = None) {
-    <h1>Hello from contact-preferences-frontend !</h1>
+import connectors.PreferenceConnector
+import connectors.httpParsers.StorePreferenceHttpParser.Response
+import javax.inject.{Inject, Singleton}
+import models.Preference
+import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.{ExecutionContext, Future}
+
+@Singleton
+class PreferenceService @Inject()(preferenceConnector: PreferenceConnector){
+
+  def storeJourneyPreference(id: String, preference: Preference)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+    preferenceConnector.storeJourneyPreference(id, preference)
+  }
 }

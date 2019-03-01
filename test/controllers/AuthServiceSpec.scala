@@ -16,28 +16,25 @@
 
 package controllers
 
-import assets.BaseTestConstants.testVatNumber
 import assets.JourneyTestConstants.regimeModel
-import config.Constants
 import connectors.mocks.MockAuthConnector
 import controllers.actions.AuthService
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerToken}
+import uk.gov.hmrc.auth.core.{InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.Future
 
 
 class AuthServiceSpec extends MockAuthConnector {
 
-  object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector)
+  object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector, appConfig)
 
   def result: Future[Result] = TestContactPreferencesAuthorised.authorise(regimeModel) {
     implicit user =>
       Future.successful(Ok)
-  }(ec, fakeRequest)
+  }
 
   "The ContactPreferencesAuthorised.async method" should {
 
@@ -67,9 +64,14 @@ class AuthServiceSpec extends MockAuthConnector {
 
       "a NoActiveSession exception is returned from the Auth Connector" should {
 
-        "Return a unauthorised response" in {
+        "Return a SEE_OTHER response" in {
           mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
-          status(result) shouldBe UNAUTHORIZED
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "Redirect to GG Sign In" in {
+          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          redirectLocation(result) shouldBe Some(appConfig.signInUrl)
         }
       }
 

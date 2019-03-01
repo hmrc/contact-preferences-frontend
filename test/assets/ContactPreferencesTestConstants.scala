@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package controllers.mocks
+package assets
 
-import connectors.mocks.MockAuthConnector
-import controllers.actions.AuthService
+import models.{ContactPreferenceModel, Digital, Paper}
+import play.api.libs.json.{JsObject, Json}
 
-trait MockAuthService extends MockAuthConnector {
+object ContactPreferencesTestConstants {
 
-  lazy val mockAuthService = new AuthService(mockAuthConnector, appConfig)
+  val digitalPreferenceJson: JsObject = Json.obj("preference" ->  Digital.value)
+  val digitalPreferenceModel = ContactPreferenceModel(Digital)
+
+  val paperPreferenceJson: JsObject = Json.obj("preference" ->  Paper.value)
+  val paperPreferenceModel = ContactPreferenceModel(Paper)
 
 }

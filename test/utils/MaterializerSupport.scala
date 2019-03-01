@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.mocks
+package utils
 
-import connectors.mocks.MockAuthConnector
-import controllers.actions.AuthService
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 
-trait MockAuthService extends MockAuthConnector {
-
-  lazy val mockAuthService = new AuthService(mockAuthConnector, appConfig)
-
+trait MaterializerSupport {
+  implicit val system = ActorSystem("Sys")
+  implicit val materializer = ActorMaterializer()
 }

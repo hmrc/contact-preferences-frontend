@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers.mocks
+package models
 
-import connectors.mocks.MockAuthConnector
-import controllers.actions.AuthService
+import play.api.libs.json._
 
-trait MockAuthService extends MockAuthConnector {
+case class ContactPreferenceModel(preference: Preference)
 
-  lazy val mockAuthService = new AuthService(mockAuthConnector, appConfig)
-
+object ContactPreferenceModel {
+  implicit val format: Format[ContactPreferenceModel] = Json.format[ContactPreferenceModel]
 }
+

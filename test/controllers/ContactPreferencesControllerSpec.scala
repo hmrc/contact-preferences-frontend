@@ -17,21 +17,28 @@
 package controllers
 
 import assets.JourneyTestConstants.{journeyId, journeyModelMax}
+import audit.mocks.MockAuditConnector
+import audit.models.ContactPreferenceAuditModel
 import connectors.httpParsers.JourneyHttpParser.NotFound
+import connectors.httpParsers.StorePreferenceHttpParser.{InvalidPreferencePayload, Success}
 import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
+import models.{Digital, Paper}
 import play.api.http.Status
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import services.mocks.MockJourneyService
+import services.mocks.{MockJourneyService, MockPreferenceService}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import utils.TestUtils
 
 import scala.concurrent.Future
 
-class ContactPreferencesControllerSpec extends TestUtils with MockJourneyService with MockAuthService {
+class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceService
+  with MockJourneyService with MockAuthService with MockAuditConnector {
 
-  object TestContactPreferencesController extends ContactPreferencesController(messagesApi, mockAuthService, mockJourneyService, appConfig)
+  object TestContactPreferencesController extends ContactPreferencesController(
+    messagesApi, mockAuthService, mockJourneyService, mockPreferenceService, errorHandler, mockAuditConnector, appConfig
+  )
 
   "ContactPreferencesController.show" when {
 
@@ -66,7 +73,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockJourneyService
       "return an NOT_FOUND (404)" in {
         mockJourney(journeyId)(Left(NotFound))
 
-        status(result) shouldBe Status.NOT_FOUND
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
       }
 
     }
@@ -79,33 +86,121 @@ class ContactPreferencesControllerSpec extends TestUtils with MockJourneyService
 
       "the user is authorised" when {
 
-        "'Yes' option is entered" should {
+        "'Yes' option is entered" when {
 
-          //TODO: Currently not fully implemented
-          "return an NOT_IMPLEMENTED (501)" in {
-            mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          "A success response is returned from the PreferenceService" should {
 
-            val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
             ))
 
-            status(result) shouldBe Status.NOT_IMPLEMENTED
+            "return an SEE_OTHER (303) status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockStoreJourneyPreference(journeyId, Digital)(Right(Success))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Digital
+                )
+              )
+
+              status(result) shouldBe Status.SEE_OTHER
+            }
+
+            "redirect to the continueUrl posted as part of the JourneyModel" in {
+              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+            }
+          }
+
+          "An error response is returned from the PreferenceService" should {
+
+            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
+            ))
+
+            "return the error status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockStoreJourneyPreference(journeyId, Digital)(Left(InvalidPreferencePayload))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Digital
+                )
+              )
+
+              status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+            }
           }
         }
 
-        "'No' option is entered" should {
+        "'No' option is entered" when {
 
-          //TODO: Currently not fully implemented
-          "return an NOT_IMPLEMENTED (501)" in {
-            mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          "A success response is returned from the PreferenceService" should {
 
-            val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_no
             ))
 
-            status(result) shouldBe Status.NOT_IMPLEMENTED
+            "return an SEE_OTHER (303) status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockStoreJourneyPreference(journeyId, Paper)(Right(Success))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Paper
+                )
+              )
+
+              status(result) shouldBe Status.SEE_OTHER
+            }
+
+            "redirect to the continueUrl posted as part of the JourneyModel" in {
+              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+            }
+          }
+
+          "An error response is returned from the PreferenceService" should {
+
+            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.yesNo -> YesNoMapping.option_no
+            ))
+
+            "return the error status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockStoreJourneyPreference(journeyId, Paper)(Left(InvalidPreferencePayload))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Paper
+                )
+              )
+
+              status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+            }
           }
         }
 
@@ -124,7 +219,6 @@ class ContactPreferencesControllerSpec extends TestUtils with MockJourneyService
 
       "the user is NOT authorised" should {
 
-        //TODO: Currently not fully implemented
         "return an FORBIDDEN (403)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
           mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
@@ -147,7 +241,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockJourneyService
           ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
         ))
 
-        status(result) shouldBe Status.NOT_FOUND
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
       }
     }
   }

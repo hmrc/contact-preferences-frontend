@@ -16,27 +16,31 @@
 
 package utils
 
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.HeaderNames
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.Injector
+import play.api.mvc.Result
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.test.UnitSpec
-import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.test.UnitSpec
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 
-trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
+trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MaterializerSupport {
 
   implicit lazy val fakeRequest = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
   lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = Messages(Lang("en-GB"), messagesApi)
   implicit lazy val appConfig = injector.instanceOf[AppConfig]
+  lazy val errorHandler = injector.instanceOf[ErrorHandler]
   implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
   implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+
+  def redirectLocation(result: Result): Option[String] = result.header.headers.get(HeaderNames.LOCATION)
+  def redirectLocation(result: Future[Result]): Option[String] = result.header.headers.get(HeaderNames.LOCATION)
 }

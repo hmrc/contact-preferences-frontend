@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package utils
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc._
+import play.api.data.validation.ValidationError
+import play.api.libs.json._
 
-import scala.concurrent.Future
-import play.api.i18n.{I18nSupport, MessagesApi}
-import config.AppConfig
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.hello_world
+trait JsonSugar {
 
-@Singleton
-class HelloWorld @Inject()(val messagesApi: MessagesApi, implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
+  def jsonObjNoNulls(fields: (String, Json.JsValueWrapper)*): JsObject =
+    JsObject(Json.obj(fields:_*).fields.filterNot(_._2 == JsNull))
 
-  val helloWorld = Action.async { implicit request =>
-    Future.successful(Ok(hello_world()))
-  }
+  def jsonError(path: JsPath, errMsg: String) = JsResultException(Seq(path -> Seq(ValidationError(Seq(errMsg),Seq()))))
 
 }

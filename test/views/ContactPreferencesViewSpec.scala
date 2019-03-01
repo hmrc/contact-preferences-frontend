@@ -17,7 +17,7 @@
 package views
 
 import assets.messages.{CommonMessages, ContactPreferencesMessages}
-import assets.JourneyTestConstants.journeyId
+import assets.JourneyTestConstants.{journeyId,journeyModelMax}
 import controllers.routes
 import forms.ContactPreferencesForm
 import utils.ViewTestUtils
@@ -28,8 +28,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
   object Selectors {
     val pageHeading = "h1"
     val text1 = "#content > article > p:nth-child(2)"
-    val text2 = "#content > article > div > p"
-    val text3 = "#content > article > p:nth-child(4)"
+    val text2 = "#content > article > p:nth-child(3)"
     val radioYes = "#yes_no > div:nth-child(2) > label"
     val radioNo = "#yes_no > div:nth-child(3) > label"
     val continue = "#continue-button"
@@ -44,6 +43,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
       lazy val document = parseView(views.html.contact_preferences(
         ContactPreferencesForm.contactPreferencesForm,
+        journeyModelMax.email,
         routes.ContactPreferencesController.submit(journeyId))
       )
 
@@ -56,19 +56,15 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
       }
 
       s"have the correct first paragraph text" in {
-        document.select(Selectors.text1).text() shouldBe ContactPreferencesMessages.text1("yourname@company.com")
+        document.select(Selectors.text1).text() shouldBe ContactPreferencesMessages.text1
       }
 
       s"have a the correct second paragraph text" in {
         document.select(Selectors.text2).text() shouldBe ContactPreferencesMessages.text2
       }
 
-      s"have the correct third paragraph text" in {
-        document.select(Selectors.text3).text() shouldBe ContactPreferencesMessages.text3
-      }
-
       s"have a the correct Yes Option" in {
-        document.select(Selectors.radioYes).text() shouldBe ContactPreferencesMessages.radioYes
+        document.select(Selectors.radioYes).text() shouldBe ContactPreferencesMessages.radioYes(journeyModelMax.email)
       }
 
       s"have the correct No Option" in {
@@ -84,6 +80,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
       lazy val document = parseView(views.html.contact_preferences(
         ContactPreferencesForm.contactPreferencesForm.bind(Map("yes_no" -> "")),
+        journeyModelMax.email,
         routes.ContactPreferencesController.submit(journeyId))
       )
 

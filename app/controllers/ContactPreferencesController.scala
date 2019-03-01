@@ -17,14 +17,16 @@
 package controllers
 
 
-import config.AppConfig
+import audit.models.ContactPreferenceAuditModel
+import config.{AppConfig, ErrorHandler}
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
-import models.{Journey, No, Yes}
+import models._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.JourneyService
+import services.{JourneyService, PreferenceService}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
 
@@ -34,31 +36,37 @@ import scala.concurrent.Future
 class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              authService: AuthService,
                                              journeyService: JourneyService,
+                                             preferenceService: PreferenceService,
+                                             errorHandler: ErrorHandler,
+                                             auditConnector: AuditConnector,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(contact_preferences(contactPreferencesForm, routes.ContactPreferencesController.submit(id))))
+        Future.successful(Ok(contact_preferences(contactPreferencesForm, journeyModel.email, routes.ContactPreferencesController.submit(id))))
       }
     }
   }
 
   val submit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
-      authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(contactPreferencesForm.bindFromRequest.fold(
+      authService.authorise(journeyModel.regime) { user =>
+        contactPreferencesForm.bindFromRequest.fold(
           formWithErrors =>
-            BadRequest(contact_preferences(formWithErrors, routes.ContactPreferencesController.submit(id)))
-          ,{
-            case Yes =>
-              //TODO
-              NotImplemented
-            case No =>
-              //TODO
-              NotImplemented
+            Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id)))),
+          answer => {
+            val preference = if (answer == Yes) Digital else Paper
+            auditConnector.sendExplicitAudit(
+              ContactPreferenceAuditModel.auditType,
+              ContactPreferenceAuditModel(journeyModel.regime, user.arn, journeyModel.email, preference)
+            )
+            preferenceService.storeJourneyPreference(id, preference).map {
+              case Right(_) => Redirect(journeyModel.continueUrl, Map("preferenceId" -> Seq(id)))
+              case Left(_) => errorHandler.showInternalServerError
+            }
           }
-        ))
+        )
       }
     }
   }
@@ -66,7 +74,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
     journeyService.getJourney(id) flatMap {
       case Right(journeyModel) => f(journeyModel)
-      case Left(errorModel) => Future.successful(Status(errorModel.status)(errorModel.body))
+      case Left(_) => Future.successful(errorHandler.showInternalServerError)
     }
   }
 }

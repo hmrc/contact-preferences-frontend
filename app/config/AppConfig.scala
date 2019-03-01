@@ -19,14 +19,14 @@ package config
 import java.util.Base64
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
+import play.api.mvc.{Call, Request}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.ContinueUrl
-import play.api.mvc.Call
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: Environment) extends ServicesConfig {
+class AppConfig @Inject()(val runModeConfiguration: Configuration, val environment: Environment) extends ServicesConfig {
   override protected def mode: Mode = environment.mode
 
   private val contactHost: String = getString(ConfigKeys.contactFrontendService)
@@ -38,8 +38,14 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   lazy val reportAProblemPartialUrl: String = s"$contactHost/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
   lazy val reportAProblemNonJSUrl: String = s"$contactHost/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
 
-  lazy val feedbackUrl: String = s"$contactHost/contact/beta-feedback-unauthenticated?service=$contactFormServiceIdentifier" +
-    s"&backUrl=${ContinueUrl(host + controllers.routes.HelloWorld.helloWorld().url).encodedUrl}"
+  private def continueUrl(implicit request: Request[_]) = ContinueUrl(host + request.uri).encodedUrl
+
+  def feedbackUrl(implicit request: Request[_]): String = s"$contactHost/contact/beta-feedback-unauthenticated?service=$contactFormServiceIdentifier" +
+    s"&backUrl=$continueUrl"
+
+  private lazy val signInBaseUrl: String = getString(ConfigKeys.signInBaseUrl)
+  private lazy val signInOrigin = getString(ConfigKeys.appName)
+  def signInUrl(implicit request: Request[_]): String = s"$signInBaseUrl?continue=$continueUrl&origin=$signInOrigin"
 
   lazy val host: String = getString(ConfigKeys.host)
 
