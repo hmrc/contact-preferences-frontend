@@ -17,6 +17,7 @@
 package controllers
 
 
+import audit.models.ContactPreferenceAuditModel
 import config.{AppConfig, ErrorHandler}
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
@@ -25,6 +26,7 @@ import models._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{JourneyService, PreferenceService}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
 
@@ -36,6 +38,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              journeyService: JourneyService,
                                              preferenceService: PreferenceService,
                                              errorHandler: ErrorHandler,
+                                             auditConnector: AuditConnector,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
@@ -48,12 +51,16 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
 
   val submit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
-      authService.authorise(journeyModel.regime) { _ =>
+      authService.authorise(journeyModel.regime) { user =>
         contactPreferencesForm.bindFromRequest.fold(
           formWithErrors =>
             Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id)))),
           answer => {
             val preference = if (answer == Yes) Digital else Paper
+            auditConnector.sendExplicitAudit(
+              ContactPreferenceAuditModel.auditType,
+              ContactPreferenceAuditModel(journeyModel.regime, user.arn, journeyModel.email, preference)
+            )
             preferenceService.storeJourneyPreference(id, preference).map {
               case Right(_) => Redirect(journeyModel.continueUrl, Map("preferenceId" -> Seq(id)))
               case Left(_) => errorHandler.showInternalServerError

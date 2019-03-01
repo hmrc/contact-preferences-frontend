@@ -17,6 +17,8 @@
 package controllers
 
 import assets.JourneyTestConstants.{journeyId, journeyModelMax}
+import audit.mocks.MockAuditConnector
+import audit.models.ContactPreferenceAuditModel
 import connectors.httpParsers.JourneyHttpParser.NotFound
 import connectors.httpParsers.StorePreferenceHttpParser.{InvalidPreferencePayload, Success}
 import controllers.mocks.MockAuthService
@@ -31,10 +33,11 @@ import utils.TestUtils
 
 import scala.concurrent.Future
 
-class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceService with MockJourneyService with MockAuthService {
+class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceService
+  with MockJourneyService with MockAuthService with MockAuditConnector {
 
   object TestContactPreferencesController extends ContactPreferencesController(
-    messagesApi, mockAuthService, mockJourneyService, mockPreferenceService, errorHandler, appConfig
+    messagesApi, mockAuthService, mockJourneyService, mockPreferenceService, errorHandler, mockAuditConnector, appConfig
   )
 
   "ContactPreferencesController.show" when {
@@ -97,6 +100,16 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
               mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
               mockStoreJourneyPreference(journeyId, Digital)(Right(Success))
 
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Digital
+                )
+              )
+
               status(result) shouldBe Status.SEE_OTHER
             }
 
@@ -117,6 +130,16 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
               mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
               mockStoreJourneyPreference(journeyId, Digital)(Left(InvalidPreferencePayload))
 
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Digital
+                )
+              )
+
               status(result) shouldBe Status.INTERNAL_SERVER_ERROR
             }
           }
@@ -135,6 +158,16 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
               mockStoreJourneyPreference(journeyId, Paper)(Right(Success))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Paper
+                )
+              )
 
               status(result) shouldBe Status.SEE_OTHER
             }
@@ -155,6 +188,16 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
               mockStoreJourneyPreference(journeyId, Paper)(Left(InvalidPreferencePayload))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Paper
+                )
+              )
 
               status(result) shouldBe Status.INTERNAL_SERVER_ERROR
             }
