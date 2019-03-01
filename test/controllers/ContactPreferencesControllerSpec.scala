@@ -29,6 +29,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import services.mocks.{MockJourneyService, MockPreferenceService}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
+import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import utils.TestUtils
 
 import scala.concurrent.Future
@@ -50,7 +51,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
         "return an OK (200)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
 
           status(result) shouldBe Status.OK
         }
@@ -60,7 +61,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
         "return an FORBIDDEN (403)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
 
           status(result) shouldBe Status.FORBIDDEN
         }
@@ -97,7 +98,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
             "return an SEE_OTHER (303) status" in {
 
               mockJourney(journeyId)(Right(journeyModelMax))
-              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockAuthenticated(EmptyPredicate)
               mockStoreJourneyPreference(journeyId, Digital)(Right(Success))
 
               verifyExplicitAudit(
@@ -127,7 +128,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
             "return the error status" in {
 
               mockJourney(journeyId)(Right(journeyModelMax))
-              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockAuthenticated(EmptyPredicate)
               mockStoreJourneyPreference(journeyId, Digital)(Left(InvalidPreferencePayload))
 
               verifyExplicitAudit(
@@ -156,7 +157,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
             "return an SEE_OTHER (303) status" in {
 
               mockJourney(journeyId)(Right(journeyModelMax))
-              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockAuthenticated(EmptyPredicate)
               mockStoreJourneyPreference(journeyId, Paper)(Right(Success))
 
               verifyExplicitAudit(
@@ -186,7 +187,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
             "return the error status" in {
 
               mockJourney(journeyId)(Right(journeyModelMax))
-              mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+              mockAuthenticated(EmptyPredicate)
               mockStoreJourneyPreference(journeyId, Paper)(Left(InvalidPreferencePayload))
 
               verifyExplicitAudit(
@@ -208,7 +209,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
           "return a BAD_REQUEST (400)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+            mockAuthenticated(EmptyPredicate)
 
             val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/"))
 
@@ -221,7 +222,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
         "return an FORBIDDEN (403)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
 
           val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
             ContactPreferencesForm.yesNo -> YesNoMapping.option_yes

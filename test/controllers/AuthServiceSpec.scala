@@ -22,6 +22,7 @@ import controllers.actions.AuthService
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.{InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.Future
@@ -43,7 +44,7 @@ class AuthServiceSpec extends MockAuthConnector {
       "an authorised result is returned from the Auth Connector" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
           status(result) shouldBe OK
         }
       }
@@ -54,7 +55,7 @@ class AuthServiceSpec extends MockAuthConnector {
       "they are Signed Up to MTD ContactPreferences" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveAgentServicesEnrolled(vatAuthPredicate)
+          mockAuthRetrieveAgentServicesEnrolled(EmptyPredicate)
           status(result) shouldBe OK
         }
       }
@@ -65,12 +66,12 @@ class AuthServiceSpec extends MockAuthConnector {
       "a NoActiveSession exception is returned from the Auth Connector" should {
 
         "Return a SEE_OTHER response" in {
-          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(MissingBearerToken()))
           status(result) shouldBe SEE_OTHER
         }
 
         "Redirect to GG Sign In" in {
-          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(MissingBearerToken()))
           redirectLocation(result) shouldBe Some(appConfig.signInUrl)
         }
       }
@@ -78,7 +79,7 @@ class AuthServiceSpec extends MockAuthConnector {
       "an InsufficientAuthority exception is returned from the Auth Connector" should {
 
         "Return a forbidden response" in {
-          mockAuthorise(vatAuthPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
           status(result) shouldBe FORBIDDEN
         }
       }
