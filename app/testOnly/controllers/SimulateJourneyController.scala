@@ -24,6 +24,7 @@ import testOnly.connectors.ContactPreferencesConnector
 import testOnly.connectors.httpParsers.SimulateJourneySubmitHttpParser.Success
 import testOnly.forms.SimulateJourneyForm.simulateJourneyForm
 import testOnly.views.html.{simulate_journey_start, simulate_journey_success}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.Future
@@ -31,11 +32,16 @@ import scala.concurrent.Future
 @Singleton
 class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPreferencesConnector,
                                           errorHandler: ErrorHandler,
+                                          val authConnector: AuthConnector,
                                           val messagesApi: MessagesApi,
-                                          implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
+                                          implicit val appConfig: AppConfig) extends FrontendController with AuthorisedFunctions with I18nSupport {
 
-  val startJourneyShow: Action[AnyContent] = Action { implicit request =>
-    Ok(simulate_journey_start(simulateJourneyForm, testOnly.controllers.routes.SimulateJourneyController.startJourneySubmit()))
+  val startJourneyShow: Action[AnyContent] = Action.async { implicit request =>
+    authorised() {
+      Future.successful(Ok(simulate_journey_start(simulateJourneyForm, testOnly.controllers.routes.SimulateJourneyController.startJourneySubmit())))
+    }.recover {
+      case _ => Redirect(appConfig.signInUrl)
+    }
   }
 
   def success(preferenceId: Option[String]): Action[AnyContent] = Action.async { implicit request =>
