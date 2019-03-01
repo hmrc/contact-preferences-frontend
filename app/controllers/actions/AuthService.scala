@@ -33,17 +33,12 @@ import scala.concurrent.Future
 class AuthService @Inject()(val authConnector: AuthConnector, implicit val appConfig: AppConfig)
   extends FrontendController with AuthorisedFunctions {
 
-  private def delegatedAuthRule(regime: RegimeModel): Enrolment =
-    Enrolment(regime.`type`.enrolmentId)
-      .withIdentifier(regime.identifier.key.value, regime.identifier.value)
-      .withDelegatedAuthRule(regime.`type`.delegatedAuthRule)
-
   private val arn: Enrolments => Option[String] = _.getEnrolment(Constants.AgentServicesEnrolment) flatMap {
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
   def authorise(regime: RegimeModel)(f: User[_] => Future[Result])(implicit request : Request[_], messages: Messages): Future[Result] =
-    authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) {
+    authorised().retrieve(Retrievals.allEnrolments) {
       enrolments =>
         f(User(regime.identifier.value, arn(enrolments))(request))
     } recover {

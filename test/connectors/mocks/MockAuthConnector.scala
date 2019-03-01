@@ -33,10 +33,6 @@ trait MockAuthConnector extends TestUtils with MockitoSugar {
 
   lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
-  val vatAuthPredicate: Predicate = Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
-    .withIdentifier(Constants.MtdContactPreferencesReferenceKey, testVatNumber)
-    .withDelegatedAuthRule(Constants.MtdContactPreferencesDelegatedAuth)
-
   val allEnrolments: Retrieval[Enrolments] = Retrievals.allEnrolments
 
   def mockAuthorise[T](predicate: Predicate = EmptyPredicate,
@@ -59,9 +55,9 @@ trait MockAuthConnector extends TestUtils with MockitoSugar {
       Future.successful(Enrolments(Set(testAgentServicesEnrolment)))
     )
 
-  def mockAuthRetrieveMtdVatEnrolled(predicate: Predicate = EmptyPredicate): Unit =
+  def mockAuthenticated(predicate: Predicate = EmptyPredicate): Unit =
     mockAuthorise(predicate = predicate, retrievals = retrievals)(
-      Future.successful(Enrolments(Set(testMtdVatEnrolment)))
+      Future.successful(Enrolments(Set()))
     )
 
   override protected def beforeEach(): Unit = {
