@@ -32,7 +32,7 @@ object RegimeType {
     JsString(unapply(regimeType))
   }
 
-  def apply(arg: String): RegimeType = arg.toUpperCase match {
+  def apply(arg: String): RegimeType = arg match {
     case MTDVAT.id => MTDVAT
     case x => throw JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid regime type: $x, valid regime type: VAT")))))
   }
@@ -43,8 +43,8 @@ object RegimeType {
 }
 
 object MTDVAT extends RegimeType {
-  override val id: String = "VAT"
+  override val id: String = "vat"
   override val enrolmentId: String = "HMRC-MTD-VAT"
   override val delegatedAuthRule: String = "mtd-vat-auth"
-  override val desId: String = "VATC"
+  override val desId: String = "vatc"
 }
