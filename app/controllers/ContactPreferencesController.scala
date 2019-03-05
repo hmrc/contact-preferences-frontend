@@ -23,7 +23,7 @@ import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{JourneyService, PreferenceService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -44,7 +44,11 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(contact_preferences(contactPreferencesForm, journeyModel.email, routes.ContactPreferencesController.submit(id))))
+        Future.successful(Ok(contact_preferences(
+          Messages("contactPreferences.title"),
+          contactPreferencesForm,
+          Some("c@c.com"),
+          routes.ContactPreferencesController.submit(id))))
       }
     }
   }
@@ -53,8 +57,12 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { user =>
         contactPreferencesForm.bindFromRequest.fold(
-          formWithErrors =>
-            Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id)))),
+          formWithErrors => {
+            val errorTitle: String = s"${Messages("common.error")} ${Messages("contactPreferences.title")}"
+
+            Future.successful(BadRequest(contact_preferences(errorTitle, formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id))))
+
+          },
           answer => {
             val preference = if (answer == Yes) Digital else Paper
             auditConnector.sendExplicitAudit(

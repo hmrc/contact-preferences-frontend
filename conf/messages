@@ -12,6 +12,8 @@ feedback.after = will help us to improve it.
 unauthorised.title = Unauthorised access
 unauthorised.instructions = You are unauthorised from making changes to the contact preference.
 
+common.error = Error:
+
 contactPreferences.title = Does the business want to receive emails about VAT?
 contactPreferences.email = yourname@company.com
 contactPreferences.text.p1 = We can email you when the business has a new message about VAT in their HMRC account.

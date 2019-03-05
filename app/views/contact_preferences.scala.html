@@ -21,9 +21,9 @@
 @import models.YesNo
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@(contactPreferencesForm: Form[YesNo], email: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(title: String, contactPreferencesForm: Form[YesNo], email: Option[String], postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = messages("contactPreferences.title"), bodyClasses = None, showSignOutLink = false, form = Some(contactPreferencesForm)) {
+@main_template(title, bodyClasses = None, showSignOutLink = false, form = Some(contactPreferencesForm)) {
 
     @summaryErrorHelper(contactPreferencesForm)
 
