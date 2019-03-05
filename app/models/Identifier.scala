@@ -29,7 +29,7 @@ object Identifier {
     JsString(unapply(identifier))
   }
 
-  def apply(args: String): Identifier = args.toUpperCase match {
+  def apply(args: String): Identifier = args match {
     case VRN.value => VRN
     case x => throw JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid Identifier: $x, valid identifiers: ${VRN.value}")))))
   }
@@ -40,5 +40,5 @@ object Identifier {
 }
 
 object VRN extends Identifier {
-  override val value: String = "VRN"
+  override val value: String = "vrn"
 }

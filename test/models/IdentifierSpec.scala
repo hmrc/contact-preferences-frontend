@@ -27,14 +27,14 @@ class IdentifierSpec extends TestUtils {
     "contain a key" in {
 
       val actualResult = VRN.value
-      val expectedResult = "VRN"
+      val expectedResult = "vrn"
 
       actualResult shouldBe expectedResult
     }
 
     "yield a VRN object when passed VRN string" in {
 
-      val actualResult = Identifier.apply("VRN")
+      val actualResult = Identifier.apply("vrn")
       val expectedResult = VRN
 
       actualResult shouldBe expectedResult
@@ -45,14 +45,14 @@ class IdentifierSpec extends TestUtils {
       val actualResult = intercept[JsResultException] {
         Identifier.apply("INVALID_IDENTIFIER")
       }
-      val expectedResult = JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid Identifier: INVALID_IDENTIFIER, valid identifiers: VRN")))))
+      val expectedResult = JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid Identifier: INVALID_IDENTIFIER, valid identifiers: vrn")))))
       actualResult shouldBe expectedResult
     }
 
     "deconstruct it's value when incorrectly pattern matched" in {
 
       val actualResult = Identifier.unapply(VRN)
-      val expectedResult = "VRN"
+      val expectedResult = "vrn"
 
       actualResult shouldBe expectedResult
     }

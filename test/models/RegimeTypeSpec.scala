@@ -71,7 +71,7 @@ class RegimeTypeSpec extends TestUtils {
 
     "yield a specific RegimeType when applied" in {
 
-      val actualResult: RegimeType = RegimeType.apply("VAT")
+      val actualResult: RegimeType = RegimeType.apply("vat")
       val expectedResult = MTDVAT
 
       actualResult shouldBe expectedResult
@@ -82,14 +82,14 @@ class RegimeTypeSpec extends TestUtils {
       val actualResult = intercept[JsResultException] {
         RegimeType.apply("invalid")
       }
-      val expectedResult = JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid regime type: INVALID, valid regime type: VAT")))))
+      val expectedResult = JsResultException(Seq(__ -> Seq(ValidationError(Seq(s"Invalid regime type: invalid, valid regime type: VAT")))))
       actualResult shouldBe expectedResult
     }
 
     "yield the correct RegimeType id when unnapplied" in {
 
       val actualResult = RegimeType.unapply(MTDVAT)
-      val expectedResult = "VAT"
+      val expectedResult = "vat"
 
       actualResult shouldBe expectedResult
     }
