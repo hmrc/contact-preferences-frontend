@@ -54,8 +54,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
       authService.authorise(journeyModel.regime) { user =>
         contactPreferencesForm.bindFromRequest.fold(
           formWithErrors =>
-            Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id))))
-          ,
+            Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id)))),
           answer => {
             val preference = if (answer == Yes) Digital else Paper
             auditConnector.sendExplicitAudit(

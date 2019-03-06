@@ -18,9 +18,14 @@ package utils
 
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.data.Form
+import play.api.http.HeaderNames
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Writes
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.hmrc.play.test.UnitSpec
+import play.api.{Application, Environment, Mode}
+
 
 trait ITUtils extends UnitSpec
   with GuiceOneServerPerSuite
@@ -30,6 +35,20 @@ trait ITUtils extends UnitSpec
   with CustomMatchers {
 
   lazy val ws = app.injector.instanceOf[WSClient]
+
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .in(Environment.simple(mode = Mode.Dev))
+    .configure(config)
+    .build
+
+  def config: Map[String, String] = Map(
+    "application.router" -> "testOnlyDoNotUseInAppConf.Routes",
+    "microservice.services.auth.host" -> WiremockHelper.wiremockHost,
+    "microservice.services.auth.port" -> WiremockHelper.wiremockPort.toString,
+    "microservice.services.contact-preferences.host" -> WiremockHelper.wiremockHost,
+    "microservice.services.contact-preferences.port" -> WiremockHelper.wiremockPort.toString,
+    "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck"
+  )
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -48,18 +67,19 @@ trait ITUtils extends UnitSpec
     )
   }
 
-  def post[T](uri: String)(body: T)(implicit writes: Writes[T]): WSResponse = {
+  def post(uri: String)(body:  Map[String, Seq[String]]): WSResponse = {
     await(
       buildClient(uri)
         .withHeaders(
-          "Content-Type" -> "application/json",
-          "X-Session-ID" -> "123456-session"
+          HeaderNames.COOKIE -> SessionCookieBaker.bakeSessionCookie(), "Csrf-Token" -> "nocheck"
         )
-        .post(writes.writes(body).toString())
+        .post(body)
     )
   }
 
   def buildClient(path: String): WSRequest = ws.url(s"http://localhost:$port/contact-preferences$path").withFollowRedirects(false)
 
+  def toFormData[T](form: Form[T], data: T): Map[String, Seq[String]] =
+    form.fill(data).data map { case (k, v) => k -> Seq(v) }
 }
 

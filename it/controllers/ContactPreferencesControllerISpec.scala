@@ -16,36 +16,43 @@
 
 package controllers
 
-import utils.ITUtils
+import assets.JourneyITConstants._
+import forms.ContactPreferencesForm
+import models.Yes
 import play.api.http.Status._
+import stubs.{AuthStub, ContactPreferencesStub}
+import utils.ITUtils
 
 
 class ContactPreferencesControllerISpec extends ITUtils {
 
   "GET /:journeyId" when {
 
-    "getJourney and auth is successful" should {
+    "getJourney is successful" should {
 
+      "show the Contact Preferences page" in {
+
+        ContactPreferencesStub.getJourneySuccess(journeyId)(journeyJson)
+        AuthStub.authorisedIndividual()
+
+        val res = await(get(s"/$journeyId"))
+
+        res should have {
+          httpStatus(OK)
+        }
+      }
     }
 
     "getJourney is unsuccessul" should {
 
       "show an internal server error" in {
-        val res = await(get("123456789"))
+
+        ContactPreferencesStub.getJourneyFailed(journeyId)
+
+        val res = await(get(s"/$journeyId"))
 
         res should have {
           httpStatus(INTERNAL_SERVER_ERROR)
-        }
-      }
-    }
-
-    "auth is unsuccessul" should {
-
-      "show the unauthorised page" in {
-        val res = await(get("999999999"))
-
-        res should have {
-          httpStatus(UNAUTHORIZED)
         }
       }
     }
@@ -53,16 +60,53 @@ class ContactPreferencesControllerISpec extends ITUtils {
 
   "POST /:journeyId" when {
 
-    "getJourney and auth is successful" should {
+    "getJourney is successful" when {
 
+      "storePreference is successul" should {
+
+        "redirect to continueUrl" in {
+
+          ContactPreferencesStub.getJourneySuccess(journeyId)(journeyJson)
+          AuthStub.authorisedIndividual()
+          ContactPreferencesStub.storePreferenceSuccess(journeyId)
+
+          val res = await(post(s"/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Yes)))
+
+          res should have {
+            httpStatus(SEE_OTHER)
+          }
+        }
+      }
+
+      "storePreference is unsuccessul" should {
+
+        "show an internal server error" in {
+
+          ContactPreferencesStub.getJourneySuccess(journeyId)(journeyJson)
+          AuthStub.authorisedIndividual()
+          ContactPreferencesStub.storePreferenceFailed(journeyId)
+
+          val res = await(post(s"/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Yes)))
+
+          res should have {
+            httpStatus(INTERNAL_SERVER_ERROR)
+          }
+        }
+      }
     }
 
     "getJourney is unsuccessul" should {
 
-    }
+      "show an internal server error" in {
 
-    "auth is unsuccessul" should {
+        ContactPreferencesStub.getJourneyFailed(journeyId)
 
+        val res = await(post(s"/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Yes)))
+
+        res should have {
+          httpStatus(INTERNAL_SERVER_ERROR)
+        }
+      }
     }
   }
 }

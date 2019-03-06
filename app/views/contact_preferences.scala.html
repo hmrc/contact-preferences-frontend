@@ -39,19 +39,19 @@
 
        @form(action = postAction) {
 
-       @radioHelper(
-          parentForm = contactPreferencesForm,
-          inline = false,
-          options = Seq(
-              (option_yes, messages("contactPreferences.radio.yes", emailMessage)),
-              (option_no, messages("contactPreferences.radio.no"))
-          ),
-          legend = messages("contactPreferences.title"),
-          field = contactPreferencesForm(yesNo)
-       )
+           @radioHelper(
+              parentForm = contactPreferencesForm,
+              inline = false,
+              options = Seq(
+                  (option_yes, messages("contactPreferences.radio.yes", emailMessage)),
+                  (option_no, messages("contactPreferences.radio.no"))
+              ),
+              legend = messages("contactPreferences.title"),
+              field = contactPreferencesForm(yesNo)
+           )
 
-       @continueButton()
-    }
+           @continueButton()
+        }
 
 }
 
