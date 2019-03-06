@@ -42,7 +42,6 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
     "the page has no errors" should {
 
       lazy val document = parseView(views.html.contact_preferences(
-        "Does the business want to receive emails about VAT?",
         ContactPreferencesForm.contactPreferencesForm,
         journeyModelMax.email,
         routes.ContactPreferencesController.submit(journeyId))
@@ -80,14 +79,13 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
     "the page has errors" should {
 
       lazy val document = parseView(views.html.contact_preferences(
-        "Does the business want to receive emails about VAT?",
         ContactPreferencesForm.contactPreferencesForm.bind(Map("yes_no" -> "")),
         journeyModelMax.email,
         routes.ContactPreferencesController.submit(journeyId))
       )
 
       s"have the correct document title" in {
-        document.title shouldBe ContactPreferencesMessages.title
+        document.title shouldBe s"${CommonMessages.error} ${ContactPreferencesMessages.title}"
       }
 
       s"have a the correct page heading" in {
