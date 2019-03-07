@@ -37,43 +37,10 @@ trait CustomMatchers {
     new HavePropertyMatcher[WSResponse, String] {
       def apply(response: WSResponse) =
         HavePropertyMatchResult(
-          response.header(HeaderNames.LOCATION).getOrElse("") == expectedValue,
+          response.header(HeaderNames.LOCATION).getOrElse("").contains(expectedValue),
           "continueUrl",
           expectedValue,
           response.header(HeaderNames.LOCATION).getOrElse("")
-        )
-    }
-
-  def jsonBodyAs[T](expectedValue: T)(implicit reads: Reads[T]): HavePropertyMatcher[WSResponse, T] =
-    new HavePropertyMatcher[WSResponse, T] {
-      def apply(response: WSResponse) =
-        HavePropertyMatchResult(
-          response.json.as[T] == expectedValue,
-          "response.jsonBody",
-          expectedValue,
-          response.json.as[T]
-        )
-    }
-
-  def bodyAs(expectedValue: String): HavePropertyMatcher[WSResponse, String] =
-    new HavePropertyMatcher[WSResponse, String] {
-      def apply(response: WSResponse) =
-        HavePropertyMatchResult(
-          response.body == expectedValue,
-          "response.body",
-          expectedValue,
-          response.body
-        )
-    }
-
-  val emptyBody: HavePropertyMatcher[WSResponse, String] =
-    new HavePropertyMatcher[WSResponse, String] {
-      def apply(response: WSResponse) =
-        HavePropertyMatchResult(
-          response.body == "",
-          "emptyBody",
-          "",
-          response.body
         )
     }
 }

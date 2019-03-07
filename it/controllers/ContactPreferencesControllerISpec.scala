@@ -74,6 +74,7 @@ class ContactPreferencesControllerISpec extends ITUtils {
 
           res should have {
             httpStatus(SEE_OTHER)
+            continueUrl("continue/url")
           }
         }
       }
