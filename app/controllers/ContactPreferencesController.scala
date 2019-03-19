@@ -44,7 +44,11 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(contact_preferences(contactPreferencesForm, journeyModel.email, routes.ContactPreferencesController.submit(id))))
+        Future.successful(Ok(contact_preferences(
+          serviceName = journeyModel.serviceName,
+          contactPreferencesForm = contactPreferencesForm,
+          email = journeyModel.email,
+          postAction = routes.ContactPreferencesController.submit(id))))
       }
     }
   }

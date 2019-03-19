@@ -28,6 +28,7 @@ object SimulateJourneyForm {
   val regimeIdValue: String = "regimeIdValue"
   val email: String = "email"
   val continueUrl: String = "continueUrl"
+  val serviceName: String = "serviceName"
 
   val simulateJourneyForm: Form[Journey] = Form(
     mapping(
@@ -35,19 +36,26 @@ object SimulateJourneyForm {
       regimeId -> nonEmptyText,
       regimeIdValue -> nonEmptyText,
       email -> optional(text),
-      continueUrl -> nonEmptyText
+      continueUrl -> nonEmptyText,
+      serviceName -> optional(text)
     )(customApply)(customUnapply)
   )
 
-  private def customApply(regime: String, regimeId: String, regimeIdValue: String, email: Option[String], continueUrl: String): Journey = {
+  private def customApply(regime: String,
+                          regimeId: String,
+                          regimeIdValue: String,
+                          email: Option[String],
+                          continueUrl: String,
+                          serviceName: Option[String]): Journey = {
+
     val regimeModel = RegimeModel(
       RegimeType(regime), Id(Identifier(regimeId), regimeIdValue)
     )
-    new Journey(regimeModel, continueUrl, email)
+    new Journey(regimeModel, serviceName, continueUrl, email)
   }
 
-  private def customUnapply(arg: Journey): Option[(String, String, String, Option[String], String)] = Some(
-    (arg.regime.`type`.id, arg.regime.identifier.key.value, arg.regime.identifier.value, arg.email, arg.continueUrl)
+  private def customUnapply(arg: Journey): Option[(String, String, String, Option[String], String, Option[String])] = Some(
+    (arg.regime.`type`.id, arg.regime.identifier.key.value, arg.regime.identifier.value, arg.email, arg.continueUrl, arg.serviceName)
   )
 
 }

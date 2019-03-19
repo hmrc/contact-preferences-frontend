@@ -69,6 +69,9 @@
             <h3>Email (Optional):</h3>
             @input(journeyForm(email))
 
+            <h3>Service Name (Optional):</h3>
+            @input(journeyForm(serviceName))
+
             <h3>ContinueURL:</h3>
             <input style="width:100%;border:none;background:#ececec;" type="text" readonly id="@continueUrl" name="@continueUrl" value='@testOnly.controllers.routes.SimulateJourneyController.success().url'>
         </div>

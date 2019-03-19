@@ -19,6 +19,7 @@ package models
 import play.api.libs.json.{Format, Json}
 
 case class Journey(regime: RegimeModel,
+                   serviceName: Option[String] = None,
                    continueUrl: String,
                    email: Option[String] = None)
 

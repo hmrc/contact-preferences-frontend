@@ -48,6 +48,15 @@ class JourneySpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
+    "have a service name" in {
+
+      val actualResult = journeyModelMax.serviceName
+      val expectedResult = Some(serviceName)
+
+      actualResult shouldBe expectedResult
+    }
+
+
     "read regime from Json to the correct Journey" in {
 
       val actualResult: Journey = journeyJsonMax.as[Journey]
