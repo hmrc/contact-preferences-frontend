@@ -27,7 +27,8 @@
   serviceInfoContent: Html = HtmlFormat.empty,
   showSignOutLink: Boolean = true,
   form: Option[Form[_]] = None,
-  scriptElem: Option[Html] = None)(implicit request: Request[_], messages: Messages)
+  scriptElem: Option[Html] = None,
+  serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages)
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
@@ -42,12 +43,14 @@
 
 @headerNavLinks = {}
 
+@serviceNameHeading = @{ serviceName.fold(messages("base.service-name"))(x => x) }
+
 @insideHeader = {
     @uiLayouts.header_nav(
-      navTitle = Some("contact-preferences-frontend"),
+      navTitle = Some(serviceNameHeading),
       navTitleLink = None,
       showBetaLink = false,
-      navLinks = Some(headerNavLinks))
+      navLinks = None)
 }
 
 @afterHeader = {}

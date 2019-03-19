@@ -40,9 +40,11 @@ object JourneyTestConstants {
 
   val continueUrl = "continue/url"
   val email = "email@email.com"
+  val serviceName = "Service Name"
 
   val journeyJsonMax: JsObject = Json.obj(
     "regime" -> regimeJson,
+    "serviceName" -> serviceName,
     "continueUrl" -> continueUrl,
     "email" -> email
   )
@@ -58,6 +60,7 @@ object JourneyTestConstants {
 
   val journeyModelMax = Journey(
     regime = regimeModel,
+    serviceName = Some(serviceName),
     continueUrl = continueUrl,
     email = Some(email)
   )
