@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
-class ContactPreferenceDESConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig){
+class ContactPreferencesDesConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig){
 
   private[connectors] val contactPreferenceDesUrl = (regimeModel: RegimeModel) =>
     s"${appConfig.contactPreferencesUrl}/${regimeModel.getType}/${regimeModel.getId}/${regimeModel.getValue}"
