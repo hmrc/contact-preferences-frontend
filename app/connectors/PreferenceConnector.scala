@@ -17,7 +17,7 @@
 package connectors
 
 import config.AppConfig
-import connectors.httpParsers.StorePreferenceHttpParser._
+import connectors.httpParsers.StorePreferenceHttpParser.{Response => StoreResponse, _}
 import javax.inject.{Inject, Singleton}
 import models.{ContactPreferenceModel, Preference}
 import play.api.Logger
@@ -32,7 +32,7 @@ class PreferenceConnector @Inject()(val http: HttpClient, implicit val appConfig
 
   private[connectors] val preferenceUrl = (id: String) => s"${appConfig.contactPreferencesUrl}/$id"
 
-  def storeJourneyPreference(id: String, preference: Preference)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+  def storeJourneyPreference(id: String, preference: Preference)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[StoreResponse] = {
     Logger.debug(s"[PreferenceConnector][storeJourneyPreference] Calling backend to store preference for JourneyID: $id\n${preferenceUrl(id)}")
     http.PUT(preferenceUrl(id), ContactPreferenceModel(preference)).recover {
       case e =>
