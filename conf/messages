@@ -1,5 +1,7 @@
 common.back = Back
 common.errorSummary.heading = There is a problem
+common.service.name = Does the business want to receive emails about VAT?
+common.gov.uk = GOV.UK
 common.error = Error:
 base.continue = Continue
 base.service-name = Update your contact preference

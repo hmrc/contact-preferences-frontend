@@ -16,6 +16,7 @@
 
 @import config.AppConfig
 @import templates._
+@import views.utils.ServiceNameTitle
 @import forms.ContactPreferencesForm._
 @import forms.YesNoMapping._
 @import models.YesNo
@@ -27,7 +28,7 @@
     @if(contactPreferencesForm.hasErrors) { @messages("common.error") }
 }
 
-@main_template(title = titlePrefix + messages("contactPreferences.title"),
+@main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors),
                serviceName = serviceName,
                bodyClasses = None,
                showSignOutLink = false,

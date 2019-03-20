@@ -21,7 +21,7 @@ import models.Preference
 import org.scalamock.scalatest.MockFactory
 import services.PreferenceService
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.TestUtils
+import _root_.utils.TestUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

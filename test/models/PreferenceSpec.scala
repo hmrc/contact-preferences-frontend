@@ -17,7 +17,8 @@
 package models
 
 import play.api.libs.json.{JsResultException, JsString, Json, __}
-import utils.{JsonSugar, TestUtils}
+import utils.JsonSugar
+import _root_.utils.TestUtils
 
 class PreferenceSpec extends TestUtils with JsonSugar {
 

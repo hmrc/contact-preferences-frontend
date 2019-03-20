@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package services.mocks
+package views.utils
 
-import connectors.httpParsers.JourneyHttpParser.Response
-import org.scalamock.scalatest.MockFactory
-import services.JourneyService
-import _root_.utils.TestUtils
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.i18n.Messages
 
-import scala.concurrent.{ExecutionContext, Future}
+object ServiceNameTitle {
 
+  val error = "common.error"
+  val serviceName = "common.service.name"
+  val govUk = "common.gov.uk"
 
-trait MockJourneyService extends MockFactory with TestUtils {
+  def fullTitle(titleMessage: String, hasErrors: Boolean = false)(implicit messages: Messages): String = {
 
-  lazy val mockJourneyService = mock[JourneyService]
-
-  def mockJourney(id: String)(response: Response): Unit = {
-    (mockJourneyService.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
-      .expects(id, *, *)
-      .returns(Future.successful(response))
+    val title = s"${messages(titleMessage)} - ${messages(serviceName)} - ${messages(govUk)}"
+    if(hasErrors) s"${messages(error)} $title" else title
   }
-
 }

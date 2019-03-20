@@ -19,7 +19,7 @@ package connectors.httpParsers
 import connectors.httpParsers.StorePreferenceHttpParser._
 import play.api.http.Status
 import uk.gov.hmrc.http.HttpResponse
-import utils.TestUtils
+import _root_.utils.TestUtils
 
 
 class StorePreferenceHttpParserSpec extends TestUtils {

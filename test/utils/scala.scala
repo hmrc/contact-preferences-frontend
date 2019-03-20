@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-package assets.messages
+package utils
 
-object CommonMessages {
+/**
+  * Created by morgan on 20/03/19.
+  */
+class scala {
 
-  val back = "Back"
-  val errorHeading = "There is a problem"
-  val serviceName = "Does the business want to receive emails about VAT?"
-  val govUk = "GOV.UK"
-  val error = "Error:"
-  val continue = "Continue"
-  val feedbackBefore = "This is a new service – your"
-  val feedbackLink = "feedback"
-  val feedbackAfter = "will help us to improve it."
 }
