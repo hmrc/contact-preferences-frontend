@@ -24,11 +24,7 @@
 
 @(contactPreferencesForm: Form[YesNo], email: Option[String], postAction: Call, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@titlePrefix = {
-    @if(contactPreferencesForm.hasErrors) { @messages("common.error") }
-}
-
-@main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors),
+@main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors, serviceName),
                serviceName = serviceName,
                bodyClasses = None,
                showSignOutLink = false,

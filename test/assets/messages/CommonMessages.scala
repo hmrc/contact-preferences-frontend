@@ -20,7 +20,7 @@ object CommonMessages {
 
   val back = "Back"
   val errorHeading = "There is a problem"
-  val serviceName = "Does the business want to receive emails about VAT?"
+  val serviceName = "Update your contact preference"
   val govUk = "GOV.UK"
   val error = "Error:"
   val continue = "Continue"

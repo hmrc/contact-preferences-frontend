@@ -21,12 +21,12 @@ import play.api.i18n.Messages
 object ServiceNameTitle {
 
   val error = "common.error"
-  val serviceName = "common.service.name"
+  val serviceName = "base.service-name"
   val govUk = "common.gov.uk"
 
-  def fullTitle(titleMessage: String, hasErrors: Boolean = false)(implicit messages: Messages): String = {
+  def fullTitle(titleMessage: String, hasErrors: Boolean = false, serviceNameTitle: Option[String] = None)(implicit messages: Messages): String = {
 
-    val title = s"${messages(titleMessage)} - ${messages(serviceName)} - ${messages(govUk)}"
+    val title = s"${messages(titleMessage)} - ${serviceNameTitle.getOrElse(messages(serviceName))} - ${messages(govUk)}"
     if(hasErrors) s"${messages(error)} $title" else title
   }
 }
