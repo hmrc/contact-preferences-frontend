@@ -16,8 +16,8 @@
 
 package services
 
-import connectors.PreferenceConnector
-import connectors.httpParsers.StorePreferenceHttpParser.Response
+import connectors.ContactPreferencesConnector
+import connectors.httpParsers.StoreContactPreferenceHttpParser.Response
 import javax.inject.{Inject, Singleton}
 import models.Preference
 import uk.gov.hmrc.http.HeaderCarrier
@@ -25,9 +25,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PreferenceService @Inject()(preferenceConnector: PreferenceConnector){
+class PreferenceService @Inject()(preferenceConnector: ContactPreferencesConnector){
 
   def storeJourneyPreference(id: String, preference: Preference)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
-    preferenceConnector.storeJourneyPreference(id, preference)
+    preferenceConnector.storeContactPreference(id, preference)
   }
 }

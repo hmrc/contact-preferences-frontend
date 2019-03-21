@@ -16,7 +16,7 @@
 
 package connectors.httpParsers
 
-import connectors.httpParsers.GetDesContactPreferenceHttpParser._
+import connectors.httpParsers.GetContactPreferenceHttpParser._
 import models.{ContactPreferenceModel, Digital}
 import play.api.http.Status
 import uk.gov.hmrc.http.HttpResponse

@@ -21,7 +21,7 @@ import models.ContactPreferenceModel
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
-object GetDesContactPreferenceHttpParser {
+object GetContactPreferenceHttpParser {
 
   type Response = Either[ErrorResponse, ContactPreferenceModel]
 
