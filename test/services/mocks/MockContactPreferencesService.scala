@@ -16,8 +16,9 @@
 
 package services.mocks
 
-import connectors.httpParsers.StoreContactPreferenceHttpParser.Response
-import models.Preference
+import connectors.httpParsers.StoreContactPreferenceHttpParser.{Response => StoreResponse}
+import connectors.httpParsers.GetContactPreferenceHttpParser.{Response => GetResponse}
+import models.{Preference, RegimeModel}
 import org.scalamock.scalatest.MockFactory
 import services.ContactPreferencesService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -26,13 +27,19 @@ import utils.TestUtils
 import scala.concurrent.{ExecutionContext, Future}
 
 
-trait MockPreferenceService extends MockFactory with TestUtils {
+trait MockContactPreferencesService extends MockFactory with TestUtils {
 
-  lazy val mockPreferenceService: ContactPreferencesService = mock[ContactPreferencesService]
+  lazy val mockContactPreferencesService: ContactPreferencesService = mock[ContactPreferencesService]
 
-  def mockStoreJourneyPreference(id: String, preference: Preference)(response: Response): Unit = {
-    (mockPreferenceService.storeJourneyPreference(_: String, _: Preference)(_: HeaderCarrier, _: ExecutionContext))
+  def mockStoreJourneyPreference(id: String, preference: Preference)(response: StoreResponse): Unit = {
+    (mockContactPreferencesService.storeJourneyPreference(_: String, _: Preference)(_: HeaderCarrier, _: ExecutionContext))
       .expects(id, preference, *, *)
+      .returns(Future.successful(response))
+  }
+
+  def mockGetContactPreference(regime: RegimeModel)(response: GetResponse): Unit = {
+    (mockContactPreferencesService.getContactPreference(_: RegimeModel)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(regime, *, *)
       .returns(Future.successful(response))
   }
 

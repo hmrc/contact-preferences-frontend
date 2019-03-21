@@ -25,7 +25,7 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{ContactPreferencesDesService, JourneyService}
+import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 class ContactPreferencesDesController @Inject()(val messagesApi: MessagesApi,
                                                 authService: AuthService,
                                                 journeyService: JourneyService,
-                                                contactPreferencesDesService: ContactPreferencesDesService,
+                                                contactPreferencesService: ContactPreferencesService,
                                                 errorHandler: ErrorHandler,
                                                 auditConnector: AuditConnector,
                                                 implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
@@ -52,7 +52,7 @@ class ContactPreferencesDesController @Inject()(val messagesApi: MessagesApi,
           postAction = routes.ContactPreferencesController.submit(id)
         ))
 
-        contactPreferencesDesService.getContactPreference(journeyModel.regime).map {
+        contactPreferencesService.getContactPreference(journeyModel.regime).map {
           case Right(ContactPreferenceModel(Digital)) =>
             Logger.debug("DIGITAL PREFERENCE | DIGITAL PREFERENCE | DIGITAL PREFERENCE")
             displayPage(contactPreferencesForm.fill(Yes))

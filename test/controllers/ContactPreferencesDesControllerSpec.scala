@@ -25,21 +25,21 @@ import controllers.mocks.MockAuthService
 import play.api.http.Status
 import play.api.mvc.Result
 import play.api.test.Helpers._
-import services.mocks.{MockContactPreferencesDesService, MockJourneyService}
+import services.mocks.{MockJourneyService, MockContactPreferencesService}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import utils.ControllerTestUtils
 
 import scala.concurrent.Future
 
-class ContactPreferencesDesControllerSpec extends ControllerTestUtils with MockContactPreferencesDesService
+class ContactPreferencesDesControllerSpec extends ControllerTestUtils with MockContactPreferencesService
   with MockJourneyService with MockAuthService with MockAuditConnector {
 
   object TestContactPreferencesDesController extends ContactPreferencesDesController(
     messagesApi,
     mockAuthService,
     mockJourneyService,
-    mockContactPreferencesDesService,
+    mockContactPreferencesService,
     errorHandler,
     mockAuditConnector,
     appConfig
@@ -69,6 +69,8 @@ class ContactPreferencesDesControllerSpec extends ControllerTestUtils with MockC
 
           "display the correct page with the correct option selected" in {
             title(result) shouldBe pageTitle
+
+            //TODO make this actually check if the option has actually been selected
           }
         }
 
@@ -90,6 +92,8 @@ class ContactPreferencesDesControllerSpec extends ControllerTestUtils with MockC
 
           "display the correct page with no option selected" in {
             title(result) shouldBe pageTitle
+
+            //TODO make this actually check if the option has actually been selected
             selectElement(result, "#yes").hasAttr("checked") shouldBe false
             selectElement(result, "#no").hasAttr("checked") shouldBe false
           }

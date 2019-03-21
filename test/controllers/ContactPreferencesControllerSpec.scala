@@ -27,18 +27,18 @@ import models.{Digital, Paper}
 import play.api.http.Status
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import services.mocks.{MockJourneyService, MockPreferenceService}
+import services.mocks.{MockJourneyService, MockContactPreferencesService}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import utils.TestUtils
 
 import scala.concurrent.Future
 
-class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceService
+class ContactPreferencesControllerSpec extends TestUtils with MockContactPreferencesService
   with MockJourneyService with MockAuthService with MockAuditConnector {
 
   object TestContactPreferencesController extends ContactPreferencesController(
-    messagesApi, mockAuthService, mockJourneyService, mockPreferenceService, errorHandler, mockAuditConnector, appConfig
+    messagesApi, mockAuthService, mockJourneyService, mockContactPreferencesService, errorHandler, mockAuditConnector, appConfig
   )
 
   "ContactPreferencesController.show" when {
