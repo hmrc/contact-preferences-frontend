@@ -19,7 +19,7 @@ package services.mocks
 import connectors.httpParsers.StoreContactPreferenceHttpParser.Response
 import models.Preference
 import org.scalamock.scalatest.MockFactory
-import services.PreferenceService
+import services.ContactPreferencesService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.TestUtils
 
@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait MockPreferenceService extends MockFactory with TestUtils {
 
-  lazy val mockPreferenceService: PreferenceService = mock[PreferenceService]
+  lazy val mockPreferenceService: ContactPreferencesService = mock[ContactPreferencesService]
 
   def mockStoreJourneyPreference(id: String, preference: Preference)(response: Response): Unit = {
     (mockPreferenceService.storeJourneyPreference(_: String, _: Preference)(_: HeaderCarrier, _: ExecutionContext))

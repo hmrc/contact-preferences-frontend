@@ -25,7 +25,7 @@ import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{JourneyService, PreferenceService}
+import services.{JourneyService, ContactPreferencesService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              authService: AuthService,
                                              journeyService: JourneyService,
-                                             preferenceService: PreferenceService,
+                                             preferenceService: ContactPreferencesService,
                                              errorHandler: ErrorHandler,
                                              auditConnector: AuditConnector,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {

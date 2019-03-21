@@ -23,7 +23,7 @@ import utils.{MockHttpClient, TestUtils}
 
 class JourneyConnectorSpec extends TestUtils with MockHttpClient {
 
-  object TestContactPreferenceDesConnector extends ContactPreferencesDesConnector(
+  object TestJourneyConnector extends JourneyConnector(
     mockHttpClient,
     appConfig
   )

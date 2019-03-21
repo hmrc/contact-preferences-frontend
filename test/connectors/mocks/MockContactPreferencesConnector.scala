@@ -16,26 +16,33 @@
 
 package connectors.mocks
 
-import connectors.ContactPreferencesDesConnector
-import connectors.httpParsers.GetDesContactPreferenceHttpParser.Response
-import models.RegimeModel
+import connectors.ContactPreferencesConnector
+import connectors.httpParsers.StoreContactPreferenceHttpParser.{Response => StoreResponse}
+import connectors.httpParsers.GetContactPreferenceHttpParser.{Response => GetResponse}
+import models.{Preference, RegimeModel}
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.TestUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockContactPreferencesDesConnector extends MockFactory with TestUtils {
+trait MockContactPreferencesConnector extends MockFactory with TestUtils {
 
-  lazy val connector = mock[ContactPreferencesDesConnector]
+  lazy val connector: ContactPreferencesConnector = mock[ContactPreferencesConnector]
 
-  def mockGetContactPreferenceDes(regime: RegimeModel)(response: Response): Unit = {
+  def mockStoreContactPreference(id: String, preference: Preference)(response: StoreResponse): Unit = {
+    (connector.storeContactPreference(_: String, _: Preference)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(id, preference, *, *)
+      .returns(Future.successful(response))
+  }
+
+  def mockGetContactPreference(regime: RegimeModel)(response: GetResponse): Unit = {
     (connector.getContactPreference(_: RegimeModel)(_: HeaderCarrier, _: ExecutionContext))
       .expects(regime, *, *)
       .returns(Future.successful(response))
   }
 
-  def mockGetContactPreferenceDesFailed(regime: RegimeModel): Unit = {
+  def mockGetContactPreferenceFailed(regime: RegimeModel): Unit = {
     (connector.getContactPreference(_: RegimeModel)(_: HeaderCarrier, _: ExecutionContext))
       .expects(regime, *, *)
       .returns(Future.failed(new Exception))

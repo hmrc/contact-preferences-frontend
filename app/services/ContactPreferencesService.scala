@@ -17,17 +17,22 @@
 package services
 
 import connectors.ContactPreferencesConnector
-import connectors.httpParsers.StoreContactPreferenceHttpParser.Response
+import connectors.httpParsers.StoreContactPreferenceHttpParser.{Response => StoreResponse}
+import connectors.httpParsers.GetContactPreferenceHttpParser.{Response => GetResponse}
 import javax.inject.{Inject, Singleton}
-import models.Preference
+import models.{Preference, RegimeModel}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PreferenceService @Inject()(preferenceConnector: ContactPreferencesConnector){
+class ContactPreferencesService @Inject()(preferenceConnector: ContactPreferencesConnector){
 
-  def storeJourneyPreference(id: String, preference: Preference)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+  def storeJourneyPreference(id: String, preference: Preference)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[StoreResponse] = {
     preferenceConnector.storeContactPreference(id, preference)
+  }
+
+  def getContactPreference(regime: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[GetResponse] = {
+    preferenceConnector.getContactPreference(regime)
   }
 }
