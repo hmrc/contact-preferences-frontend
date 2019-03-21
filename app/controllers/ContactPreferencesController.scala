@@ -23,9 +23,11 @@ import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
 import models._
+import play.api.Logger
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{JourneyService, ContactPreferencesService}
+import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
@@ -44,13 +46,34 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val show: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(contact_preferences(
-          serviceName = journeyModel.serviceName,
-          contactPreferencesForm = contactPreferencesForm,
-          email = journeyModel.email,
-          postAction = routes.ContactPreferencesController.submit(id))))
+        Future.successful(displayPage(contactPreferencesForm, journeyModel, id))
       }
     }
+  }
+
+  val showAuthenticated: String => Action[AnyContent] = id => Action.async { implicit request =>
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { _ =>
+        preferenceService.getContactPreference(journeyModel.regime).map {
+          case Right(ContactPreferenceModel(Digital)) =>
+            displayPage(contactPreferencesForm.fill(Yes), journeyModel, id)
+          case Right(ContactPreferenceModel(Paper)) =>
+            displayPage(contactPreferencesForm.fill(No), journeyModel, id)
+          case _ =>
+            displayPage(contactPreferencesForm, journeyModel, id)
+        }
+      }
+    }
+  }
+
+  def displayPage(form: Form[YesNo], journeyModel: Journey, id: String)
+                 (implicit request: Request[_]): Result = {
+    Ok(contact_preferences(
+      serviceName = journeyModel.serviceName,
+      contactPreferencesForm = form,
+      email = journeyModel.email,
+      postAction = routes.ContactPreferencesController.submit(id)
+    ))
   }
 
   val submit: String => Action[AnyContent] = id => Action.async { implicit request =>

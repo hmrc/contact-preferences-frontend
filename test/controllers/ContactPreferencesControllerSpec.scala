@@ -16,7 +16,9 @@
 
 package controllers
 
-import assets.JourneyTestConstants.{journeyId, journeyModelMax}
+import assets.ContactPreferencesTestConstants.digitalPreferenceModel
+import assets.JourneyTestConstants.{journeyId, journeyModelMax, _}
+import assets.messages.ContactPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
 import audit.models.ContactPreferenceAuditModel
 import connectors.httpParsers.JourneyHttpParser.NotFound
@@ -27,14 +29,15 @@ import models.{Digital, Paper}
 import play.api.http.Status
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import services.mocks.{MockJourneyService, MockContactPreferencesService}
+import play.api.test.Helpers._
+import services.mocks.{MockContactPreferencesService, MockJourneyService}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
-import utils.TestUtils
+import utils.ControllerTestUtils
 
 import scala.concurrent.Future
 
-class ContactPreferencesControllerSpec extends TestUtils with MockContactPreferencesService
+class ContactPreferencesControllerSpec extends ControllerTestUtils with MockContactPreferencesService
   with MockJourneyService with MockAuthService with MockAuditConnector {
 
   object TestContactPreferencesController extends ContactPreferencesController(
@@ -79,6 +82,87 @@ class ContactPreferencesControllerSpec extends TestUtils with MockContactPrefere
 
     }
 
+  }
+
+
+  "ContactPreferencesController.showAuthenticated" when {
+
+    "a journey can be retrieved from the backend" when {
+
+      "the user is authorised" should {
+
+        "the user has a pre selected preference" should {
+
+          lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+
+          "return an OK (200)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+            mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+            status(result) shouldBe Status.OK
+          }
+
+          "return HTML" in {
+            contentType(result) shouldBe Some("text/html")
+            charset(result) shouldBe Some("utf-8")
+          }
+
+          "display the correct page with the correct option selected" in {
+            title(result) shouldBe pageTitle
+
+            //TODO make this actually check if the option has actually been selected
+          }
+        }
+
+        "the user does NOT have a pre selected preference" should {
+
+          lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+
+          "return an OK (200)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+            mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+            status(result) shouldBe Status.OK
+          }
+
+          "return HTML" in {
+            contentType(result) shouldBe Some("text/html")
+            charset(result) shouldBe Some("utf-8")
+          }
+
+          "display the correct page with no option selected" in {
+            title(result) shouldBe pageTitle
+
+            //TODO make this actually check if the option has actually been selected
+            selectElement(result, "#yes").hasAttr("checked") shouldBe false
+            selectElement(result, "#no").hasAttr("checked") shouldBe false
+          }
+        }
+      }
+
+      "the user is NOT authorised" should {
+
+        lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+
+        "return an FORBIDDEN (403)" in {
+          mockJourney(journeyId)(Right(journeyModelMax))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+
+          status(result) shouldBe Status.FORBIDDEN
+        }
+      }
+    }
+
+    "a journey can NOT be retrieved from the backend" when {
+
+      lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+
+      "return an NOT_FOUND (404)" in {
+        mockJourney(journeyId)(Left(NotFound))
+
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
   }
 
   "ContactPreferencesController.submit" when {
