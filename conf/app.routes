@@ -1,4 +1,6 @@
 # microservice specific routes
 
-GET        /:journeyId              controllers.ContactPreferencesController.show(journeyId: String)
-POST       /:journeyId              controllers.ContactPreferencesController.submit(journeyId: String)
+GET        /set/:journeyId              controllers.ContactPreferencesController.setRouteShow(journeyId: String)
+POST       /set/:journeyId              controllers.ContactPreferencesController.setRouteSubmit(journeyId: String)
+
+GET        /update/:journeyId           controllers.ContactPreferencesController.updateRouteShow(journeyId: String)

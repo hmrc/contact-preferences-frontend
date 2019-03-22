@@ -44,7 +44,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
       lazy val document = parseView(views.html.contact_preferences(
         ContactPreferencesForm.contactPreferencesForm,
         journeyModelMax.email,
-        routes.ContactPreferencesController.submit(journeyId))
+        routes.ContactPreferencesController.setRouteSubmit(journeyId))
       )
 
       s"have the correct document title" in {
@@ -81,7 +81,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
       lazy val document = parseView(views.html.contact_preferences(
         ContactPreferencesForm.contactPreferencesForm.bind(Map("yes_no" -> "")),
         journeyModelMax.email,
-        routes.ContactPreferencesController.submit(journeyId))
+        routes.ContactPreferencesController.setRouteSubmit(journeyId))
       )
 
       s"have the correct document title" in {

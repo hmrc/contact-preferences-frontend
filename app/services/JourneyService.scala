@@ -26,7 +26,11 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class JourneyService @Inject()(journeyConnector: JourneyConnector){
 
-  def getJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
-    journeyConnector.getJourney(id)
+  def startSetJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+    journeyConnector.startSetJourney(id)
+  }
+
+  def startUpdateJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+    journeyConnector.startUpdateJourney(id)
   }
 }

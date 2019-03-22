@@ -28,22 +28,22 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
     appConfig
   )
 
-  "JourneyConnector" when {
+  "startSetJourney" when {
 
-    "getJourney is successful" should {
+    "successful" should {
 
       "return a Journey model" in {
 
         mockHttpGet(Right(journeyModelMax))
 
-        val actualResult = await(TestJourneyConnector.getJourney("id"))
+        val actualResult = await(TestJourneyConnector.startSetJourney("id"))
         val expectedResult = Right(journeyModelMax)
 
         actualResult shouldBe expectedResult
       }
     }
 
-    "getJourney is unsuccessful" should {
+    "unsuccessful" should {
 
       "return a NotFound ErrorResponse" when {
 
@@ -51,7 +51,7 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
 
           mockHttpGet(Left(NotFound))
 
-          val actualResult = await(TestJourneyConnector.getJourney("id"))
+          val actualResult = await(TestJourneyConnector.startSetJourney("id"))
           val expectedResult = Left(NotFound)
 
           actualResult shouldBe expectedResult
@@ -64,22 +64,68 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
 
           mockHttpGetFailed()
 
-          val actualResult = await(TestJourneyConnector.getJourney("id"))
+          val actualResult = await(TestJourneyConnector.startSetJourney("id"))
           val expectedResult = Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, "Unexpected Error: I Died"))
 
           actualResult shouldBe expectedResult
-
         }
+      }
+    }
+  }
 
+  "startUpdateJourney" when {
+
+    "successful" should {
+
+      "return a Journey model" in {
+
+        mockHttpGet(Right(journeyModelMax))
+
+        val actualResult = await(TestJourneyConnector.startUpdateJourney("id"))
+        val expectedResult = Right(journeyModelMax)
+
+        actualResult shouldBe expectedResult
       }
     }
 
-    "an id is given to journeyUrl" should {
+    "unsuccessful" should {
+
+      "return a NotFound ErrorResponse" when {
+
+        "the response status is NotFound" in {
+
+          mockHttpGet(Left(NotFound))
+
+          val actualResult = await(TestJourneyConnector.startUpdateJourney("id"))
+          val expectedResult = Left(NotFound)
+
+          actualResult shouldBe expectedResult
+        }
+      }
+
+      "return a UnexpectedError" when {
+
+        "there is a failed future and exception thrown" in {
+
+          mockHttpGetFailed()
+
+          val actualResult = await(TestJourneyConnector.startUpdateJourney("id"))
+          val expectedResult = Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, "Unexpected Error: I Died"))
+
+          actualResult shouldBe expectedResult
+        }
+      }
+    }
+  }
+
+  "journeyUrl" when {
+
+    "an id and a journey type" should {
 
       "have the correct url" in {
 
-        val actualResult = TestJourneyConnector.journeyUrl("anId")
-        val expectedResult = "http://localhost:9592/contact-preferences/journey/anId"
+        val actualResult = TestJourneyConnector.journeyUrl("anId", "journeyType")
+        val expectedResult = "http://localhost:9592/contact-preferences/journey/journeyType/anId"
 
         actualResult shouldBe expectedResult
       }

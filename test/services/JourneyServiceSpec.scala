@@ -24,24 +24,57 @@ class JourneyServiceSpec extends MockJourneyConnector {
 
   object TestJourneyService extends JourneyService(connector)
 
-  "JourneyService" should {
+  "startSetJourney" when {
 
-    "return a Journey model when getJourney is successful" in {
+    "successful" should {
 
-      mockJourneyConnector("testID")(Right(journeyModelMax))
-      val actualResult = await(TestJourneyService.getJourney("testID"))
-      val expectedResult = Right(journeyModelMax)
+      "return a Journey model" in {
 
-      actualResult shouldBe expectedResult
+        mockStartSetJourney("testID")(Right(journeyModelMax))
+        val actualResult = await(TestJourneyService.startSetJourney("testID"))
+        val expectedResult = Right(journeyModelMax)
+
+        actualResult shouldBe expectedResult
+      }
     }
 
-    "return an Error model when getJourney is unsuccessful" in {
+    "unsuccessful" should {
 
-      mockJourneyConnector("testID")(Left(InvalidJson))
-      val actualResult = await(TestJourneyService.getJourney("testID"))
-      val expectedResult = Left(InvalidJson)
+      "return an Error model" in {
 
-      actualResult shouldBe expectedResult
+        mockStartSetJourney("testID")(Left(InvalidJson))
+        val actualResult = await(TestJourneyService.startSetJourney("testID"))
+        val expectedResult = Left(InvalidJson)
+
+        actualResult shouldBe expectedResult
+      }
+    }
+  }
+
+  "startUpdateJourney" when {
+
+    "successful" should {
+
+      "return a Journey model" in {
+
+        mockStartUpdateJourney("testID")(Right(journeyModelMax))
+        val actualResult = await(TestJourneyService.startUpdateJourney("testID"))
+        val expectedResult = Right(journeyModelMax)
+
+        actualResult shouldBe expectedResult
+      }
+    }
+
+    "unsuccessful" should {
+
+      "return an Error model" in {
+
+        mockStartUpdateJourney("testID")(Left(InvalidJson))
+        val actualResult = await(TestJourneyService.startUpdateJourney("testID"))
+        val expectedResult = Left(InvalidJson)
+
+        actualResult shouldBe expectedResult
+      }
     }
   }
 }

@@ -47,7 +47,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
   "ContactPreferencesController.show" when {
 
-    def result: Future[Result] = TestContactPreferencesController.show(journeyId)(fakeRequest)
+    def result: Future[Result] = TestContactPreferencesController.setRouteShow(journeyId)(fakeRequest)
 
     "a journey can be retrieved from the backend" when {
 
@@ -85,7 +85,6 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
   }
 
-
   "ContactPreferencesController.showAuthenticated" when {
 
     "a journey can be retrieved from the backend" when {
@@ -94,7 +93,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
         "the user has a pre selected preference" should {
 
-          lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+          lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
 
           "return an OK (200)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
@@ -117,7 +116,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
         "the user does NOT have a pre selected preference" should {
 
-          lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+          lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
 
           "return an OK (200)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
@@ -142,7 +141,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
       "the user is NOT authorised" should {
 
-        lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+        lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
 
         "return an FORBIDDEN (403)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
@@ -155,7 +154,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
     "a journey can NOT be retrieved from the backend" when {
 
-      lazy val result: Future[Result] = TestContactPreferencesController.showAuthenticated(journeyId)(fakeRequest)
+      lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
 
       "return an NOT_FOUND (404)" in {
         mockJourney(journeyId)(Left(NotFound))
@@ -175,7 +174,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "A success response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
             ))
 
@@ -205,7 +204,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "An error response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
             ))
 
@@ -234,7 +233,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "A success response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_no
             ))
 
@@ -264,7 +263,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "An error response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_no
             ))
 
@@ -295,7 +294,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             mockJourney(journeyId)(Right(journeyModelMax))
             mockAuthenticated(EmptyPredicate)
 
-            val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/"))
+            val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/"))
 
             status(result) shouldBe Status.BAD_REQUEST
           }
@@ -308,7 +307,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
           mockJourney(journeyId)(Right(journeyModelMax))
           mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
 
-          val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+          val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
             ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
           ))
 
@@ -322,7 +321,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
       "return an NOT_FOUND (404)" in {
         mockJourney(journeyId)(Left(NotFound))
 
-        val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+        val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
           ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
         ))
 
