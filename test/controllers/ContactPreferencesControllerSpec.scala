@@ -21,6 +21,7 @@ import assets.JourneyTestConstants.{journeyId, journeyModelMax, _}
 import assets.messages.ContactPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
 import audit.models.ContactPreferenceAuditModel
+import connectors.httpParsers.GetContactPreferenceHttpParser
 import connectors.httpParsers.JourneyHttpParser.NotFound
 import connectors.httpParsers.StoreContactPreferenceHttpParser.{InvalidPreferencePayload, Success}
 import controllers.mocks.MockAuthService
@@ -109,8 +110,8 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "display the correct page with the correct option selected" in {
             title(result) shouldBe pageTitle
-
-            //TODO make this actually check if the option has actually been selected
+            selectElement(result, "#yes").hasAttr("checked") shouldBe true
+            selectElement(result, "#no").hasAttr("checked") shouldBe false
           }
         }
 
@@ -121,7 +122,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
           "return an OK (200)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
             mockAuthenticated(EmptyPredicate)
-            mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+            mockGetContactPreference(regimeModel)(Left(GetContactPreferenceHttpParser.NotFound))
             status(result) shouldBe Status.OK
           }
 
@@ -132,7 +133,6 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "display the correct page with no option selected" in {
             title(result) shouldBe pageTitle
-
             //TODO make this actually check if the option has actually been selected
             selectElement(result, "#yes").hasAttr("checked") shouldBe false
             selectElement(result, "#no").hasAttr("checked") shouldBe false

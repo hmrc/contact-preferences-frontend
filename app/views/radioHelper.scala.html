@@ -45,7 +45,12 @@
         }
         @for(option <- options) {
             <div class="multiple-choice">
-                <input id="@option._1" type="radio" name="@field.name" value="@option._1">
+                <input id="@option._1"
+                       type="radio"
+                       name="@field.name"
+                       value="@option._1"
+                       @field.value.filter( _ == option._1).map{_ => checked="checked"}
+                />
                 <label for="@option._1">@option._2</label>
             </div>
         }

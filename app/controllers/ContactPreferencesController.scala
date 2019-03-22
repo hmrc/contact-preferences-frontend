@@ -16,16 +16,14 @@
 
 package controllers
 
-
 import audit.models.ContactPreferenceAuditModel
 import config.{AppConfig, ErrorHandler}
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.Logger
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -80,8 +78,9 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { user =>
         contactPreferencesForm.bindFromRequest.fold(
-          formWithErrors =>
-            Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id)))),
+          formWithErrors => Future.successful(BadRequest(contact_preferences(
+            formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id), journeyModel.serviceName)
+          )),
           answer => {
             val preference = if (answer == Yes) Digital else Paper
             auditConnector.sendExplicitAudit(
