@@ -32,8 +32,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ContactPreferencesConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig) {
 
-  def startJourney(journey: Journey)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SimulateJourneySubmitHttpParser.Response] = {
-    val url = s"${appConfig.contactPreferencesUrl}/journey"
+  def startJourney(journey: Journey, submitToDes: Boolean = false)
+                  (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SimulateJourneySubmitHttpParser.Response] = {
+    val url = s"${appConfig.contactPreferencesUrl}/journey/${if(submitToDes) "update" else "set"}"
     Logger.debug(s"[ContactPreferencesConnector][startJourney] Calling backend to start journey $url")
     http.POST(url, journey)(implicitly, SimulateJourneyHttpRead, hc, ec).recover {
       case e =>

@@ -18,6 +18,7 @@ package testOnly.controllers
 
 import config.{AppConfig, ErrorHandler}
 import javax.inject.{Inject, Singleton}
+import models.Journey
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
@@ -61,7 +62,8 @@ class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPre
       formWithErrors =>
         Future.successful(BadRequest(simulate_journey_start(formWithErrors, testOnly.controllers.routes.SimulateJourneyController.startJourneySubmit()))),
       data => {
-        contactPreferenceConnector.startJourney(data).map {
+        val journeyData = Journey(data.regime, data.serviceName, data.continueUrl, data.email, data.address)
+        contactPreferenceConnector.startJourney(journeyData, data.submitToDes).map {
           case Right(Success(url)) => Redirect(url)
           case Left(err) => InternalServerError(errorHandler.standardErrorTemplate(
             "Error","Unexpected Error",s"Status: ${err.status} Message: ${err.body}"

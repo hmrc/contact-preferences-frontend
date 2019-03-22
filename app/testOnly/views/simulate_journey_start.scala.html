@@ -17,22 +17,12 @@
 @import config.AppConfig
 @import templates._
 @import testOnly.forms.SimulateJourneyForm._
-@import models.Journey
+@import testOnly.models.SimulateJourneyModel
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@(journeyForm: Form[Journey], postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(journeyForm: Form[SimulateJourneyModel], postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@js = {
-    <script>
-        function setIdentifierValue() {
-            $("#identifier").html($("#regimeId").val() + " Value:");
-        }
-        $(document).ready(setIdentifierValue);
-        $("#regimeId").change(setIdentifierValue);
-    </script>
-}
-
-@main_template(title = "Simulate Contact Preference Journey", bodyClasses = None, showSignOutLink = false, form = Some(journeyForm), scriptElem = Some(js)) {
+@main_template(title = "Simulate Contact Preference Journey", bodyClasses = None, showSignOutLink = false, form = Some(journeyForm), scriptElem = Some(scripts)) {
 
     @summaryErrorHelper(journeyForm)
 
@@ -40,43 +30,179 @@
 
     @form(action = postAction) {
 
-        <div class="form-group" style="border-radius:20px;padding:0 20px 20px 20px;background:#ececec;">
-            <fieldset>
-                <legend class="visuallyhidden">Tax Regime</legend>
-                    <h3>Regime Type:</h3>
-                    @dropdown(
-                        journeyForm(regime),
-                        Seq(
-                            ("vat", "MTD VAT")
-                        ),
-                        false,
-                        '_labelClass -> "visuallyhidden"
-                    )
-                 <h3>Regime Identifier:</h3>
-                    @dropdown(
-                        journeyForm(regimeId),
-                        Seq(
-                            ("vrn", "VRN")
-                        ),
-                        false,
-                        '_labelClass -> "visuallyhidden"
-                    )
+        <div class="form-group" style="border-radius:20px;background:#6E5A7D;color:#fff;">
+            <div style="padding:0 20px 20px 20px;">
+
+                <!-- Rounded switch -->
+                <div class="switchWrapper" style="padding-top:20px;">
+                    <span class="bold">Submit Change to DES Journey?</span>
+
+                    <label class="switch">
+                        <input type="checkbox" name="@submitToDes" id="@submitToDes" value="true">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+
+                <fieldset>
+                    <legend class="visuallyhidden">Tax Regime</legend>
+                        <h3>Regime Type:</h3>
+                        @dropdown(
+                            journeyForm(regime),
+                            Seq(
+                                ("vat", "MTD VAT")
+                            ),
+                            false,
+                            '_labelClass -> "visuallyhidden"
+                        )
+                     <h3>Regime Identifier:</h3>
+                        @dropdown(
+                            journeyForm(regimeId),
+                            Seq(
+                                ("vrn", "VRN")
+                            ),
+                            false,
+                            '_labelClass -> "visuallyhidden"
+                        )
 
                     <h3 id="identifier">Identifier Value:</h3>
-                    @input(journeyForm(regimeIdValue))
-            </fieldset>
+                    <input type="text" id="@regimeIdValue" name="@regimeIdValue" value='999999999'>
+                </fieldset>
 
-            <h3>Email (Optional):</h3>
-            @input(journeyForm(email))
+                <h3>Email:</h3>
+                @input(journeyForm(email))
+            </div>
 
-            <h3>Service Name (Optional):</h3>
-            @input(journeyForm(serviceName))
+            <details style="padding:10px 10px 0 10px;background-color:#C36E82;box-shadow: inset 0 0 10px #6E5A7D;border-top:1px solid #53445E;border-bottom:1px solid #53445E;">
+                <summary class="bold" style="color:#fff;">
+                    Address:
+                    <span id="addressValue"></span>
+                </summary>
+                <div style="padding:20px;">
+                    <label class="bold-xsmall" for="@addressLine1">Line 1:</label>
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="@addressLine1" name="@addressLine1" value='Matheson House'>
+                    </div>
 
-            <h3>ContinueURL:</h3>
-            <input style="width:100%;border:none;background:#ececec;" type="text" readonly id="@continueUrl" name="@continueUrl" value='@testOnly.controllers.routes.SimulateJourneyController.success().url'>
+                    <label class="bold-xsmall" for="@addressLine2">Line 2:</label>
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="@addressLine2" name="@addressLine2" value='Grange Central'>
+                    </div>
+
+                    <label class="bold-xsmall" for="@addressLine3">Line 3:</label>
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="@addressLine3" name="@addressLine3" value='Telford'>
+                    </div>
+
+                    <label class="bold-xsmall" for="@addressLine4">Line 4:</label>
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="@addressLine4" name="@addressLine4" value='Shropshire'>
+                    </div>
+
+                    <label class="bold-xsmall" for="@postcode">Postcode:</label>
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="@postcode" name="@postcode" value='TF3 4ER'>
+                    </div>
+
+                    <label class="bold-xsmall" for="@countryCode">Country Code:</label>
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="@countryCode" name="@countryCode" value='GB'>
+                    </div>
+                </div>
+            </details>
+
+            <div class="form-group" style="padding:0 20px 20px 20px;">
+                <h3>Service Name (Optional):</h3>
+                @input(journeyForm(serviceName))
+
+                <h3>ContinueURL:</h3>
+                <input style="width:100%;border:none;background:#6E5A7D;color:#fff;" type="text" readonly id="@continueUrl" name="@continueUrl" value='@testOnly.controllers.routes.SimulateJourneyController.success().url'>
+            </div>
         </div>
 
         @continueButton()
     }
 
+}
+
+
+@scripts = {
+<script>
+        function setIdentifierValue() {
+            $("#identifier").html($("#regimeId").val() + " Value:");
+        }
+        $(document).ready(setIdentifierValue);
+        $("#regimeId").change(setIdentifierValue);
+    </script>
+
+<style>
+        /* The switch - the box around the slider */
+        .switchWrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 60px;
+          height: 34px;
+          margin-left:10px;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        /* The slider */
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 26px;
+          width: 26px;
+          left: 4px;
+          bottom: 4px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+
+        input:checked + .slider {
+          background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+          -webkit-transform: translateX(26px);
+          -ms-transform: translateX(26px);
+          transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+          border-radius: 34px;
+        }
+
+        .slider.round:before {
+          border-radius: 50%;
+        }
+    </style>
 }

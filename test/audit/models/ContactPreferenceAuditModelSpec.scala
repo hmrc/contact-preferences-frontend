@@ -30,7 +30,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
       val input = ContactPreferenceAuditModel(
         RegimeModel(MTDVAT, Id(VRN, testVatNumber)),
         Some(testArn),
-        Some(testEmail),
+        testEmail,
         Digital
       )
 
@@ -54,7 +54,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
       val input = ContactPreferenceAuditModel(
         RegimeModel(MTDVAT, Id(VRN, testVatNumber)),
         None,
-        None,
+        testEmail,
         Digital
       )
 
@@ -63,6 +63,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
         "identifierType" -> VRN.value,
         "identifierValue" -> testVatNumber,
         "isAgent" -> false,
+        "emailAddress" -> testEmail,
         "contactPreference" -> Digital.value
       )
 
