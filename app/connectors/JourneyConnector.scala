@@ -29,11 +29,11 @@ import play.api.http.Status
 @Singleton
 class JourneyConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig) {
 
-  private[connectors] val journeyUrl = (id: String, journey: String) => s"${appConfig.contactPreferencesUrl}/journey/$journey/$id"
+  private[connectors] val journeyUrl = (id: String) => s"${appConfig.contactPreferencesUrl}/journey/$id"
 
-  def startSetJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+  def getJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
 
-    val url = journeyUrl(id, "set")
+    val url = journeyUrl(id)
     Logger.debug(s"[JourneyConnector][startSetJourney] Calling backend to retrieve preference for JourneyID: $id\n$url")
     http.GET(url).recover {
       case e =>
@@ -41,16 +41,4 @@ class JourneyConnector @Inject()(val http: HttpClient, implicit val appConfig: A
         Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
     }
   }
-
-  def startUpdateJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
-
-    val url = journeyUrl(id, "update")
-    Logger.debug(s"[JourneyConnector][startUpdateJourney] Calling backend to retrieve preference for JourneyID: $id\n$url")
-    http.GET(url).recover {
-      case e =>
-        Logger.error(s"[JourneyConnector][startUpdateJourney] Unexpected Error: ${e.getMessage}")
-        Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
-    }
-  }
-
 }

@@ -24,17 +24,10 @@ import utils.WireMockMethods
 
 object ContactPreferencesStub extends WireMockMethods {
 
-  private val setJourneyUri = (id: String) => s"/contact-preferences/journey/set/$id"
+  private val setJourneyUri = (id: String) => s"/contact-preferences/journey/$id"
   def startSetJourneySuccess(id: String)(response: JsValue): StubMapping =
     when(method = GET, uri = setJourneyUri(id)).thenReturn(status = OK, body = response)
   def startSetJourneyFailed(id: String): StubMapping =
-    when(method = GET, uri = setJourneyUri(id)).thenReturn(status = SERVICE_UNAVAILABLE)
-
-
-  private val updatetJourneyUri = (id: String) => s"/contact-preferences/journey/update/$id"
-  def startUpdateJourneySuccess(id: String)(response: JsValue): StubMapping =
-    when(method = GET, uri = setJourneyUri(id)).thenReturn(status = OK, body = response)
-  def startUpdateJourneyFailed(id: String): StubMapping =
     when(method = GET, uri = setJourneyUri(id)).thenReturn(status = SERVICE_UNAVAILABLE)
 
 

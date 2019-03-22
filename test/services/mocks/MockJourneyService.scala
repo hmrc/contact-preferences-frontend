@@ -30,7 +30,7 @@ trait MockJourneyService extends MockFactory with TestUtils {
   lazy val mockJourneyService = mock[JourneyService]
 
   def mockJourney(id: String)(response: Response): Unit = {
-    (mockJourneyService.startSetJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
+    (mockJourneyService.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
       .expects(id, *, *)
       .returns(Future.successful(response))
   }

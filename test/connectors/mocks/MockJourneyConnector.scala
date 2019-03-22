@@ -28,28 +28,15 @@ trait MockJourneyConnector extends MockFactory with TestUtils {
 
   lazy val connector = mock[JourneyConnector]
 
-  def mockStartSetJourney(id: String)(response: Response): Unit = {
-    (connector.startSetJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
+  def mockGetJourney(id: String)(response: Response): Unit = {
+    (connector.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
       .expects(id, *, *)
       .returns(Future.successful(response))
   }
 
-  def mockStartSetJourneyFailed(id: String): Unit = {
-    (connector.startSetJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
+  def mockGetJourneyFailed(id: String): Unit = {
+    (connector.getJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
       .expects(id, *, *)
       .returns(Future.failed(new Exception))
   }
-
-  def mockStartUpdateJourney(id: String)(response: Response): Unit = {
-    (connector.startUpdateJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
-      .expects(id, *, *)
-      .returns(Future.successful(response))
-  }
-
-  def mockStartUpdateJourneyFailed(id: String): Unit = {
-    (connector.startUpdateJourney(_: String)(_: HeaderCarrier, _: ExecutionContext))
-      .expects(id, *, *)
-      .returns(Future.failed(new Exception))
-  }
-
 }

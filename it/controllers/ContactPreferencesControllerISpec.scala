@@ -27,7 +27,7 @@ import utils.ITUtils
 
 class ContactPreferencesControllerISpec extends ITUtils {
 
-  "GET /set/:journeyId" when {
+  "GET /:journeyId" when {
 
     "getJourney is successful" should {
 
@@ -59,59 +59,7 @@ class ContactPreferencesControllerISpec extends ITUtils {
     }
   }
 
-  "GET /update/:journeyId" when {
-
-    "getJourney is successful" when {
-
-      "getContactPreferences is successful" should {
-
-        "show the Contact Preferences page" in {
-
-          ContactPreferencesStub.startUpdateJourneySuccess(journeyId)(journeyJson)
-          AuthStub.authorisedIndividual()
-          ContactPreferencesStub.getPreferenceSuccess(journeyModel.regime)(digitalPreferenceJson)
-
-          val res = await(get(s"/update/$journeyId"))
-
-          res should have {
-            httpStatus(OK)
-          }
-        }
-      }
-
-      "getContactPreferences is unsuccessful" should {
-
-        "show the Contact Preferences page" in {
-
-          ContactPreferencesStub.startUpdateJourneySuccess(journeyId)(journeyJson)
-          AuthStub.authorisedIndividual()
-          ContactPreferencesStub.getPreferenceFailed(journeyModel.regime)
-
-          val res = await(get(s"/update/$journeyId"))
-
-          res should have {
-            httpStatus(OK)
-          }
-        }
-      }
-    }
-
-    "getJourney is unsuccessul" should {
-
-      "show an internal server error" in {
-
-        ContactPreferencesStub.startUpdateJourneyFailed(journeyId)
-
-        val res = await(get(s"/update/$journeyId"))
-
-        res should have {
-          httpStatus(INTERNAL_SERVER_ERROR)
-        }
-      }
-    }
-  }
-
-  "POST /set/:journeyId" when {
+  "POST /:journeyId" when {
 
     "getJourney is successful" when {
 

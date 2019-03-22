@@ -24,14 +24,14 @@ class JourneyServiceSpec extends MockJourneyConnector {
 
   object TestJourneyService extends JourneyService(connector)
 
-  "startSetJourney" when {
+  "getJourney" when {
 
     "successful" should {
 
       "return a Journey model" in {
 
-        mockStartSetJourney("testID")(Right(journeyModelMax))
-        val actualResult = await(TestJourneyService.startSetJourney("testID"))
+        mockGetJourney("testID")(Right(journeyModelMax))
+        val actualResult = await(TestJourneyService.getJourney("testID"))
         val expectedResult = Right(journeyModelMax)
 
         actualResult shouldBe expectedResult
@@ -42,35 +42,8 @@ class JourneyServiceSpec extends MockJourneyConnector {
 
       "return an Error model" in {
 
-        mockStartSetJourney("testID")(Left(InvalidJson))
-        val actualResult = await(TestJourneyService.startSetJourney("testID"))
-        val expectedResult = Left(InvalidJson)
-
-        actualResult shouldBe expectedResult
-      }
-    }
-  }
-
-  "startUpdateJourney" when {
-
-    "successful" should {
-
-      "return a Journey model" in {
-
-        mockStartUpdateJourney("testID")(Right(journeyModelMax))
-        val actualResult = await(TestJourneyService.startUpdateJourney("testID"))
-        val expectedResult = Right(journeyModelMax)
-
-        actualResult shouldBe expectedResult
-      }
-    }
-
-    "unsuccessful" should {
-
-      "return an Error model" in {
-
-        mockStartUpdateJourney("testID")(Left(InvalidJson))
-        val actualResult = await(TestJourneyService.startUpdateJourney("testID"))
+        mockGetJourney("testID")(Left(InvalidJson))
+        val actualResult = await(TestJourneyService.getJourney("testID"))
         val expectedResult = Left(InvalidJson)
 
         actualResult shouldBe expectedResult
