@@ -15,25 +15,11 @@
  *@
 
 @import config.AppConfig
-@import templates._
-@import forms.ContactPreferencesForm._
-@import forms.YesNoMapping._
-@import models.YesNo
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@(address: String, continueUrl: String, changeUrl: String, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(address: String, postAction: Call, changeUrl: String, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@titlePrefix = {
-    @if(contactPreferencesForm.hasErrors) { @messages("common.error") }
-}
-
-@additionalContent = {
-    <p>@messages("contactPreferences.text.p1")</p>
-
-    <p>@messages("contactPreferences.text.p2")</p>
-}
-
-@main_template(title = titlePrefix + messages("confirmPreference.title"),
+@main_template(title = messages("confirmPreference.title"),
                serviceName = serviceName) {
 
     @messages("confirmPreference.title")
@@ -42,7 +28,7 @@
         @messages("confirmPreference.title")
     </h1>
 
-    <p>@messages("confirmPreference.text") @address</p>
+    <p>@messages("confirmPreference.text", address)</p>
 
     <p class="form-group">
         <a href="@changeUrl">
@@ -50,7 +36,7 @@
         </a>
     </p>
 
-    <a class="button form-group" href="@continueUrl">
-        @messages("base.confirmAndContinue")
-    </a>
+    @form(action = postAction) {
+        @continueButton(Some(messages("base.confirmAndContinue")))
+    }
 }

@@ -28,14 +28,14 @@ class ConfirmPreferencesViewSpec extends ViewTestUtils {
     val pageHeading = "h1"
     val text = "#content > article > p:nth-child(2)"
     val link = "#content > article > p:nth-child(3) > a"
-    val confirmAndContinue = ".button"
+    val confirmAndContinue = "input"
   }
 
   "The confirm preferences page" should {
 
     lazy val document = parseView(views.html.confirm_preferences(
       journeyModelMax.email,
-      "continue/url",
+      routes.ContactPreferencesController.updateRouteShow(journeyId), //TODO change this to the ConfirmPreferencesController.submit when created
       routes.ContactPreferencesController.updateRouteShow(journeyId).url
     ))
 
@@ -53,10 +53,11 @@ class ConfirmPreferencesViewSpec extends ViewTestUtils {
 
     s"have a the correct link with the correct text" in {
       document.select(Selectors.link).text() shouldBe ConfirmPreferencesMessages.link
+      document.select(Selectors.link).attr("href") shouldBe routes.ContactPreferencesController.updateRouteShow(journeyId).url
     }
 
     s"have a the correct continue button" in {
-      document.select(Selectors.confirmAndContinue).text() shouldBe CommonMessages.confirmAndContinue
+      document.select(Selectors.confirmAndContinue).attr("value") shouldBe CommonMessages.confirmAndContinue
     }
   }
 }
