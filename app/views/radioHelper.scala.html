@@ -18,7 +18,10 @@
   inline: Boolean,
   options: Seq[(String, String)],
   legend: String,
-  field: Field)(implicit messages: Messages)
+  field: Field,
+  additionalContent: Html,
+  renderLegendAsHeading: Boolean = false,
+  legendVisuallyHidden: Boolean = false)(implicit messages: Messages)
 
 @hasError = @{
     parentForm.error(field.name).isDefined
@@ -26,13 +29,28 @@
 
 <div class="form-group@if(hasError){ form-field--error}">
     <fieldset id="@{field.name}" @if(inline) { class="inline" }>
-        <legend class="visuallyhidden">@legend</legend>
+
+        @if(renderLegendAsHeading) {
+            <h1 class="heading-large">
+                <legend>@legend</legend>
+            </h1>
+        } else {
+            <legend @if(legendVisuallyHidden){class="visuallyhidden"}>@legend</legend>
+        }
+
+        @additionalContent
+
         @if(hasError){
             <span class="error-notification" role="tooltip" id="error-message-@field.name">@{Messages(s"${parentForm.error(field.name).get.message}")}</span>
         }
         @for(option <- options) {
             <div class="multiple-choice">
-                <input id="@option._1" type="radio" name="@field.name" value="@option._1">
+                <input id="@option._1"
+                       type="radio"
+                       name="@field.name"
+                       value="@option._1"
+                       @field.value.filter( _ == option._1).map{_ => checked="checked"}
+                />
                 <label for="@option._1">@option._2</label>
             </div>
         }

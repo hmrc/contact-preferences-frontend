@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package controllers
 
-import play.api.libs.json.{Format, Json}
+import com.google.inject.{Inject, Singleton}
+import config.AppConfig
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-case class Journey(regime: RegimeModel,
-                   serviceName: Option[String] = None,
-                   continueUrl: String,
-                   email: String,
-                   address: AddressModel)
-object Journey {
-  implicit val format: Format[Journey] = Json.format[Journey]
+@Singleton
+class SignOutController @Inject()(val messagesApi: MessagesApi,
+                                  implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
+
+  def signOut(timeout: Boolean = false): Action[AnyContent] = Action { implicit user =>
+    Redirect(if(timeout) appConfig.timeOutSignOutUrl else appConfig.signOutUrl)
+  }
 }

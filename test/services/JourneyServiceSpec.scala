@@ -19,28 +19,35 @@ package services
 import assets.JourneyTestConstants._
 import connectors.httpParsers.JourneyHttpParser.InvalidJson
 import connectors.mocks.MockJourneyConnector
+
 class JourneyServiceSpec extends MockJourneyConnector {
 
   object TestJourneyService extends JourneyService(connector)
 
-  "JourneyService" should {
+  "getJourney" when {
 
-    "return a Journey model when getJourney is successful" in {
+    "successful" should {
 
-      mockJourneyConnector("testID")(Right(journeyModelMax))
-      val actualResult = await(TestJourneyService.getJourney("testID"))
-      val expectedResult = Right(journeyModelMax)
+      "return a Journey model" in {
 
-      actualResult shouldBe expectedResult
+        mockGetJourney("testID")(Right(journeyModelMax))
+        val actualResult = await(TestJourneyService.getJourney("testID"))
+        val expectedResult = Right(journeyModelMax)
+
+        actualResult shouldBe expectedResult
+      }
     }
 
-    "return an Error model when getJourney is unsuccessful" in {
+    "unsuccessful" should {
 
-      mockJourneyConnector("testID")(Left(InvalidJson))
-      val actualResult = await(TestJourneyService.getJourney("testID"))
-      val expectedResult = Left(InvalidJson)
+      "return an Error model" in {
 
-      actualResult shouldBe expectedResult
+        mockGetJourney("testID")(Left(InvalidJson))
+        val actualResult = await(TestJourneyService.getJourney("testID"))
+        val expectedResult = Left(InvalidJson)
+
+        actualResult shouldBe expectedResult
+      }
     }
   }
 }

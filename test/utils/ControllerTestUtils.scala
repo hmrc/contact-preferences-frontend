@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
+package utils
 
-@views.html.main_template(title = messages("unauthorised.title")) {
+import org.jsoup.Jsoup
+import org.jsoup.select.Elements
+import play.api.mvc.Result
 
-  <h1 class="heading-large">@messages("unauthorised.title")</h1>
+import scala.language.implicitConversions
 
-  <p>@messages("unauthorised.instructions")</p>
+trait ControllerTestUtils extends TestUtils {
+
+  def title(result: Result): String = {
+    Jsoup.parse(bodyOf(result)).select("h1").text()
+  }
+
+  def selectElement(result: Result, id: String): Elements = {
+    Jsoup.parse(bodyOf(result)).select(id)
+  }
 }

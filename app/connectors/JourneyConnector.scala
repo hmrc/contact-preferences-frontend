@@ -32,12 +32,13 @@ class JourneyConnector @Inject()(val http: HttpClient, implicit val appConfig: A
   private[connectors] val journeyUrl = (id: String) => s"${appConfig.contactPreferencesUrl}/journey/$id"
 
   def getJourney(id: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
-    Logger.debug(s"[JourneyConnector][getJourney] Calling backend to retrieve preference for JourneyID: $id\n${journeyUrl(id)}")
-    http.GET(journeyUrl(id)).recover {
+
+    val url = journeyUrl(id)
+    Logger.debug(s"[JourneyConnector][startSetJourney] Calling backend to retrieve preference for JourneyID: $id\n$url")
+    http.GET(url).recover {
       case e =>
-        Logger.error(s"[JourneyConnector][getJourney] Unexpected Error: ${e.getMessage}")
+        Logger.error(s"[JourneyConnector][startSetJourney] Unexpected Error: ${e.getMessage}")
         Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
     }
   }
-
 }

@@ -19,7 +19,7 @@ package connectors.httpParsers
 import models._
 import play.api.Logger
 import play.api.http.Status
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNAUTHORIZED}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 object JourneyHttpParser {
@@ -39,11 +39,15 @@ object JourneyHttpParser {
             valid => Right(valid)
           )
         }
-        case Status.NOT_FOUND => {
+        case NOT_FOUND => {
           Logger.warn(s"[JourneyHttpParser][read] ${NotFound.body}")
           Left(NotFound)
         }
-        case Status.SERVICE_UNAVAILABLE => {
+        case UNAUTHORIZED => {
+          Logger.warn(s"[JourneyHttpParser][read] ${NotFound.body}")
+          Left(Unauthorised)
+        }
+        case SERVICE_UNAVAILABLE => {
           Logger.warn(s"[JourneyHttpParser][read] ${DependentSystemUnavailable.body}")
           Left(DependentSystemUnavailable)
         }
@@ -67,6 +71,11 @@ object JourneyHttpParser {
   object NotFound extends ErrorResponse {
     override val status: Int = NOT_FOUND
     override val body = "No journey record could be found for journey ID supplied"
+  }
+
+  object Unauthorised extends ErrorResponse {
+    override val status: Int = UNAUTHORIZED
+    override val body = "contact-preferences returned an uanthorised status "
   }
 
   object DependentSystemUnavailable extends ErrorResponse {

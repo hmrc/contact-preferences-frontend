@@ -17,29 +17,34 @@
 package stubs
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.Preference
+import models.RegimeModel
 import play.api.http.Status._
 import play.api.libs.json.JsValue
 import utils.WireMockMethods
 
 object ContactPreferencesStub extends WireMockMethods {
 
-  private val journeyUri = (id: String) => s"/contact-preferences/journey/$id"
-
-  def getJourneySuccess(id: String)(response: JsValue): StubMapping =
-    when(method = GET, uri = journeyUri(id)).thenReturn(status = OK, body = response)
-
-  def getJourneyFailed(id: String): StubMapping =
-    when(method = GET, uri = journeyUri(id)).thenReturn(status = SERVICE_UNAVAILABLE)
+  private val setJourneyUri = (id: String) => s"/contact-preferences/journey/$id"
+  def startSetJourneySuccess(id: String)(response: JsValue): StubMapping =
+    when(method = GET, uri = setJourneyUri(id)).thenReturn(status = OK, body = response)
+  def startSetJourneyFailed(id: String): StubMapping =
+    when(method = GET, uri = setJourneyUri(id)).thenReturn(status = SERVICE_UNAVAILABLE)
 
 
-  private val preferenceUri = (id: String) => s"/contact-preferences/$id"
-
-  def storePreferenceSuccess(id: String): StubMapping = {
-    when(method = PUT, uri = preferenceUri(id)).thenReturn(status = NO_CONTENT)
+  private val updateContactPreferenceUri = (regime: RegimeModel) => s"/contact-preferences/${regime.getType}/${regime.getId}/${regime.getValue}"
+  def getPreferenceSuccess(regime: RegimeModel)(response: JsValue): StubMapping = {
+    when(method = GET, uri = updateContactPreferenceUri(regime)).thenReturn(status = OK, body = response)
+  }
+  def getPreferenceFailed(regime: RegimeModel): StubMapping = {
+    when(method = GET, uri = updateContactPreferenceUri(regime)).thenReturn(status = NOT_FOUND)
   }
 
+
+  private val setContactPreferenceUri = (id: String) => s"/contact-preferences/$id"
+  def storePreferenceSuccess(id: String): StubMapping = {
+    when(method = PUT, uri = setContactPreferenceUri(id)).thenReturn(status = NO_CONTENT)
+  }
   def storePreferenceFailed(id: String): StubMapping = {
-    when(method = PUT, uri = preferenceUri(id)).thenReturn(status = NOT_FOUND)
+    when(method = PUT, uri = setContactPreferenceUri(id)).thenReturn(status = NOT_FOUND)
   }
 }

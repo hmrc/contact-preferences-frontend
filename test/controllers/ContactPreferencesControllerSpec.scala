@@ -16,34 +16,38 @@
 
 package controllers
 
-import assets.JourneyTestConstants.{journeyId, journeyModelMax}
+import assets.ContactPreferencesTestConstants.digitalPreferenceModel
+import assets.JourneyTestConstants.{journeyId, journeyModelMax, _}
+import assets.messages.ContactPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
 import audit.models.ContactPreferenceAuditModel
+import connectors.httpParsers.GetContactPreferenceHttpParser
 import connectors.httpParsers.JourneyHttpParser.NotFound
-import connectors.httpParsers.StorePreferenceHttpParser.{InvalidPreferencePayload, Success}
+import connectors.httpParsers.StoreContactPreferenceHttpParser.{InvalidPreferencePayload, Success}
 import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
 import models.{Digital, Paper}
 import play.api.http.Status
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import services.mocks.{MockJourneyService, MockPreferenceService}
+import play.api.test.Helpers._
+import services.mocks.{MockContactPreferencesService, MockJourneyService}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
-import utils.TestUtils
+import utils.ControllerTestUtils
 
 import scala.concurrent.Future
 
-class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceService
+class ContactPreferencesControllerSpec extends ControllerTestUtils with MockContactPreferencesService
   with MockJourneyService with MockAuthService with MockAuditConnector {
 
   object TestContactPreferencesController extends ContactPreferencesController(
-    messagesApi, mockAuthService, mockJourneyService, mockPreferenceService, errorHandler, mockAuditConnector, appConfig
+    messagesApi, mockAuthService, mockJourneyService, mockContactPreferencesService, errorHandler, mockAuditConnector, appConfig
   )
 
   "ContactPreferencesController.show" when {
 
-    def result: Future[Result] = TestContactPreferencesController.show(journeyId)(fakeRequest)
+    def result: Future[Result] = TestContactPreferencesController.setRouteShow(journeyId)(fakeRequest)
 
     "a journey can be retrieved from the backend" when {
 
@@ -81,6 +85,85 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
   }
 
+  "ContactPreferencesController.showAuthenticated" when {
+
+    "a journey can be retrieved from the backend" when {
+
+      "the user is authorised" should {
+
+        "the user has a pre selected preference" should {
+
+          lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
+
+          "return an OK (200)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+            mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+            status(result) shouldBe Status.OK
+          }
+
+          "return HTML" in {
+            contentType(result) shouldBe Some("text/html")
+            charset(result) shouldBe Some("utf-8")
+          }
+
+          "display the correct page with the correct option selected" in {
+            title(result) shouldBe pageTitle
+            selectElement(result, "#yes").hasAttr("checked") shouldBe true
+            selectElement(result, "#no").hasAttr("checked") shouldBe false
+          }
+        }
+
+        "the user does NOT have a pre selected preference" should {
+
+          lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
+
+          "return an OK (200)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+            mockGetContactPreference(regimeModel)(Left(GetContactPreferenceHttpParser.NotFound))
+            status(result) shouldBe Status.OK
+          }
+
+          "return HTML" in {
+            contentType(result) shouldBe Some("text/html")
+            charset(result) shouldBe Some("utf-8")
+          }
+
+          "display the correct page with no option selected" in {
+            title(result) shouldBe pageTitle
+            //TODO make this actually check if the option has actually been selected
+            selectElement(result, "#yes").hasAttr("checked") shouldBe false
+            selectElement(result, "#no").hasAttr("checked") shouldBe false
+          }
+        }
+      }
+
+      "the user is NOT authorised" should {
+
+        lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
+
+        "return an FORBIDDEN (403)" in {
+          mockJourney(journeyId)(Right(journeyModelMax))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+
+          status(result) shouldBe Status.FORBIDDEN
+        }
+      }
+    }
+
+    "a journey can NOT be retrieved from the backend" when {
+
+      lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
+
+      "return an NOT_FOUND (404)" in {
+        mockJourney(journeyId)(Left(NotFound))
+
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+  }
+
   "ContactPreferencesController.submit" when {
 
     "a journey can be retrieved from the backend" when {
@@ -91,7 +174,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
           "A success response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
             ))
 
@@ -121,7 +204,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
           "An error response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
             ))
 
@@ -150,7 +233,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
           "A success response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_no
             ))
 
@@ -180,7 +263,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
 
           "An error response is returned from the PreferenceService" should {
 
-            lazy val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            lazy val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
               ContactPreferencesForm.yesNo -> YesNoMapping.option_no
             ))
 
@@ -211,7 +294,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
             mockJourney(journeyId)(Right(journeyModelMax))
             mockAuthenticated(EmptyPredicate)
 
-            val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/"))
+            val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/"))
 
             status(result) shouldBe Status.BAD_REQUEST
           }
@@ -224,7 +307,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
           mockJourney(journeyId)(Right(journeyModelMax))
           mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
 
-          val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+          val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
             ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
           ))
 
@@ -238,7 +321,7 @@ class ContactPreferencesControllerSpec extends TestUtils with MockPreferenceServ
       "return an NOT_FOUND (404)" in {
         mockJourney(journeyId)(Left(NotFound))
 
-        val result = TestContactPreferencesController.submit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+        val result = TestContactPreferencesController.setRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
           ContactPreferencesForm.yesNo -> YesNoMapping.option_yes
         ))
 

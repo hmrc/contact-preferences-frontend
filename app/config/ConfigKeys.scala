@@ -19,6 +19,7 @@ package config
 object ConfigKeys {
 
   val contactFrontendService: String = "contact-frontend.host"
+  val governmentGatewayHost: String = "government-gateway.host"
 
   private val googleAnalyticsRoot: String = "google-analytics"
 
@@ -36,5 +37,8 @@ object ConfigKeys {
 
   val appName: String = "appName"
   val signInBaseUrl: String = "signIn.url"
+
+  val timeoutPeriod: String = "timeout.period"
+  val timeoutCountdown: String = "timeout.countdown"
 
 }

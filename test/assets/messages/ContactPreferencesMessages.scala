@@ -24,7 +24,7 @@ object ContactPreferencesMessages {
   val fullTitle = s"$title - $serviceName - $govUk"
   val text1 = "We can email you when the business has a new message about VAT in their HMRC account."
   val text2 = "You may continue to receive letters to your principal place of business for a while."
-  def radioYes(email: Option[String] = None): String = s"Yes, send emails${email.fold("")(address => s" to $address")}"
+  def radioYes(email: String): String = s"Yes, send emails to $email"
   val radioNo = "No, send me letters only"
   val errorSummary = "Choose yes or no, if you are ready to set your contact preferences"
 

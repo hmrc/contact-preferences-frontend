@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
+package controllers
 
-@views.html.main_template(title = messages("unauthorised.title")) {
+import com.google.inject.{Inject, Singleton}
+import config.AppConfig
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-  <h1 class="heading-large">@messages("unauthorised.title")</h1>
+@Singleton
+class SessionTimeoutController @Inject()(val messagesApi: MessagesApi,
+                                         implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
-  <p>@messages("unauthorised.instructions")</p>
+  val timeout: Action[AnyContent] = Action { implicit request =>
+    Ok(views.html.session_timeout())
+  }
 }

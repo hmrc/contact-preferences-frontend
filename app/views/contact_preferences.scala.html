@@ -22,21 +22,23 @@
 @import models.YesNo
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@(contactPreferencesForm: Form[YesNo], email: Option[String], postAction: Call, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(contactPreferencesForm: Form[YesNo], email: String, postAction: Call, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors, serviceName),
-               serviceName = serviceName,
-               bodyClasses = None,
-               showSignOutLink = false,
-               form = Some(contactPreferencesForm)) {
+@titlePrefix = {
+    @if(contactPreferencesForm.hasErrors) { @messages("common.error") }
+}
 
-    @summaryErrorHelper(contactPreferencesForm)
-
-    <h1 class="heading-large">@messages("contactPreferences.title")</h1>
-
+@additionalContent = {
     <p>@messages("contactPreferences.text.p1")</p>
 
     <p>@messages("contactPreferences.text.p2")</p>
+}
+
+@main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors, serviceName),
+               serviceName = serviceName,
+               form = Some(contactPreferencesForm)) {
+
+    @summaryErrorHelper(contactPreferencesForm)
 
        @form(action = postAction) {
 
@@ -44,18 +46,16 @@
               parentForm = contactPreferencesForm,
               inline = false,
               options = Seq(
-                  (option_yes, messages("contactPreferences.radio.yes", emailMessage)),
+                  (option_yes, messages("contactPreferences.radio.yes", email)),
                   (option_no, messages("contactPreferences.radio.no"))
               ),
               legend = messages("contactPreferences.title"),
-              field = contactPreferencesForm(yesNo)
+              field = contactPreferencesForm(yesNo),
+              renderLegendAsHeading = true,
+              additionalContent = additionalContent
            )
 
            @continueButton()
         }
 
-}
-
-@emailMessage = {
-    @email.map(address => messages("contactPreferences.email.to", address))
 }

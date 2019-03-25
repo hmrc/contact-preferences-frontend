@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
+package assets.messages
 
-@views.html.main_template(title = messages("unauthorised.title")) {
+object TimeoutMessages {
 
-  <h1 class="heading-large">@messages("unauthorised.title")</h1>
+  val title = "Your session has timed out"
+  val h1 = "Your session has timed out"
+  val p1 = "To manage your contact preference, you'll have to sign in using your Government Gateway ID."
 
-  <p>@messages("unauthorised.instructions")</p>
 }

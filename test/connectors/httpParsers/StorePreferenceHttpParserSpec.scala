@@ -16,7 +16,7 @@
 
 package connectors.httpParsers
 
-import connectors.httpParsers.StorePreferenceHttpParser._
+import connectors.httpParsers.StoreContactPreferenceHttpParser._
 import play.api.http.Status
 import uk.gov.hmrc.http.HttpResponse
 import _root_.utils.TestUtils

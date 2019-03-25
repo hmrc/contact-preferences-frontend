@@ -41,7 +41,13 @@
     <meta name="format-detection" content="telephone=no" />
 }
 
-@headerNavLinks = {}
+@headerNavLinks = {
+    @if(showSignOutLink) {
+        <li>
+            <a id="sign-out" href="@controllers.routes.SignOutController.signOut()">@messages("base.sign-out")</a>
+        </li>
+    }
+}
 
 @serviceNameHeading = @{ serviceName.fold(messages("base.service-name"))(x => x) }
 
@@ -50,7 +56,22 @@
       navTitle = Some(serviceNameHeading),
       navTitleLink = None,
       showBetaLink = false,
-      navLinks = None)
+      navLinks = Some(headerNavLinks))
+}
+
+@scriptElement = {
+    <script>
+        @if(showSignOutLink) {
+            window.GOVUK.timeoutDialog({
+              timeout: @appConfig.timeoutPeriod,
+              countdown: @appConfig.timeoutCountdown,
+              keepAliveUrl: '@request.uri',
+              signOutUrl: '@controllers.routes.SignOutController.signOut(timeout = true).url'
+            });
+            var dialogOpen;
+        }
+    </script>
+    @scriptElem.map(x => x)
 }
 
 @afterHeader = {}
@@ -60,7 +81,7 @@
       analyticsToken = Some(appConfig.analyticsToken),
       analyticsHost = appConfig.analyticsHost,
       ssoUrl = None,
-      scriptElem = scriptElem,
+      scriptElem = Some(scriptElement),
       gaCalls = None)
 }
 

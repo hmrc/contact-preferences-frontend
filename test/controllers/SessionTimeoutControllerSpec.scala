@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package models
+package controllers
 
-import play.api.libs.json.{Format, Json}
+import assets.messages.TimeoutMessages
+import play.api.mvc.Result
+import play.api.test.Helpers._
+import utils.ControllerTestUtils
 
-case class Journey(regime: RegimeModel,
-                   serviceName: Option[String] = None,
-                   continueUrl: String,
-                   email: String,
-                   address: AddressModel)
-object Journey {
-  implicit val format: Format[Journey] = Json.format[Journey]
+import scala.concurrent.Future
+
+class SessionTimeoutControllerSpec extends ControllerTestUtils {
+
+
+  object TestSessionTimeoutController extends SessionTimeoutController(messagesApi, appConfig)
+
+  "Calling .timeout" should {
+
+    "Render session timeout view" in {
+      lazy val result: Future[Result] = TestSessionTimeoutController.timeout(fakeRequest)
+      status(result) shouldBe OK
+      title(result) shouldBe TimeoutMessages.title
+    }
+  }
 }

@@ -16,16 +16,17 @@
 
 package controllers
 
-
 import audit.models.ContactPreferenceAuditModel
 import config.{AppConfig, ErrorHandler}
+import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{JourneyService, PreferenceService}
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc._
+import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
@@ -36,29 +37,53 @@ import scala.concurrent.Future
 class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              authService: AuthService,
                                              journeyService: JourneyService,
-                                             preferenceService: PreferenceService,
+                                             preferenceService: ContactPreferencesService,
                                              errorHandler: ErrorHandler,
                                              auditConnector: AuditConnector,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
-  val show: String => Action[AnyContent] = id => Action.async { implicit request =>
+  val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(contact_preferences(
-          serviceName = journeyModel.serviceName,
-          contactPreferencesForm = contactPreferencesForm,
-          email = journeyModel.email,
-          postAction = routes.ContactPreferencesController.submit(id))))
+        Future.successful(displayPage(contactPreferencesForm, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id)))
       }
     }
   }
 
-  val submit: String => Action[AnyContent] = id => Action.async { implicit request =>
+  val updateRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
+    val postAction = routes.ContactPreferencesController.setRouteSubmit(id)
+    // val postAction = routes.ContactPreferencesController.updateRouteSubmit(id) TODO use this when updateRouteSubmit is created
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { _ =>
+        preferenceService.getContactPreference(journeyModel.regime).map {
+          case Right(ContactPreferenceModel(Digital)) =>
+            displayPage(contactPreferencesForm.fill(Yes), journeyModel, postAction)
+          case Right(ContactPreferenceModel(Paper)) =>
+            displayPage(contactPreferencesForm.fill(No), journeyModel, postAction)
+          case _ =>
+            displayPage(contactPreferencesForm, journeyModel, postAction)
+        }
+      }
+    }
+  }
+
+  def displayPage(form: Form[YesNo], journeyModel: Journey, postAction: Call)
+                 (implicit request: Request[_]): Result = {
+    Ok(contact_preferences(
+      serviceName = journeyModel.serviceName,
+      contactPreferencesForm = form,
+      email = journeyModel.email,
+      postAction = postAction
+    ))
+  }
+
+  val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { user =>
         contactPreferencesForm.bindFromRequest.fold(
-          formWithErrors =>
-            Future.successful(BadRequest(contact_preferences(formWithErrors, journeyModel.email, routes.ContactPreferencesController.submit(id)))),
+          formWithErrors => Future.successful(BadRequest(contact_preferences(
+            formWithErrors, journeyModel.email, routes.ContactPreferencesController.setRouteSubmit(id), journeyModel.serviceName)
+          )),
           answer => {
             val preference = if (answer == Yes) Digital else Paper
             auditConnector.sendExplicitAudit(
@@ -78,6 +103,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
     journeyService.getJourney(id) flatMap {
       case Right(journeyModel) => f(journeyModel)
+      case Left(Unauthorised) => Future.successful(Redirect(appConfig.signInUrl))
       case Left(_) => Future.successful(errorHandler.showInternalServerError)
     }
   }
