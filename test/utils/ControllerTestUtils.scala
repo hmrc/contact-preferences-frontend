@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-//
-//package mocks
-//
-//import config.AppConfig
-//import config.features.Features
-//import javax.inject.Inject
-//import org.scalamock.scalatest.MockFactory
-//import play.api.{Configuration, Environment}
-//
-//class MockAppConfig @Inject()(implicit override val runModeConfiguration: Configuration, environment: Environment)
-//  extends AppConfig with MockFactory {
-//
-//  lazy val mockFeatures: Features = mock[Features]
-//
-//  def progressiveDisclosureEnabled(enabled: Boolean): Unit = mockFeatures.progressiveDisclosureEnabled(enabled)
-//
-//  override val features = mockFeatures
-//
-//}
+package utils
+
+import org.jsoup.Jsoup
+import org.jsoup.select.Elements
+import play.api.mvc.Result
+
+import scala.language.implicitConversions
+
+trait ControllerTestUtils extends TestUtils {
+
+  def title(result: Result): String = {
+    Jsoup.parse(bodyOf(result)).select("h1").text()
+  }
+
+  def selectElement(result: Result, id: String): Elements = {
+    Jsoup.parse(bodyOf(result)).select(id)
+  }
+}

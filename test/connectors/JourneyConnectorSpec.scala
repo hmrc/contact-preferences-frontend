@@ -28,9 +28,9 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
     appConfig
   )
 
-  "JourneyConnector" when {
+  "getJourney" when {
 
-    "getJourney is successful" should {
+    "successful" should {
 
       "return a Journey model" in {
 
@@ -43,7 +43,7 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
       }
     }
 
-    "getJourney is unsuccessful" should {
+    "unsuccessful" should {
 
       "return a NotFound ErrorResponse" when {
 
@@ -68,13 +68,14 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
           val expectedResult = Left(UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, "Unexpected Error: I Died"))
 
           actualResult shouldBe expectedResult
-
         }
-
       }
     }
+  }
 
-    "an id is given to journeyUrl" should {
+  "journeyUrl" when {
+
+    "an id and a journey type" should {
 
       "have the correct url" in {
 
