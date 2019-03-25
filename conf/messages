@@ -24,3 +24,9 @@ contactPreferences.email.to = to {0}
 contactPreferences.radio.no = No, send me letters only
 error.contact_preferences.field  = Choose yes or no
 error.contact_preferences.summary = Choose yes or no, if you are ready to set your contact preferences
+
+# Session Timeout
+sessionTimeout.title = Your session has timed out
+sessionTimeout.helpOne = To manage your contact preference, you''ll have to
+sessionTimeout.helpTwo = sign in
+sessionTimeout.helpThree = using your Government Gateway ID.
