@@ -17,7 +17,7 @@
 package services
 
 import assets.JourneyTestConstants._
-import connectors.httpParsers.StorePreferenceHttpParser._
+import connectors.httpParsers.StoreContactPreferenceHttpParser._
 import connectors.mocks.MockPreferenceConnector
 import models.Digital
 

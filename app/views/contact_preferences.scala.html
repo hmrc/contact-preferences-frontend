@@ -27,6 +27,12 @@
     @if(contactPreferencesForm.hasErrors) { @messages("common.error") }
 }
 
+@additionalContent = {
+    <p>@messages("contactPreferences.text.p1")</p>
+
+    <p>@messages("contactPreferences.text.p2")</p>
+}
+
 @main_template(title = titlePrefix + messages("contactPreferences.title"),
                serviceName = serviceName,
                bodyClasses = None,
@@ -34,12 +40,6 @@
                form = Some(contactPreferencesForm)) {
 
     @summaryErrorHelper(contactPreferencesForm)
-
-    <h1 class="heading-large">@messages("contactPreferences.title")</h1>
-
-    <p>@messages("contactPreferences.text.p1")</p>
-
-    <p>@messages("contactPreferences.text.p2")</p>
 
        @form(action = postAction) {
 
@@ -51,7 +51,9 @@
                   (option_no, messages("contactPreferences.radio.no"))
               ),
               legend = messages("contactPreferences.title"),
-              field = contactPreferencesForm(yesNo)
+              field = contactPreferencesForm(yesNo),
+              renderLegendAsHeading = true,
+              additionalContent = additionalContent
            )
 
            @continueButton()

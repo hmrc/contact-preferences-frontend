@@ -27,10 +27,9 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
   object Selectors {
     val pageHeading = "h1"
-    val text1 = "#content > article > p:nth-child(2)"
-    val text2 = "#content > article > p:nth-child(3)"
-    val radioYes = "#yes_no > div:nth-child(2) > label"
-    val radioNo = "#yes_no > div:nth-child(3) > label"
+    val text = (number: Int) => s"#content > article p:nth-child($number)"
+    val radioYes = "#yes_no > div:nth-child(4) > label"
+    val radioNo = "#yes_no > div:nth-child(5) > label"
     val continue = "#continue-button"
 
     val errorHeading = "#error-summary-display > ul > li > a"
@@ -56,11 +55,11 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
       }
 
       s"have the correct first paragraph text" in {
-        document.select(Selectors.text1).text() shouldBe ContactPreferencesMessages.text1
+        document.select(Selectors.text(2)).text() shouldBe ContactPreferencesMessages.text1
       }
 
       s"have a the correct second paragraph text" in {
-        document.select(Selectors.text2).text() shouldBe ContactPreferencesMessages.text2
+        document.select(Selectors.text(3)).text() shouldBe ContactPreferencesMessages.text2
       }
 
       s"have a the correct Yes Option" in {
