@@ -19,6 +19,7 @@ package services
 import assets.JourneyTestConstants._
 import connectors.httpParsers.JourneyHttpParser.InvalidJson
 import connectors.mocks.MockJourneyConnector
+
 class JourneyServiceSpec extends MockJourneyConnector {
 
   object TestJourneyService extends JourneyService(connector)
