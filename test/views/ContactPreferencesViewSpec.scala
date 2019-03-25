@@ -36,8 +36,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
     val error = "#error-message-yes_no"
   }
 
-
-  "The software choices search page" when {
+  "The contact preferences page" when {
 
     "the page has no errors" should {
 

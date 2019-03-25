@@ -18,11 +18,13 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class Journey(regime: RegimeModel,
-                   serviceName: Option[String] = None,
-                   continueUrl: String,
-                   email: String,
-                   address: AddressModel)
-object Journey {
-  implicit val format: Format[Journey] = Json.format[Journey]
+case class AddressModel(line1: String,
+                        line2: String,
+                        line3: Option[String] = None,
+                        line4: Option[String] = None,
+                        postcode: Option[String] = None,
+                        countryCode: String)
+
+object AddressModel {
+  implicit val fmt: Format[AddressModel] = Json.format[AddressModel]
 }

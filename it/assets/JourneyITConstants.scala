@@ -33,13 +33,29 @@ object JourneyITConstants {
       )
     ),
     "continueUrl" -> "continue/url",
-    "email" -> "email@email.com"
+    "email" -> "email@email.com",
+    "address" -> Json.obj(
+      "line1" -> "line1",
+      "line2" -> "line2",
+      "line3" -> "line3",
+      "line4" -> "line4",
+      "postcode" -> "postcode",
+      "countryCode" -> "countryCode"
+    )
   )
 
   val journeyModel = Journey(
     regime = RegimeModel(MTDVAT, Id(VRN, testVatNumber)),
     continueUrl = "continue/url",
-    email = Some("email@email.com")
+    email = "email@email.com",
+    address = AddressModel(
+      line1 = "line1",
+      line2 = "line2",
+      line3 = Some("line3"),
+      line4 = Some("line4"),
+      postcode = Some("postcode"),
+      countryCode = "GB"
+    )
   )
 
 }

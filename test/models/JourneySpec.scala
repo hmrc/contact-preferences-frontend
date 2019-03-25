@@ -17,6 +17,7 @@
 package models
 
 import assets.JourneyTestConstants._
+import assets.AddressTestConstants._
 import play.api.libs.json.Json
 import utils.TestUtils
 
@@ -43,7 +44,7 @@ class JourneySpec extends TestUtils {
     "have an email" in {
 
       val actualResult = journeyModelMax.email
-      val expectedResult = Some(email)
+      val expectedResult = email
 
       actualResult shouldBe expectedResult
     }
@@ -52,6 +53,14 @@ class JourneySpec extends TestUtils {
 
       val actualResult = journeyModelMax.serviceName
       val expectedResult = Some(serviceName)
+
+      actualResult shouldBe expectedResult
+    }
+
+    "have an address" in {
+
+      val actualResult = journeyModelMax.address
+      val expectedResult = addressModelMax
 
       actualResult shouldBe expectedResult
     }

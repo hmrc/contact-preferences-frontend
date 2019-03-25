@@ -22,7 +22,7 @@ import utils.JsonSugar
 
 case class ContactPreferenceAuditModel(regime: RegimeModel,
                                        agentReferenceNumber: Option[String],
-                                       emailAddress: Option[String],
+                                       emailAddress: String,
                                        contactPreference: Preference)
 
 object ContactPreferenceAuditModel extends JsonSugar {

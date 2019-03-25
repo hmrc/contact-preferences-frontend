@@ -19,6 +19,8 @@ package assets
 import models._
 import play.api.libs.json.{JsObject, JsString, Json}
 import assets.BaseTestConstants._
+import assets.AddressTestConstants._
+import uk.gov.hmrc.play.binders.ContinueUrl
 
 object JourneyTestConstants {
 
@@ -46,7 +48,8 @@ object JourneyTestConstants {
     "regime" -> regimeJson,
     "serviceName" -> serviceName,
     "continueUrl" -> continueUrl,
-    "email" -> email
+    "email" -> email,
+    "address" -> addressJsonMax
   )
 
   val journeyJsonMin: JsObject = Json.obj(
@@ -62,12 +65,15 @@ object JourneyTestConstants {
     regime = regimeModel,
     serviceName = Some(serviceName),
     continueUrl = continueUrl,
-    email = Some(email)
+    email = email,
+    address = addressModelMax
   )
 
   val journeyModelMin =  Journey(
     regime = regimeModel,
-    continueUrl = continueUrl
+    continueUrl = continueUrl,
+    email = email,
+    address = addressModelMin
   )
 
 }

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package testOnly.models
 
-import play.api.libs.json.{Format, Json}
+import models.{AddressModel, RegimeModel}
 
-case class Journey(regime: RegimeModel,
-                   serviceName: Option[String] = None,
-                   continueUrl: String,
-                   email: String,
-                   address: AddressModel)
-object Journey {
-  implicit val format: Format[Journey] = Json.format[Journey]
-}
+case class SimulateJourneyModel(submitToDes: Boolean,
+                                regime: RegimeModel,
+                                serviceName: Option[String] = None,
+                                continueUrl: String,
+                                email: String,
+                                address: AddressModel)
+
