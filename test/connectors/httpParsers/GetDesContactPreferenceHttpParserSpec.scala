@@ -17,7 +17,7 @@
 package connectors.httpParsers
 
 import connectors.httpParsers.GetContactPreferenceHttpParser._
-import models.{ContactPreferenceModel, Digital}
+import models.{ContactPreferenceModel, Email}
 import play.api.http.Status
 import uk.gov.hmrc.http.HttpResponse
 import utils.TestUtils
@@ -35,7 +35,7 @@ class GetDesContactPreferenceHttpParserSpec extends TestUtils {
         responseStatus = Status.OK,
         responseJson = Some(digitalPreferenceJson)
       ))
-      val expectedResult = Right(ContactPreferenceModel(Digital))
+      val expectedResult = Right(ContactPreferenceModel(Email))
 
       actualResult shouldBe expectedResult
     }

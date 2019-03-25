@@ -23,11 +23,11 @@ sealed trait Preference {
   val value: String
 }
 
-case object Digital extends Preference {
+case object Email extends Preference {
   override val value = "DIGITAL"
 }
 
-case object Paper extends Preference {
+case object Letter extends Preference {
   override val value = "PAPER"
 }
 
@@ -41,9 +41,9 @@ object Preference extends JsonSugar {
   }
 
   def apply(value: String): Preference = value.toUpperCase match {
-    case Digital.value => Digital
-    case Paper.value => Paper
-    case x => throw jsonError(__ \ "preference", s"Invalid Preference: $x. Valid Preference set: (${Digital.value}|${Paper.value})")
+    case Email.value => Email
+    case Letter.value => Letter
+    case x => throw jsonError(__ \ "preference", s"Invalid Preference: $x. Valid Preference set: (${Email.value}|${Letter.value})")
   }
 
   def unapply: Preference => String = _.value

@@ -22,8 +22,8 @@ import _root_.utils.TestUtils
 
 class PreferenceSpec extends TestUtils with JsonSugar {
 
-  val digitalJson: JsString = JsString(Digital.value)
-  val paperJson: JsString = JsString(Paper.value)
+  val digitalJson: JsString = JsString(Email.value)
+  val paperJson: JsString = JsString(Letter.value)
   val invalidJson: JsString = JsString("foo")
 
   "Preference.apply" should {
@@ -31,11 +31,11 @@ class PreferenceSpec extends TestUtils with JsonSugar {
     "when given a valid Preference" should {
 
       "for DIGITAL return Digital case object" in {
-        Preference(Digital.value) shouldBe Digital
+        Preference(Email.value) shouldBe Email
       }
 
       "for PAPER return Paper case object" in {
-        Preference(Paper.value) shouldBe Paper
+        Preference(Letter.value) shouldBe Letter
       }
     }
 
@@ -43,7 +43,7 @@ class PreferenceSpec extends TestUtils with JsonSugar {
 
       "for foo an InvalidPreference" in {
         intercept[JsResultException](Preference("foo")) shouldBe
-          jsonError(__ \ "preference", s"Invalid Preference: FOO. Valid Preference set: (${Digital.value}|${Paper.value})")
+          jsonError(__ \ "preference", s"Invalid Preference: FOO. Valid Preference set: (${Email.value}|${Letter.value})")
       }
     }
   }
@@ -53,11 +53,11 @@ class PreferenceSpec extends TestUtils with JsonSugar {
     "when given a valid Preference" should {
 
       "for Digital case object return DIGITAL " in {
-        Preference.unapply(Digital) shouldBe Digital.value
+        Preference.unapply(Email) shouldBe Email.value
       }
 
       "for Paper case object return PAPER" in {
-        Preference.unapply(Paper) shouldBe Paper.value
+        Preference.unapply(Letter) shouldBe Letter.value
       }
     }
   }
@@ -69,11 +69,11 @@ class PreferenceSpec extends TestUtils with JsonSugar {
       "when given an valid Preference" should {
 
         "for DIGITAL return Digital case object" in {
-          digitalJson.as[Preference] shouldBe Digital
+          digitalJson.as[Preference] shouldBe Email
         }
 
         "for PAPER return Paper case object" in {
-          paperJson.as[Preference] shouldBe Paper
+          paperJson.as[Preference] shouldBe Letter
         }
       }
 
@@ -81,7 +81,7 @@ class PreferenceSpec extends TestUtils with JsonSugar {
 
         "for invalidJson return InvalidPreference case object" in {
           intercept[JsResultException](invalidJson.as[Preference]) shouldBe
-            jsonError(__ \ "preference", s"Invalid Preference: FOO. Valid Preference set: (${Digital.value}|${Paper.value})")
+            jsonError(__ \ "preference", s"Invalid Preference: FOO. Valid Preference set: (${Email.value}|${Letter.value})")
         }
       }
     }
@@ -100,11 +100,11 @@ class PreferenceSpec extends TestUtils with JsonSugar {
     "when given an valid Preference" should {
 
       "for DIGITAL return Digital case object" in {
-        Json.toJson(Digital) shouldBe digitalJson
+        Json.toJson(Email) shouldBe digitalJson
       }
 
       "for PAPER return Paper case object" in {
-        Json.toJson(Paper) shouldBe paperJson
+        Json.toJson(Letter) shouldBe paperJson
       }
     }
   }

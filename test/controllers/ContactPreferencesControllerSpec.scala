@@ -26,7 +26,7 @@ import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
 import connectors.httpParsers.StoreContactPreferenceHttpParser.{InvalidPreferencePayload, Success}
 import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
-import models.{Digital, Paper}
+import models.{Email, Letter}
 import play.api.http.Status
 import play.api.mvc.Result
 import play.api.test.FakeRequest
@@ -194,7 +194,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Digital)(Right(Success))
+              mockStoreJourneyPreference(journeyId, Email)(Right(Success))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -202,7 +202,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
                   journeyModelMax.regime,
                   None,
                   journeyModelMax.email,
-                  Digital
+                  Email
                 )
               )
 
@@ -224,7 +224,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Digital)(Left(InvalidPreferencePayload))
+              mockStoreJourneyPreference(journeyId, Email)(Left(InvalidPreferencePayload))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -232,7 +232,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
                   journeyModelMax.regime,
                   None,
                   journeyModelMax.email,
-                  Digital
+                  Email
                 )
               )
 
@@ -253,7 +253,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Paper)(Right(Success))
+              mockStoreJourneyPreference(journeyId, Letter)(Right(Success))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -261,7 +261,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
                   journeyModelMax.regime,
                   None,
                   journeyModelMax.email,
-                  Paper
+                  Letter
                 )
               )
 
@@ -283,7 +283,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Paper)(Left(InvalidPreferencePayload))
+              mockStoreJourneyPreference(journeyId, Letter)(Left(InvalidPreferencePayload))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -291,7 +291,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
                   journeyModelMax.regime,
                   None,
                   journeyModelMax.email,
-                  Paper
+                  Letter
                 )
               )
 

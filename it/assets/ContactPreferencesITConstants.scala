@@ -16,15 +16,15 @@
 
 package assets
 
-import models.{ContactPreferenceModel, Digital, Paper}
+import models.{ContactPreferenceModel, Email, Letter}
 import play.api.libs.json.{JsObject, Json}
 
 object ContactPreferencesITConstants {
 
-  val digitalPreferenceJson: JsObject = Json.obj("preference" ->  Digital.value)
-  val digitalPreferenceModel = ContactPreferenceModel(Digital)
+  val digitalPreferenceJson: JsObject = Json.obj("preference" ->  Email.value)
+  val digitalPreferenceModel = ContactPreferenceModel(Email)
 
-  val paperPreferenceJson: JsObject = Json.obj("preference" ->  Paper.value)
-  val paperPreferenceModel = ContactPreferenceModel(Paper)
+  val paperPreferenceJson: JsObject = Json.obj("preference" ->  Letter.value)
+  val paperPreferenceModel = ContactPreferenceModel(Letter)
 
 }

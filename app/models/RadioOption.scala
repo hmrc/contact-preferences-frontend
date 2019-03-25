@@ -16,19 +16,4 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
-
-case class AddressModel(line1: String,
-                        line2: String,
-                        line3: Option[String] = None,
-                        line4: Option[String] = None,
-                        postcode: Option[String] = None,
-                        countryCode: String) {
-
-  val singleLineAddress: String = Seq(Some(line1), Some(line2), line3, line4, postcode).flatten.mkString(", ")
-
-}
-
-object AddressModel {
-  implicit val fmt: Format[AddressModel] = Json.format[AddressModel]
-}
+case class RadioOption(field: String, label: String, hint: Option[String] = None)
