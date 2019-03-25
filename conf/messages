@@ -3,6 +3,7 @@ common.errorSummary.heading = There is a problem
 common.error = Error:
 base.continue = Continue
 base.service-name = Update your contact preference
+base.sign-out = Sign out
 
 #Feedback
 feedback.before = This is a new service – your

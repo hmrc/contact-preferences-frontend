@@ -20,6 +20,7 @@ object ConfigKeys {
 
   val contactFrontendService: String = "contact-frontend.host"
   val governmentGatewayHost: String = "government-gateway.host"
+  val taxAccountRouterHost: String = "tax-account-router-frontend.host"
 
   private val googleAnalyticsRoot: String = "google-analytics"
 

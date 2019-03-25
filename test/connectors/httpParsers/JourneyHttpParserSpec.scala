@@ -60,6 +60,14 @@ class JourneyHttpParserSpec extends TestUtils {
       actualResult shouldBe expectedResult
     }
 
+    "return an Unauthorised Error when status returned is UNAUTHORISED (401)" in {
+
+      val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.UNAUTHORIZED))
+      val expectedResult = Left(Unauthorised)
+
+      actualResult shouldBe expectedResult
+    }
+
     "return a UnexpectedError when status is not in (200,404,503)" in {
 
       val actualResult = JourneyHttpRead.read("","",HttpResponse(Status.INTERNAL_SERVER_ERROR))
