@@ -20,7 +20,7 @@ import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import audit.mocks.MockAuditConnector
 import audit.models.ContactPreferenceAuditModel
 import connectors.httpParsers.JourneyHttpParser.NotFound
-import connectors.httpParsers.StorePreferenceHttpParser.{InvalidPreferencePayload, Success}
+import connectors.httpParsers.StoreContactPreferenceHttpParser.{InvalidPreferencePayload, Success}
 import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
 import models.{Digital, Paper}

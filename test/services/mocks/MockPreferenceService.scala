@@ -16,7 +16,7 @@
 
 package services.mocks
 
-import connectors.httpParsers.StorePreferenceHttpParser.Response
+import connectors.httpParsers.StoreContactPreferenceHttpParser.Response
 import models.Preference
 import org.scalamock.scalatest.MockFactory
 import services.PreferenceService

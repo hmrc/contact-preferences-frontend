@@ -21,7 +21,7 @@ import play.api.http.Status
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST, FORBIDDEN, UNAUTHORIZED}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
-object StorePreferenceHttpParser {
+object StoreContactPreferenceHttpParser {
 
   type Response = Either[ErrorResponse, SuccessResponse]
 

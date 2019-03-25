@@ -16,8 +16,8 @@
 
 package connectors.mocks
 
-import connectors.PreferenceConnector
-import connectors.httpParsers.StorePreferenceHttpParser.Response
+import connectors.ContactPreferencesConnector
+import connectors.httpParsers.StoreContactPreferenceHttpParser.Response
 import models.Preference
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,10 +27,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait MockPreferenceConnector extends MockFactory with TestUtils {
 
-  lazy val connector: PreferenceConnector = mock[PreferenceConnector]
+  lazy val connector: ContactPreferencesConnector = mock[ContactPreferencesConnector]
 
   def mockStoreJourneyPreference(id: String, preference: Preference)(response: Response): Unit = {
-    (connector.storeJourneyPreference(_: String, _: Preference)(_: HeaderCarrier, _: ExecutionContext))
+    (connector.storeContactPreference(_: String, _: Preference)(_: HeaderCarrier, _: ExecutionContext))
       .expects(id, preference, *, *)
       .returns(Future.successful(response))
   }
