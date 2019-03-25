@@ -35,8 +35,6 @@
 
 @main_template(title = titlePrefix + messages("contactPreferences.title"),
                serviceName = serviceName,
-               bodyClasses = None,
-               showSignOutLink = false,
                form = Some(contactPreferencesForm)) {
 
     @summaryErrorHelper(contactPreferencesForm)

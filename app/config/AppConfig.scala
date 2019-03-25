@@ -46,6 +46,11 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, val environme
   private lazy val signInBaseUrl: String = getString(ConfigKeys.signInBaseUrl)
   private lazy val signInOrigin = getString(ConfigKeys.appName)
   def signInUrl(implicit request: Request[_]): String = s"$signInBaseUrl?continue=$continueUrl&origin=$signInOrigin"
+  private lazy val governmentGatewayHost: String = getString(ConfigKeys.governmentGatewayHost)
+  private lazy val timeOutRedirectUrl = host + controllers.routes.SessionTimeoutController.timeout().url
+  lazy val timeOutSignOutUrl = s"$governmentGatewayHost/gg/sign-out?continue=$timeOutRedirectUrl"
+  lazy val signOutUrl = s"$governmentGatewayHost/gg/sign-out"
+
 
   lazy val host: String = getString(ConfigKeys.host)
 
@@ -59,5 +64,8 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, val environme
   lazy val whiteListEnabled: Boolean = getBoolean(ConfigKeys.whitelistEnabled)
 
   lazy val contactPreferencesUrl: String = s"${baseUrl(ConfigKeys.contactPreferencesService)}/contact-preferences"
+
+  lazy val timeoutCountdown: Int = getInt(ConfigKeys.timeoutCountdown)
+  lazy val timeoutPeriod: Int = getInt(ConfigKeys.timeoutPeriod)
 
 }

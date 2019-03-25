@@ -6,3 +6,4 @@ POST       /set/:journeyId              controllers.ContactPreferencesController
 GET        /update/:journeyId           controllers.ContactPreferencesController.updateRouteShow(journeyId: String)
 
 GET        /timeout                     controllers.SessionTimeoutController.timeout()
+GET        /sign-out                    controllers.SignOutController.signOut(timeout: Boolean ?= false)
