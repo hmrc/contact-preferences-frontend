@@ -22,7 +22,7 @@ import assets.messages.ContactPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
 import audit.models.ContactPreferenceAuditModel
 import connectors.httpParsers.GetContactPreferenceHttpParser
-import connectors.httpParsers.JourneyHttpParser.NotFound
+import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
 import connectors.httpParsers.StoreContactPreferenceHttpParser.{InvalidPreferencePayload, Success}
 import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, YesNoMapping}
@@ -160,6 +160,18 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
         mockJourney(journeyId)(Left(NotFound))
 
         status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "the backend indicates the user is unauthorised" when {
+
+      lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
+
+      "return SEE_OTHER (303)" in {
+        mockJourney(journeyId)(Left(Unauthorised))
+
+        status(result) shouldBe Status.SEE_OTHER
+        redirectLocation(result) shouldBe Some(appConfig.signInUrl())
       }
     }
   }

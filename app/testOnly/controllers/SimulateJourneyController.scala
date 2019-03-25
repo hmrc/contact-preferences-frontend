@@ -42,7 +42,7 @@ class SimulateJourneyController @Inject()(contactPreferenceConnector: ContactPre
     authorised() {
       Future.successful(Ok(simulate_journey_start(simulateJourneyForm, testOnly.controllers.routes.SimulateJourneyController.startJourneySubmit())))
     }.recover {
-      case _ => Redirect(appConfig.signInUrl)
+      case _ => Redirect(appConfig.signInUrl())
     }
   }
 

@@ -72,7 +72,7 @@ class AuthServiceSpec extends MockAuthConnector {
 
         "Redirect to GG Sign In" in {
           mockAuthorise(EmptyPredicate, retrievals)(Future.failed(MissingBearerToken()))
-          redirectLocation(result) shouldBe Some(appConfig.signInUrl)
+          redirectLocation(result) shouldBe Some(appConfig.signInUrl())
         }
       }
 

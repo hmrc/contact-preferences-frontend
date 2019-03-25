@@ -38,18 +38,22 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, val environme
   lazy val reportAProblemPartialUrl: String = s"$contactHost/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
   lazy val reportAProblemNonJSUrl: String = s"$contactHost/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
 
-  private def continueUrl(implicit request: Request[_]) = ContinueUrl(host + request.uri).encodedUrl
+  private def requestUri(implicit request: Request[_]) = ContinueUrl(host + request.uri).encodedUrl
 
   def feedbackUrl(implicit request: Request[_]): String = s"$contactHost/contact/beta-feedback-unauthenticated?service=$contactFormServiceIdentifier" +
-    s"&backUrl=$continueUrl"
+    s"&backUrl=$requestUri"
 
   private lazy val signInBaseUrl: String = getString(ConfigKeys.signInBaseUrl)
   private lazy val signInOrigin = getString(ConfigKeys.appName)
-  def signInUrl(implicit request: Request[_]): String = s"$signInBaseUrl?continue=$continueUrl&origin=$signInOrigin"
+  def signInUrl(continueUrl: Option[String] = None)(implicit request: Request[_]): String =
+    s"$signInBaseUrl?continue=${continueUrl.getOrElse(requestUri)}&origin=$signInOrigin"
   private lazy val governmentGatewayHost: String = getString(ConfigKeys.governmentGatewayHost)
   private lazy val timeOutRedirectUrl = host + controllers.routes.SessionTimeoutController.timeout().url
   lazy val timeOutSignOutUrl = s"$governmentGatewayHost/gg/sign-out?continue=$timeOutRedirectUrl"
   lazy val signOutUrl = s"$governmentGatewayHost/gg/sign-out"
+
+  private lazy val taxAccountRouterHost = getString(ConfigKeys.taxAccountRouterHost)
+  lazy val taxAccountRouterUrl = s"$taxAccountRouterHost/account"
 
 
   lazy val host: String = getString(ConfigKeys.host)

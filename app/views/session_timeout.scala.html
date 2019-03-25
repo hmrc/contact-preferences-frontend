@@ -21,7 +21,7 @@
     <h1 class="heading-large">@messages("sessionTimeout.title")</h1>
 
     <p>@Messages("sessionTimeout.helpOne")
-        <a href=@appConfig.signInUrl>@Messages("sessionTimeout.helpTwo")</a>
+        <a href=@appConfig.signInUrl(Some(appConfig.taxAccountRouterUrl))>@Messages("sessionTimeout.helpTwo")</a>
         @Messages("sessionTimeout.helpThree")
     </p>
 }
