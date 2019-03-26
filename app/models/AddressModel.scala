@@ -25,7 +25,7 @@ case class AddressModel(line1: String,
                         postcode: Option[String] = None,
                         countryCode: String) {
 
-  val singleLineAddress: String = Seq(Some(line1), Some(line2), line3, line4, postcode).flatten.mkString(", ")
+  val singleLineAddress: String = Seq(Some(line1), postcode).flatten.mkString(", ")
 
 }
 

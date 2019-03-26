@@ -70,7 +70,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                  (implicit request: Request[_]): HtmlFormat.Appendable = {
     contact_preferences(
       serviceName = journeyModel.serviceName,
-      contactPreferencesForm = form,
+      contactPreferencesForm = form.fill(Email),
       email = journeyModel.email,
       address = journeyModel.address,
       postAction = postAction

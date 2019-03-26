@@ -16,30 +16,30 @@
 
 package forms
 
+import forms.ContactPreferencesForm._
+import forms.PreferenceMapping._
+import models.{Email, Letter}
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
-import forms.ContactPreferencesForm._
-import forms.YesNoMapping._
-import models.{No, Yes}
 
 class ContactPreferencesFormSpec extends UnitSpec {
 
   val error = "error.contact_preferences.summary"
 
   "YesNoForm" should {
-    "successfully parse a Yes" in {
-      val res = contactPreferencesForm.bind(Map(yesNo -> option_yes))
-      res.value should contain(Yes)
+    "successfully parse a Email" in {
+      val res = contactPreferencesForm.bind(Map(preference -> option_email))
+      res.value should contain(Email)
     }
 
-    "successfully parse a No" in {
-      val res = contactPreferencesForm.bind(Map(yesNo -> option_no))
-      res.value should contain(No)
+    "successfully parse a Digital" in {
+      val res = contactPreferencesForm.bind(Map(preference -> option_letter))
+      res.value should contain(Letter)
     }
 
     "fail when nothing has been entered" in {
       val res = contactPreferencesForm.bind(Map.empty[String, String])
-      res.errors should contain(FormError(yesNo, error))
+      res.errors should contain(FormError(preference, error))
     }
   }
 }

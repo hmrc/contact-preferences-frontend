@@ -19,11 +19,12 @@ unauthorised.instructions = You are unauthorised from making changes to the cont
 common.error = Error:
 
 contactPreferences.title = How would you like us to contact you?
-contactPreferences.text.p1 = Your current preference is to receive a {0}.
+contactPreferences.text.p1.letter = Your current preference is to receive a letter.
+contactPreferences.text.p1.email = Your current preference is for email.
 contactPreferences.radio.yes = Email
 contactPreferences.radio.no = Letter
 error.contact_preferences.field  = Choose email or letter
-error.contact_preferences.summary = Choose email or letter if you are ready to set your contact preferences
+error.contact_preferences.summary = Choose email or letter, if you are ready to set your contact preferences
 
 # Session Timeout
 sessionTimeout.title = Your session has timed out

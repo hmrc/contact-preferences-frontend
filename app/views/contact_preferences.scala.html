@@ -34,9 +34,13 @@
 }
 
 @additionalContent = {
-    @contactPreferencesForm(preference).value.map { value =>
-        <p>@messages("contactPreferences.text.p1", value)</p>
-    }
+    <p>
+        @{contactPreferencesForm(preference).value.map {
+            case "email" => messages("contactPreferences.text.p1.email")
+            case "letter" => messages("contactPreferences.text.p1.letter")
+            case _ => ""
+        }}
+    </p>
 }
 
 @main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors, serviceName),
