@@ -22,13 +22,14 @@ import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import controllers.routes
 import forms.ContactPreferencesForm
 import _root_.utils.ViewTestUtils
+import models.{Email, Letter}
 
 
 class ContactPreferencesViewSpec extends ViewTestUtils {
 
   object Selectors {
     val pageHeading = "h1"
-    val currentPreference = s"#content > article p:nth-child(1)"
+    val currentPreference = s"#content > article p"
     val radioEmail = "label[for='email']"
     val radioEmailHint = "label[for='email'] span"
     val radioLetter = "label[for='letter']"
@@ -41,13 +42,14 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
   "The Contact Preferences page" when {
 
-    "the page has no errors" should {
+    "the page has no errors and user is currently email" should {
 
       lazy val document = parseView(views.html.contact_preferences(
-        ContactPreferencesForm.contactPreferencesForm,
-        journeyModelMax.email,
-        routes.ContactPreferencesController.setRouteSubmit(journeyId),
-        address = AddressTestConstants.addressModelMax
+        contactPreferencesForm = ContactPreferencesForm.contactPreferencesForm,
+        email = journeyModelMax.email,
+        postAction = routes.ContactPreferencesController.setRouteSubmit(journeyId),
+        address = AddressTestConstants.addressModelMax,
+        currentPreference = Some(Email)
       ))
 
       s"have the correct document title" in {
@@ -56,6 +58,10 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
       s"have a the correct page heading" in {
         document.select(Selectors.pageHeading).text() shouldBe ContactPreferencesMessages.title
+      }
+
+      "have a paragraph indicating that the current preference is email" in {
+        document.select(Selectors.currentPreference).text shouldBe ContactPreferencesMessages.email
       }
 
       s"have a the correct Email Option" in {
@@ -76,6 +82,21 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
       s"have a the correct continue button" in {
         document.select(Selectors.continue).attr("value") shouldBe CommonMessages.continue
+      }
+    }
+
+    "the page has no errors and user is currently letter" should {
+
+      lazy val document = parseView(views.html.contact_preferences(
+        contactPreferencesForm = ContactPreferencesForm.contactPreferencesForm,
+        email = journeyModelMax.email,
+        postAction = routes.ContactPreferencesController.setRouteSubmit(journeyId),
+        address = AddressTestConstants.addressModelMax,
+        currentPreference = Some(Letter)
+      ))
+
+      "have a paragraph indicating that the current preference is letter" in {
+        document.select(Selectors.currentPreference).text shouldBe ContactPreferencesMessages.letter
       }
     }
 

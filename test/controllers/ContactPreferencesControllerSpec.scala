@@ -21,6 +21,7 @@ import assets.JourneyTestConstants.{journeyId, journeyModelMax, _}
 import assets.messages.ContactPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
 import audit.models.ContactPreferenceAuditModel
+import config.SessionKeys
 import connectors.httpParsers.GetContactPreferenceHttpParser
 import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
 import connectors.httpParsers.StoreContactPreferenceHttpParser.{InvalidPreferencePayload, Success}
@@ -91,7 +92,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
       "the user is authorised" should {
 
-        "the user has a pre selected preference" should {
+        "the user has a pre selected preference but no preference in session" should {
 
           lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
 
@@ -111,6 +112,31 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             title(result) shouldBe pageTitle
             selectElement(result, "#email").hasAttr("checked") shouldBe true
             selectElement(result, "#letter").hasAttr("checked") shouldBe false
+          }
+        }
+
+        "the user has a pre selected preference but the preference in session override it" should {
+
+          lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(
+            fakeRequest.withSession(SessionKeys.preference -> Letter.value)
+          )
+
+          "return an OK (200)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+            mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+            status(result) shouldBe Status.OK
+          }
+
+          "return HTML" in {
+            contentType(result) shouldBe Some("text/html")
+            charset(result) shouldBe Some("utf-8")
+          }
+
+          "display the correct page with the correct option selected" in {
+            title(result) shouldBe pageTitle
+            selectElement(result, "#email").hasAttr("checked") shouldBe false
+            selectElement(result, "#letter").hasAttr("checked") shouldBe true
           }
         }
 

@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package assets.messages
+package config
 
-import assets.messages.CommonMessages._
+object SessionKeys {
 
-object ContactPreferencesMessages {
-
-  val title = "How would you like us to contact you?"
-  val email = "Your current preference is for email."
-  val letter = "Your current preference is to receive a letter."
-  val fullTitle = s"$title - $serviceName - $govUk"
-  val radioEmail = "Email"
-  val radioLetter = "Letter"
-  val errorSummary = "Choose email or letter, if you are ready to set your contact preferences"
+  val preference = "SELECTED_PREFERENCE"
 
 }
