@@ -19,6 +19,7 @@ package connectors
 import config.AppConfig
 import connectors.httpParsers.{StoreContactPreferenceHttpParser => StoreHttpParser}
 import connectors.httpParsers.{GetContactPreferenceHttpParser => GetHttpParser}
+import connectors.httpParsers.{UpdateContactPreferenceHttpParser => UpdateHttpParser}
 import javax.inject.{Inject, Singleton}
 import models.{ContactPreferenceModel, Preference, RegimeModel}
 import play.api.Logger
@@ -31,28 +32,42 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ContactPreferencesConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig) {
 
-  private[connectors] val preferenceUrl = (id: String) => s"${appConfig.contactPreferencesUrl}/$id"
+  private[connectors] val storePreferenceUrl = (id: String) => s"${appConfig.contactPreferencesUrl}/$id"
 
   def storeContactPreference(id: String, preference: Preference)
                             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[StoreHttpParser.Response] = {
 
-    Logger.debug(s"[ContactPreferencesConnector][storeContactPreference] Calling backend to store preference for JourneyID: $id\n${preferenceUrl(id)}")
-    http.PUT(preferenceUrl(id), ContactPreferenceModel(preference))(ContactPreferenceModel.format, StoreHttpParser.StorePreferenceHttpRead, hc, ec).recover {
-      case e =>
-        Logger.error(s"[ContactPreferencesConnector][storeContactPreference] Unexpected Error: ${e.getMessage}")
-        Left(StoreHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
-    }
+    Logger.debug(s"[ContactPreferencesConnector][storeContactPreference] Calling backend to store preference for JourneyID: $id\n${storePreferenceUrl(id)}")
+    http.PUT(storePreferenceUrl(id), ContactPreferenceModel(preference))(ContactPreferenceModel.format, StoreHttpParser.StorePreferenceHttpRead, hc, ec)
+      .recover {
+        case e =>
+          Logger.error(s"[ContactPreferencesConnector][storeContactPreference] Unexpected Error: ${e.getMessage}")
+          Left(StoreHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
+      }
   }
 
-  private[connectors] val contactPreferenceDesUrl = (regimeModel: RegimeModel) =>
+  private[connectors] val preferenceUrl = (regimeModel: RegimeModel) =>
     s"${appConfig.contactPreferencesUrl}/${regimeModel.getType}/${regimeModel.getId}/${regimeModel.getValue}"
 
-  def getContactPreference(regime: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[GetHttpParser.Response] = {
+  def getContactPreference(regime: RegimeModel)
+                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[GetHttpParser.Response] = {
 
-    http.GET(contactPreferenceDesUrl(regime))(GetHttpParser.GetDesContactPreferenceHttpReads, hc, ec).recover{
-      case e =>
-        Logger.error(s"[ContactPreferencesConnector][getContactPreference] Unexpected Error: ${e.getMessage}")
-        Left(GetHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
-    }
+    http.GET(preferenceUrl(regime))(GetHttpParser.GetDesContactPreferenceHttpReads, hc, ec)
+      .recover {
+        case e =>
+          Logger.error(s"[ContactPreferencesConnector][getContactPreference] Unexpected Error: ${e.getMessage}")
+          Left(GetHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
+      }
+  }
+
+  def updateContactPreference(regime: RegimeModel, preference: Preference)
+                             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[UpdateHttpParser.Response] = {
+
+    http.PUT(preferenceUrl(regime), preference)(Preference.writes, UpdateHttpParser.UpdateContactPreferenceHttpReads, hc, ec)
+      .recover {
+        case e =>
+          Logger.error(s"[ContactPreferencesConnector][updateContactPreference] Unexpected Error: ${e.getMessage}")
+          Left(UpdateHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
+      }
   }
 }
