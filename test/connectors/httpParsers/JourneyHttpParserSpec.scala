@@ -21,7 +21,7 @@ import connectors.httpParsers.JourneyHttpParser._
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
-import utils.TestUtils
+import _root_.utils.TestUtils
 
 
 class JourneyHttpParserSpec extends TestUtils {

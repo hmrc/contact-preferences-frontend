@@ -22,7 +22,7 @@ import models.{Preference, RegimeModel}
 import org.scalamock.scalatest.MockFactory
 import services.ContactPreferencesService
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.TestUtils
+import _root_.utils.TestUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -19,7 +19,7 @@ package models
 import assets.JourneyTestConstants._
 import assets.AddressTestConstants._
 import play.api.libs.json.Json
-import utils.TestUtils
+import _root_.utils.TestUtils
 
 class JourneySpec extends TestUtils {
 

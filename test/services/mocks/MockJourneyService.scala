@@ -19,7 +19,7 @@ package services.mocks
 import connectors.httpParsers.JourneyHttpParser.Response
 import org.scalamock.scalatest.MockFactory
 import services.JourneyService
-import utils.TestUtils
+import _root_.utils.TestUtils
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}

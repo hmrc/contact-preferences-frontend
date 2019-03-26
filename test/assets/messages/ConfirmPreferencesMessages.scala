@@ -16,16 +16,9 @@
 
 package assets.messages
 
-object CommonMessages {
+object ConfirmPreferencesMessages {
 
-  val back = "Back"
-  val errorHeading = "There is a problem"
-  val serviceName = "Update your contact preference"
-  val govUk = "GOV.UK"
-  val error = "Error:"
-  val continue = "Continue"
-  val feedbackBefore = "This is a new service – your"
-  val feedbackLink = "feedback"
-  val feedbackAfter = "will help us to improve it."
-  val confirmAndContinue = "Confirm and continue"
+  val title = "Confirm contact preference"
+  val text = "You have chosen to be contacted by email at the address"
+  val link = s"Change contact preferences"
 }

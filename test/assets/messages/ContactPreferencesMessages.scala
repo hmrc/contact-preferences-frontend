@@ -16,9 +16,12 @@
 
 package assets.messages
 
+import assets.messages.CommonMessages._
+
 object ContactPreferencesMessages {
 
   val title = "Does the business want to receive emails about VAT?"
+  val fullTitle = s"$title - $serviceName - $govUk"
   val text1 = "We can email you when the business has a new message about VAT in their HMRC account."
   val text2 = "You may continue to receive letters to your principal place of business for a while."
   def radioYes(email: String): String = s"Yes, send emails to $email"

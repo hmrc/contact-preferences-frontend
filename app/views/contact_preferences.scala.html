@@ -16,6 +16,7 @@
 
 @import config.AppConfig
 @import templates._
+@import views.utils.ServiceNameTitle
 @import forms.ContactPreferencesForm._
 @import forms.YesNoMapping._
 @import models.YesNo
@@ -33,7 +34,7 @@
     <p>@messages("contactPreferences.text.p2")</p>
 }
 
-@main_template(title = titlePrefix + messages("contactPreferences.title"),
+@main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors, serviceName),
                serviceName = serviceName,
                form = Some(contactPreferencesForm)) {
 

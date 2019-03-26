@@ -18,7 +18,7 @@ package models
 
 import assets.JourneyTestConstants._
 import play.api.libs.json.{JsValue, Json}
-import utils.TestUtils
+import _root_.utils.TestUtils
 
 class IdSpec extends TestUtils {
 

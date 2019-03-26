@@ -19,7 +19,7 @@ package views
 import assets.messages.TimeoutMessages
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import utils.ViewTestUtils
+import _root_.utils.ViewTestUtils
 
 class SessionTimeoutSpec extends ViewTestUtils {
 

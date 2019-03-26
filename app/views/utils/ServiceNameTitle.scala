@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package assets.messages
+package views.utils
 
-object CommonMessages {
+import play.api.i18n.Messages
 
-  val back = "Back"
-  val errorHeading = "There is a problem"
-  val serviceName = "Update your contact preference"
-  val govUk = "GOV.UK"
-  val error = "Error:"
-  val continue = "Continue"
-  val feedbackBefore = "This is a new service – your"
-  val feedbackLink = "feedback"
-  val feedbackAfter = "will help us to improve it."
-  val confirmAndContinue = "Confirm and continue"
+object ServiceNameTitle {
+
+  val error = "common.error"
+  val serviceName = "base.service-name"
+  val govUk = "common.gov.uk"
+
+  def fullTitle(titleMessage: String, hasErrors: Boolean = false, serviceNameTitle: Option[String] = None)(implicit messages: Messages): String = {
+
+    val title = s"${messages(titleMessage)} - ${serviceNameTitle.getOrElse(messages(serviceName))} - ${messages(govUk)}"
+    if(hasErrors) s"${messages(error)} $title" else title
+  }
 }

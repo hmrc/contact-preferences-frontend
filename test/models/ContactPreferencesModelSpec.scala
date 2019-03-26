@@ -17,7 +17,7 @@
 package models
 
 import play.api.libs.json.Json
-import utils.TestUtils
+import _root_.utils.TestUtils
 import assets.ContactPreferencesTestConstants._
 
 class ContactPreferencesModelSpec extends TestUtils {
