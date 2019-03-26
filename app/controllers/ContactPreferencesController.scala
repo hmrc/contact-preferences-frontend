@@ -103,7 +103,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
     journeyService.getJourney(id) flatMap {
       case Right(journeyModel) => f(journeyModel)
-      case Left(Unauthorised) => Future.successful(Redirect(appConfig.signInUrl))
+      case Left(Unauthorised) => Future.successful(Redirect(appConfig.signInUrl()))
       case Left(_) => Future.successful(errorHandler.showInternalServerError)
     }
   }

@@ -17,7 +17,7 @@
 package connectors
 
 import assets.JourneyTestConstants._
-import connectors.httpParsers.JourneyHttpParser.{NotFound, UnexpectedFailure}
+import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised, UnexpectedFailure}
 import play.mvc.Http.Status
 import utils.{MockHttpClient, TestUtils}
 
@@ -53,6 +53,19 @@ class JourneyConnectorSpec extends TestUtils with MockHttpClient {
 
           val actualResult = await(TestJourneyConnector.getJourney("id"))
           val expectedResult = Left(NotFound)
+
+          actualResult shouldBe expectedResult
+        }
+      }
+
+      "return a Unauthorised ErrorResponse" when {
+
+        "the response status is Unauthorised" in {
+
+          mockHttpGet(Left(Unauthorised))
+
+          val actualResult = await(TestJourneyConnector.getJourney("id"))
+          val expectedResult = Left(Unauthorised)
 
           actualResult shouldBe expectedResult
         }

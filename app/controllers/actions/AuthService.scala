@@ -44,7 +44,7 @@ class AuthService @Inject()(val authConnector: AuthConnector, implicit val appCo
     } recover {
       case _: NoActiveSession =>
         Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")
-        Redirect(appConfig.signInUrl)
+        Redirect(appConfig.signInUrl())
       case _: AuthorisationException =>
         Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
         Forbidden(views.html.unauthorised())
