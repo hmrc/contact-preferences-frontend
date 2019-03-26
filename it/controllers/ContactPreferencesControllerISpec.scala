@@ -17,9 +17,8 @@
 package controllers
 
 import assets.JourneyITConstants._
-import assets.ContactPreferencesITConstants._
 import forms.ContactPreferencesForm
-import models.Yes
+import models.{Email, Letter}
 import play.api.http.Status._
 import stubs.{AuthStub, ContactPreferencesStub}
 import utils.ITUtils
@@ -71,7 +70,7 @@ class ContactPreferencesControllerISpec extends ITUtils {
           AuthStub.authorisedIndividual()
           ContactPreferencesStub.storePreferenceSuccess(journeyId)
 
-          val res = await(post(s"/set/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Yes)))
+          val res = await(post(s"/set/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Email)))
 
           res should have {
             httpStatus(SEE_OTHER)
@@ -88,7 +87,7 @@ class ContactPreferencesControllerISpec extends ITUtils {
           AuthStub.authorisedIndividual()
           ContactPreferencesStub.storePreferenceFailed(journeyId)
 
-          val res = await(post(s"/set/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Yes)))
+          val res = await(post(s"/set/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Letter)))
 
           res should have {
             httpStatus(INTERNAL_SERVER_ERROR)
@@ -103,7 +102,7 @@ class ContactPreferencesControllerISpec extends ITUtils {
 
         ContactPreferencesStub.startSetJourneyFailed(journeyId)
 
-        val res = await(post(s"/set/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Yes)))
+        val res = await(post(s"/set/$journeyId")(toFormData(ContactPreferencesForm.contactPreferencesForm, Email)))
 
         res should have {
           httpStatus(INTERNAL_SERVER_ERROR)

@@ -16,8 +16,4 @@
 
 package models
 
-sealed trait YesNo
-
-object Yes extends YesNo
-
-object No extends YesNo
+case class RadioOption(field: String, label: String, hint: Option[String] = None)

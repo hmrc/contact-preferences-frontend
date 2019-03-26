@@ -16,19 +16,19 @@
 
 package forms
 
-import models.YesNo
+import forms.PreferenceMapping._
+import models.Preference
 import play.api.data.Form
 import play.api.data.Forms._
-import forms.YesNoMapping._
 
 
 object ContactPreferencesForm {
 
-  val yesNo: String = "yes_no"
+  val preference: String = "preference"
 
-  val contactPreferencesForm: Form[YesNo] = Form(
+  val contactPreferencesForm: Form[Preference] = Form(
     single(
-      yesNo -> of(yesNoMapping("error.contact_preferences.summary"))
+      preference -> of(preferenceMapping("error.contact_preferences.summary"))
     )
   )
 

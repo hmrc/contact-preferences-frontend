@@ -26,6 +26,7 @@ import models._
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
+import play.twirl.api.HtmlFormat
 import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -45,7 +46,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(displayPage(contactPreferencesForm, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id)))
+        Future.successful(Ok(displayPage(contactPreferencesForm, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id))))
       }
     }
   }
@@ -56,36 +57,34 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
         preferenceService.getContactPreference(journeyModel.regime).map {
-          case Right(ContactPreferenceModel(Digital)) =>
-            displayPage(contactPreferencesForm.fill(Yes), journeyModel, postAction)
-          case Right(ContactPreferenceModel(Paper)) =>
-            displayPage(contactPreferencesForm.fill(No), journeyModel, postAction)
+          case Right(preferenceModel) =>
+            Ok(displayPage(contactPreferencesForm.fill(preferenceModel.preference), journeyModel, postAction))
           case _ =>
-            displayPage(contactPreferencesForm, journeyModel, postAction)
+            Ok(displayPage(contactPreferencesForm, journeyModel, postAction))
         }
       }
     }
   }
 
-  def displayPage(form: Form[YesNo], journeyModel: Journey, postAction: Call)
-                 (implicit request: Request[_]): Result = {
-    Ok(contact_preferences(
+  def displayPage(form: Form[Preference], journeyModel: Journey, postAction: Call)
+                 (implicit request: Request[_]): HtmlFormat.Appendable = {
+    contact_preferences(
       serviceName = journeyModel.serviceName,
-      contactPreferencesForm = form,
+      contactPreferencesForm = form.fill(Email),
       email = journeyModel.email,
+      address = journeyModel.address,
       postAction = postAction
-    ))
+    )
   }
 
   val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { user =>
         contactPreferencesForm.bindFromRequest.fold(
-          formWithErrors => Future.successful(BadRequest(contact_preferences(
-            formWithErrors, journeyModel.email, routes.ContactPreferencesController.setRouteSubmit(id), journeyModel.serviceName)
-          )),
-          answer => {
-            val preference = if (answer == Yes) Digital else Paper
+          formWithErrors => Future.successful(
+            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id)))
+          ),
+          preference => {
             auditConnector.sendExplicitAudit(
               ContactPreferenceAuditModel.auditType,
               ContactPreferenceAuditModel(journeyModel.regime, user.arn, journeyModel.email, preference)

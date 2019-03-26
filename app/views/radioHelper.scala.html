@@ -14,9 +14,11 @@
  * limitations under the License.
  *@
 
+@import models.RadioOption
+
 @(parentForm: Form[_],
   inline: Boolean,
-  options: Seq[(String, String)],
+  options: Seq[RadioOption],
   legend: String,
   field: Field,
   additionalContent: Html,
@@ -45,13 +47,17 @@
         }
         @for(option <- options) {
             <div class="multiple-choice">
-                <input id="@option._1"
+                <input id="@option.field"
                        type="radio"
                        name="@field.name"
-                       value="@option._1"
-                       @field.value.filter( _ == option._1).map{_ => checked="checked"}
+                       value="@option.field"
+                       @field.value.filter( _ == option.field).map{_ => checked="checked"}
                 />
-                <label for="@option._1">@option._2</label>
+                <label for="@option.field">@option.label
+                    @option.hint.map { hint =>
+                        <span class="form-hint">@hint</span>
+                    }
+                </label>
             </div>
         }
     </fieldset>

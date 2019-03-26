@@ -20,12 +20,10 @@ import assets.messages.CommonMessages._
 
 object ContactPreferencesMessages {
 
-  val title = "Does the business want to receive emails about VAT?"
+  val title = "How would you like us to contact you?"
   val fullTitle = s"$title - $serviceName - $govUk"
-  val text1 = "We can email you when the business has a new message about VAT in their HMRC account."
-  val text2 = "You may continue to receive letters to your principal place of business for a while."
-  def radioYes(email: String): String = s"Yes, send emails to $email"
-  val radioNo = "No, send me letters only"
-  val errorSummary = "Choose yes or no, if you are ready to set your contact preferences"
+  val radioEmail = "Email"
+  val radioLetter = "Letter"
+  val errorSummary = "Choose email or letter, if you are ready to set your contact preferences"
 
 }

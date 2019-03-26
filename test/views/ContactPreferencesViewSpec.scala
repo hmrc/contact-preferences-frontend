@@ -16,6 +16,7 @@
 
 package views
 
+import assets.AddressTestConstants
 import assets.messages.{CommonMessages, ContactPreferencesMessages}
 import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import controllers.routes
@@ -27,13 +28,15 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
 
   object Selectors {
     val pageHeading = "h1"
-    val text = (number: Int) => s"#content > article p:nth-child($number)"
-    val radioYes = "#yes_no > div:nth-child(4) > label"
-    val radioNo = "#yes_no > div:nth-child(5) > label"
+    val currentPreference = s"#content > article p:nth-child(1)"
+    val radioEmail = "label[for='email']"
+    val radioEmailHint = "label[for='email'] span"
+    val radioLetter = "label[for='letter']"
+    val radioLetterHint = "label[for='letter'] span"
     val continue = "#continue-button"
 
     val errorHeading = "#error-summary-display > ul > li > a"
-    val error = "#error-message-yes_no"
+    val error = "#error-message-preference"
   }
 
   "The Contact Preferences page" when {
@@ -43,8 +46,9 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
       lazy val document = parseView(views.html.contact_preferences(
         ContactPreferencesForm.contactPreferencesForm,
         journeyModelMax.email,
-        routes.ContactPreferencesController.setRouteSubmit(journeyId))
-      )
+        routes.ContactPreferencesController.setRouteSubmit(journeyId),
+        address = AddressTestConstants.addressModelMax
+      ))
 
       s"have the correct document title" in {
         document.title shouldBe ContactPreferencesMessages.fullTitle
@@ -54,20 +58,20 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
         document.select(Selectors.pageHeading).text() shouldBe ContactPreferencesMessages.title
       }
 
-      s"have the correct first paragraph text" in {
-        document.select(Selectors.text(2)).text() shouldBe ContactPreferencesMessages.text1
+      s"have a the correct Email Option" in {
+        document.select(Selectors.radioEmail).text() shouldBe ContactPreferencesMessages.radioEmail + " " + journeyModelMax.email
       }
 
-      s"have a the correct second paragraph text" in {
-        document.select(Selectors.text(3)).text() shouldBe ContactPreferencesMessages.text2
+      s"have a the correct Email Option hint" in {
+        document.select(Selectors.radioEmailHint).text() shouldBe journeyModelMax.email
       }
 
-      s"have a the correct Yes Option" in {
-        document.select(Selectors.radioYes).text() shouldBe ContactPreferencesMessages.radioYes(journeyModelMax.email)
+      s"have the correct Letter Option" in {
+        document.select(Selectors.radioLetter).text() shouldBe ContactPreferencesMessages.radioLetter + " " + journeyModelMax.address.singleLineAddress
       }
 
-      s"have the correct No Option" in {
-        document.select(Selectors.radioNo).text() shouldBe ContactPreferencesMessages.radioNo
+      s"have the correct Letter Option hint" in {
+        document.select(Selectors.radioLetterHint).text() shouldBe journeyModelMax.address.singleLineAddress
       }
 
       s"have a the correct continue button" in {
@@ -78,10 +82,11 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
     "the page has errors" should {
 
       lazy val document = parseView(views.html.contact_preferences(
-        ContactPreferencesForm.contactPreferencesForm.bind(Map("yes_no" -> "")),
+        ContactPreferencesForm.contactPreferencesForm.bind(Map("preference" -> "")),
         journeyModelMax.email,
-        routes.ContactPreferencesController.setRouteSubmit(journeyId))
-      )
+        routes.ContactPreferencesController.setRouteSubmit(journeyId),
+        address = AddressTestConstants.addressModelMax
+      ))
 
       s"have the correct document title" in {
         document.title shouldBe s"${CommonMessages.error} ${ContactPreferencesMessages.fullTitle}"

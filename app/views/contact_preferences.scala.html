@@ -18,20 +18,29 @@
 @import templates._
 @import views.utils.ServiceNameTitle
 @import forms.ContactPreferencesForm._
-@import forms.YesNoMapping._
-@import models.YesNo
+@import forms.PreferenceMapping._
+@import models.Preference
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@(contactPreferencesForm: Form[YesNo], email: String, postAction: Call, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(contactPreferencesForm: Form[Preference],
+  email: String,
+  postAction: Call,
+  serviceName: Option[String] = None,
+  address: AddressModel
+)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @titlePrefix = {
     @if(contactPreferencesForm.hasErrors) { @messages("common.error") }
 }
 
 @additionalContent = {
-    <p>@messages("contactPreferences.text.p1")</p>
-
-    <p>@messages("contactPreferences.text.p2")</p>
+    <p>
+        @{contactPreferencesForm(preference).value.map {
+            case "email" => messages("contactPreferences.text.p1.email")
+            case "letter" => messages("contactPreferences.text.p1.letter")
+            case _ => ""
+        }}
+    </p>
 }
 
 @main_template(title = ServiceNameTitle.fullTitle("contactPreferences.title", contactPreferencesForm.hasErrors, serviceName),
@@ -46,11 +55,19 @@
               parentForm = contactPreferencesForm,
               inline = false,
               options = Seq(
-                  (option_yes, messages("contactPreferences.radio.yes", email)),
-                  (option_no, messages("contactPreferences.radio.no"))
+                  RadioOption(
+                    field = option_email,
+                    label = messages("contactPreferences.radio.yes"),
+                    hint = Some(email)
+                  ),
+                  RadioOption(
+                    field = option_letter,
+                    label = messages("contactPreferences.radio.no"),
+                    hint = Some(address.singleLineAddress)
+                  )
               ),
               legend = messages("contactPreferences.title"),
-              field = contactPreferencesForm(yesNo),
+              field = contactPreferencesForm(preference),
               renderLegendAsHeading = true,
               additionalContent = additionalContent
            )

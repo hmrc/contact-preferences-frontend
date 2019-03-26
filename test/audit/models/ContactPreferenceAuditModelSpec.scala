@@ -31,7 +31,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
         RegimeModel(MTDVAT, Id(VRN, testVatNumber)),
         Some(testArn),
         testEmail,
-        Digital
+        Email
       )
 
       val expectedOutput = Json.obj(
@@ -41,7 +41,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
         "agentReferenceNumber" -> testArn,
         "isAgent" -> true,
         "emailAddress" -> testEmail,
-        "contactPreference" -> Digital.value
+        "contactPreference" -> Email.value
       )
 
       "return the correct JSON" in {
@@ -55,7 +55,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
         RegimeModel(MTDVAT, Id(VRN, testVatNumber)),
         None,
         testEmail,
-        Digital
+        Email
       )
 
       val expectedOutput = Json.obj(
@@ -64,7 +64,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
         "identifierValue" -> testVatNumber,
         "isAgent" -> false,
         "emailAddress" -> testEmail,
-        "contactPreference" -> Digital.value
+        "contactPreference" -> Email.value
       )
 
       "return the correct JSON" in {

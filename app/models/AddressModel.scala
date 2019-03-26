@@ -23,7 +23,11 @@ case class AddressModel(line1: String,
                         line3: Option[String] = None,
                         line4: Option[String] = None,
                         postcode: Option[String] = None,
-                        countryCode: String)
+                        countryCode: String) {
+
+  val singleLineAddress: String = Seq(Some(line1), postcode).flatten.mkString(", ")
+
+}
 
 object AddressModel {
   implicit val fmt: Format[AddressModel] = Json.format[AddressModel]

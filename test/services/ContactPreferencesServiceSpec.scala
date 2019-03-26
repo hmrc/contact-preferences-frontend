@@ -21,7 +21,7 @@ import assets.JourneyTestConstants._
 import connectors.httpParsers.{StoreContactPreferenceHttpParser => StoreHttpParser}
 import connectors.httpParsers.{GetContactPreferenceHttpParser => GetHttpParser}
 import connectors.mocks.MockContactPreferencesConnector
-import models.Digital
+import models.Email
 
 class ContactPreferencesServiceSpec extends MockContactPreferencesConnector {
 
@@ -31,9 +31,9 @@ class ContactPreferencesServiceSpec extends MockContactPreferencesConnector {
 
     "return a Journey model when getJourney is successful" in {
 
-      mockStoreContactPreference("testID", Digital)(Right(StoreHttpParser.Success))
+      mockStoreContactPreference("testID", Email)(Right(StoreHttpParser.Success))
 
-      val actualResult = await(TestContactPreferencesService.storeJourneyPreference("testID", Digital))
+      val actualResult = await(TestContactPreferencesService.storeJourneyPreference("testID", Email))
       val expectedResult = Right(StoreHttpParser.Success)
 
       actualResult shouldBe expectedResult
@@ -41,9 +41,9 @@ class ContactPreferencesServiceSpec extends MockContactPreferencesConnector {
 
     "return an Error model when getJourney is unsuccessful" in {
 
-      mockStoreContactPreference("testID", Digital)(Left(StoreHttpParser.InvalidPreferencePayload))
+      mockStoreContactPreference("testID", Email)(Left(StoreHttpParser.InvalidPreferencePayload))
 
-      val actualResult = await(TestContactPreferencesService.storeJourneyPreference("testID", Digital))
+      val actualResult = await(TestContactPreferencesService.storeJourneyPreference("testID", Email))
       val expectedResult = Left(StoreHttpParser.InvalidPreferencePayload)
 
       actualResult shouldBe expectedResult

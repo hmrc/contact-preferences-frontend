@@ -16,29 +16,29 @@
 
 package forms
 
-import models.{No, Yes, YesNo}
+import models._
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-object YesNoMapping {
+object PreferenceMapping {
 
-  val option_yes: String = "yes"
+  val option_email: String = "email"
 
-  val option_no: String = "no"
+  val option_letter: String = "letter"
 
-  def yesNoMapping(error: String): Formatter[YesNo] = new Formatter[YesNo] {
-    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], YesNo] = {
+  def preferenceMapping(error: String): Formatter[Preference] = new Formatter[Preference] {
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Preference] = {
       data.get(key) match {
-        case Some(`option_yes`) => Right(Yes)
-        case Some(`option_no`) => Right(No)
+        case Some(`option_email`) => Right(Email)
+        case Some(`option_letter`) => Right(Letter)
         case _ => Left(Seq(FormError(key, error)))
       }
     }
 
-    override def unbind(key: String, value: YesNo): Map[String, String] = {
+    override def unbind(key: String, value: Preference): Map[String, String] = {
       val stringValue = value match {
-        case Yes => option_yes
-        case No => option_no
+        case Email => option_email
+        case Letter => option_letter
       }
 
       Map(key -> stringValue)
