@@ -144,6 +144,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
       "return Redirect to " in {
 
         status(result) shouldBe Status.SEE_OTHER
+        redirectLocation(result) shouldBe Some(controllers.routes.ContactPreferencesController.setRouteShow(journeyId).url)
       }
     }
   }
@@ -247,6 +248,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
       "return a SEE_OTHER (303)" in {
 
         status(result) shouldBe Status.SEE_OTHER
+        redirectLocation(result) shouldBe Some(controllers.routes.ContactPreferencesController.updateRouteShow(journeyId).url)
       }
     }
   }
@@ -264,6 +266,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
           mockAuthenticated(EmptyPredicate)
 
           status(result) shouldBe Status.SEE_OTHER
+          redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
         }
       }
 
@@ -305,6 +308,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
           mockAuthenticated(EmptyPredicate)
 
           status(result) shouldBe Status.SEE_OTHER
+          redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
         }
       }
 

@@ -25,9 +25,9 @@ import utils.WireMockMethods
 object ContactPreferencesStub extends WireMockMethods {
 
   private val setJourneyUri = (id: String) => s"/contact-preferences/journey/$id"
-  def startSetJourneySuccess(id: String)(response: JsValue): StubMapping =
+  def startJourneySuccess(id: String)(response: JsValue): StubMapping =
     when(method = GET, uri = setJourneyUri(id)).thenReturn(status = OK, body = response)
-  def startSetJourneyFailed(id: String): StubMapping =
+  def startJourneyFailed(id: String): StubMapping =
     when(method = GET, uri = setJourneyUri(id)).thenReturn(status = SERVICE_UNAVAILABLE)
 
 

@@ -61,17 +61,21 @@ trait ITUtils extends UnitSpec
   }
 
 
-  def get[T](uri: String): WSResponse = {
-    await(
-      buildClient(uri).get
-    )
-  }
-
-  def post(uri: String)(body:  Map[String, Seq[String]]): WSResponse = {
+  def get[T](uri: String, cookies: Map[String, String] = Map.empty): WSResponse = {
     await(
       buildClient(uri)
         .withHeaders(
-          HeaderNames.COOKIE -> SessionCookieBaker.bakeSessionCookie(), "Csrf-Token" -> "nocheck"
+          HeaderNames.COOKIE -> SessionCookieBaker.bakeSessionCookie(cookies), "Csrf-Token" -> "nocheck"
+        )
+        .get
+    )
+  }
+
+  def post(uri: String, cookies: Map[String, String] = Map.empty)(body:  Map[String, Seq[String]]): WSResponse = {
+    await(
+      buildClient(uri)
+        .withHeaders(
+          HeaderNames.COOKIE -> SessionCookieBaker.bakeSessionCookie(cookies), "Csrf-Token" -> "nocheck"
         )
         .post(body)
     )

@@ -73,7 +73,7 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
   val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Redirect(journeyModel.continueUrl))
+        Future.successful(Redirect(journeyModel.continueUrl, Map("preferenceId" -> Seq(id))))
       }
     }
   }
@@ -81,7 +81,7 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
   val updateRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Redirect(journeyModel.continueUrl))
+        Future.successful(Redirect(journeyModel.continueUrl, Map("preferenceId" -> Seq(id))))
       }
     }
   }

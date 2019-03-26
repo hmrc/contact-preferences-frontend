@@ -235,7 +235,8 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             }
 
             "redirect to the continueUrl posted as part of the JourneyModel" in {
-              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+              redirectLocation(result) shouldBe Some(controllers.routes.ConfirmPreferencesController.setRouteShow(journeyId).url)
+              session(result).get("preference") shouldBe Some(Email.value)
             }
           }
 
@@ -294,7 +295,8 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             }
 
             "redirect to the continueUrl posted as part of the JourneyModel" in {
-              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+              redirectLocation(result) shouldBe Some(controllers.routes.ConfirmPreferencesController.setRouteShow(journeyId).url)
+              session(result).get("preference") shouldBe Some(Letter.value)
             }
           }
 
