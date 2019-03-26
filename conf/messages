@@ -26,6 +26,10 @@ contactPreferences.radio.no = Letter
 error.contact_preferences.field  = Choose email or letter
 error.contact_preferences.summary = Choose email or letter, if you are ready to set your contact preferences
 
+confirmPreference.title = Confirm contact preference
+confirmPreference.text = You have chosen to be contacted by email at the address {0}
+confirmPreference.link = Change contact preferences
+
 # Session Timeout
 sessionTimeout.title = Your session has timed out
 sessionTimeout.helpOne = To manage your contact preference, you''ll have to
