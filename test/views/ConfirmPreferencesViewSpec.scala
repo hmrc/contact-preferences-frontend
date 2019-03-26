@@ -19,7 +19,7 @@ package views
 import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import assets.messages.{CommonMessages, ConfirmPreferencesMessages}
 import controllers.routes
-import utils.ViewTestUtils
+import _root_.utils.ViewTestUtils
 
 
 class ConfirmPreferencesViewSpec extends ViewTestUtils {
