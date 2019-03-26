@@ -16,7 +16,7 @@
 
 package views
 
-import utils.ViewTestUtils
+import _root_.utils.ViewTestUtils
 
 class ErrorTemplateViewSpec extends ViewTestUtils {
 

@@ -18,7 +18,7 @@ package models
 
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
-import utils.TestUtils
+import _root_.utils.TestUtils
 import assets.JourneyTestConstants._
 
 class IdentifierSpec extends TestUtils {

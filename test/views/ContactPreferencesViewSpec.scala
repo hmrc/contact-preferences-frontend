@@ -17,10 +17,10 @@
 package views
 
 import assets.messages.{CommonMessages, ContactPreferencesMessages}
-import assets.JourneyTestConstants.{journeyId,journeyModelMax}
+import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import controllers.routes
 import forms.ContactPreferencesForm
-import utils.ViewTestUtils
+import _root_.utils.ViewTestUtils
 
 
 class ContactPreferencesViewSpec extends ViewTestUtils {
@@ -36,7 +36,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
     val error = "#error-message-yes_no"
   }
 
-  "The contact preferences page" when {
+  "The Contact Preferences page" when {
 
     "the page has no errors" should {
 
@@ -47,7 +47,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
       )
 
       s"have the correct document title" in {
-        document.title shouldBe ContactPreferencesMessages.title
+        document.title shouldBe ContactPreferencesMessages.fullTitle
       }
 
       s"have a the correct page heading" in {
@@ -84,7 +84,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
       )
 
       s"have the correct document title" in {
-        document.title shouldBe s"${CommonMessages.error} ${ContactPreferencesMessages.title}"
+        document.title shouldBe s"${CommonMessages.error} ${ContactPreferencesMessages.fullTitle}"
       }
 
       s"have a the correct page heading" in {
