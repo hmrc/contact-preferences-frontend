@@ -158,7 +158,6 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "display the correct page with no option selected" in {
             title(result) shouldBe pageTitle
-            //TODO make this actually check if the option has actually been selected
             selectElement(result, "#yes").hasAttr("checked") shouldBe false
             selectElement(result, "#no").hasAttr("checked") shouldBe false
           }
