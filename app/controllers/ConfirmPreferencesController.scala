@@ -45,7 +45,8 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
       getJourneyContext(id) { journeyModel =>
         authService.authorise(journeyModel.regime) { _ =>
           Future.successful(Ok(confirm_preferences(
-            address = if(preference == Email) journeyModel.email else journeyModel.address.singleLineAddress,
+            journey = journeyModel,
+            digitalPreference = preference == Email,
             postAction = postAction,
             changeUrl = changeUrl
           )))
