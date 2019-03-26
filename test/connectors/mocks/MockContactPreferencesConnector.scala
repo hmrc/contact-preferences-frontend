@@ -19,6 +19,7 @@ package connectors.mocks
 import connectors.ContactPreferencesConnector
 import connectors.httpParsers.StoreContactPreferenceHttpParser.{Response => StoreResponse}
 import connectors.httpParsers.GetContactPreferenceHttpParser.{Response => GetResponse}
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{Response => UpdateResponse}
 import models.{Preference, RegimeModel}
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,6 +47,12 @@ trait MockContactPreferencesConnector extends MockFactory with TestUtils {
     (connector.getContactPreference(_: RegimeModel)(_: HeaderCarrier, _: ExecutionContext))
       .expects(regime, *, *)
       .returns(Future.failed(new Exception))
+  }
+
+  def mockUpdateContactPreference(regime: RegimeModel, preference: Preference)(response: UpdateResponse): Unit = {
+    (connector.updateContactPreference(_: RegimeModel, _: Preference)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(regime, preference, *, *)
+      .returns(Future.successful(response))
   }
 
 }
