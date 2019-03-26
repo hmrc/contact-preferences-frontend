@@ -20,7 +20,7 @@ import config.{AppConfig, ErrorHandler}
 import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
 import javax.inject.{Inject, Singleton}
-import models.{Digital, Journey, Paper, Preference}
+import models._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{AnyContent, _}
 import play.twirl.api.HtmlFormat
@@ -45,7 +45,7 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
       getJourneyContext(id) { journeyModel =>
         authService.authorise(journeyModel.regime) { _ =>
           Future.successful(Ok(confirm_preferences(
-            address = if(preference == Digital) journeyModel.email else journeyModel.address.line1,
+            address = if(preference == Email) journeyModel.email else journeyModel.address.singleLineAddress,
             postAction = postAction,
             changeUrl = changeUrl
           )))
@@ -89,7 +89,7 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
     journeyService.getJourney(id) flatMap {
       case Right(journeyModel) => f(journeyModel)
-      case Left(Unauthorised) => Future.successful(Redirect(appConfig.signInUrl))
+      case Left(Unauthorised) => Future.successful(Redirect(appConfig.signInUrl()))
       case Left(_) => Future.successful(errorHandler.showInternalServerError)
     }
   }
