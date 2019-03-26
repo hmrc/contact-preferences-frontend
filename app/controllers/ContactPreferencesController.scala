@@ -17,7 +17,7 @@
 package controllers
 
 import audit.models.ContactPreferenceAuditModel
-import config.{AppConfig, ErrorHandler}
+import config.{AppConfig, ErrorHandler, SessionKeys}
 import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
@@ -58,7 +58,13 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
       authService.authorise(journeyModel.regime) { _ =>
         preferenceService.getContactPreference(journeyModel.regime).map {
           case Right(preferenceModel) =>
-            Ok(displayPage(contactPreferencesForm.fill(preferenceModel.preference), journeyModel, postAction))
+            Ok(displayPage(
+              form = contactPreferencesForm,
+              journeyModel = journeyModel,
+              postAction = postAction,
+              selectedPreference = Some(determineSelectedPreference(preferenceModel.preference)),
+              currentPreference = Some(preferenceModel.preference)
+            ))
           case _ =>
             Ok(displayPage(contactPreferencesForm, journeyModel, postAction))
         }
@@ -66,13 +72,21 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
     }
   }
 
-  def displayPage(form: Form[Preference], journeyModel: Journey, postAction: Call)
+  private def determineSelectedPreference(currentPreference: Preference)(implicit request: Request[_]): Preference =
+    request.session.get(SessionKeys.preference).fold(currentPreference)(x => Preference(x))
+
+  def displayPage(form: Form[Preference],
+                  journeyModel: Journey,
+                  postAction: Call,
+                  selectedPreference: Option[Preference] = None,
+                  currentPreference: Option[Preference] = None)
                  (implicit request: Request[_]): HtmlFormat.Appendable = {
     contact_preferences(
       serviceName = journeyModel.serviceName,
-      contactPreferencesForm = form.fill(Email),
+      contactPreferencesForm = selectedPreference.fold(form)(form.fill),
       email = journeyModel.email,
       address = journeyModel.address,
+      currentPreference = currentPreference,
       postAction = postAction
     )
   }

@@ -26,7 +26,8 @@
   email: String,
   postAction: Call,
   serviceName: Option[String] = None,
-  address: AddressModel
+  address: AddressModel,
+  currentPreference: Option[Preference] = None
 )(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @titlePrefix = {
@@ -35,10 +36,9 @@
 
 @additionalContent = {
     <p>
-        @{contactPreferencesForm(preference).value.map {
-            case "email" => messages("contactPreferences.text.p1.email")
-            case "letter" => messages("contactPreferences.text.p1.letter")
-            case _ => ""
+        @{currentPreference.map {
+            case Email => messages("contactPreferences.text.p1.email")
+            case Letter => messages("contactPreferences.text.p1.letter")
         }}
     </p>
 }
