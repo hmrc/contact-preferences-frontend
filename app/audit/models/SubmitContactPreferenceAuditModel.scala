@@ -16,20 +16,21 @@
 
 package audit.models
 
-import models.{Preference, RegimeModel}
-import play.api.libs.json.Writes
+import models.{AddressModel, Preference, RegimeModel}
+import play.api.libs.json.{Json, Writes}
 import utils.JsonSugar
 
-case class ContactPreferenceAuditModel(regime: RegimeModel,
-                                       agentReferenceNumber: Option[String],
-                                       emailAddress: String,
-                                       contactPreference: Preference)
+case class SubmitContactPreferenceAuditModel(regime: RegimeModel,
+                                             agentReferenceNumber: Option[String],
+                                             emailAddress: String,
+                                             address: AddressModel,
+                                             contactPreference: Preference)
 
-object ContactPreferenceAuditModel extends JsonSugar {
+object SubmitContactPreferenceAuditModel extends JsonSugar {
 
   val auditType = "customerContactPreferenceDecision"
 
-  implicit val writes: Writes[ContactPreferenceAuditModel] = Writes { model =>
+  implicit val writes: Writes[SubmitContactPreferenceAuditModel] = Writes { model =>
     jsonObjNoNulls(
       "typeOfTax" -> model.regime.`type`,
       "identifierType" -> model.regime.identifier.key,
@@ -37,6 +38,7 @@ object ContactPreferenceAuditModel extends JsonSugar {
       "agentReferenceNumber" -> model.agentReferenceNumber,
       "isAgent" -> model.agentReferenceNumber.isDefined,
       "emailAddress" -> model.emailAddress,
+      "postalAddress" -> Json.toJson(model.address),
       "contactPreference" -> model.contactPreference
     )
   }
