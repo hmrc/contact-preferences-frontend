@@ -38,6 +38,12 @@ object ContactPreferencesStub extends WireMockMethods {
   def getPreferenceFailed(regime: RegimeModel): StubMapping = {
     when(method = GET, uri = updateContactPreferenceUri(regime)).thenReturn(status = NOT_FOUND)
   }
+  def updatePreferenceSuccess(regime: RegimeModel): StubMapping = {
+    when(method = PUT, uri = updateContactPreferenceUri(regime)).thenReturn(status = NO_CONTENT)
+  }
+  def updatePreferenceFailed(regime: RegimeModel): StubMapping = {
+    when(method = PUT, uri = updateContactPreferenceUri(regime)).thenReturn(status = INTERNAL_SERVER_ERROR)
+  }
 
 
   private val setContactPreferenceUri = (id: String) => s"/contact-preferences/$id"

@@ -18,6 +18,7 @@ package services.mocks
 
 import connectors.httpParsers.StoreContactPreferenceHttpParser.{Response => StoreResponse}
 import connectors.httpParsers.GetContactPreferenceHttpParser.{Response => GetResponse}
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{Response => UpdateResponse}
 import models.{Preference, RegimeModel}
 import org.scalamock.scalatest.MockFactory
 import services.ContactPreferencesService
@@ -40,6 +41,12 @@ trait MockContactPreferencesService extends MockFactory with TestUtils {
   def mockGetContactPreference(regime: RegimeModel)(response: GetResponse): Unit = {
     (mockContactPreferencesService.getContactPreference(_: RegimeModel)(_: HeaderCarrier, _: ExecutionContext))
       .expects(regime, *, *)
+      .returns(Future.successful(response))
+  }
+
+  def mockUpdateJourneyPreference(regime: RegimeModel, preference: Preference)(response: UpdateResponse): Unit = {
+    (mockContactPreferencesService.updateContactPreference(_: RegimeModel, _: Preference)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(regime, preference, *, *)
       .returns(Future.successful(response))
   }
 

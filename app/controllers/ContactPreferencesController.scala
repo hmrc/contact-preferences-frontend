@@ -46,14 +46,33 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Ok(displayPage(contactPreferencesForm, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id))))
+        Future.successful(Ok(displayPage(
+          form = contactPreferencesForm,
+          journeyModel = journeyModel,
+          postAction = routes.ContactPreferencesController.setRouteSubmit(id),
+          selectedPreference = determineSelectedPreference(None)
+        )))
       }
     }
   }
 
+  val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { user =>
+        Future.successful(contactPreferencesForm.bindFromRequest.fold(
+          formWithErrors =>
+            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id))
+          ),
+          preference => Redirect(controllers.routes.ConfirmPreferencesController.setRouteShow(id))
+            .addingToSession(SessionKeys.preference -> preference.value)
+        ))
+      }
+    }
+  }
+
+
   val updateRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
-    val postAction = routes.ContactPreferencesController.setRouteSubmit(id)
-    // val postAction = routes.ContactPreferencesController.updateRouteSubmit(id) TODO use this when updateRouteSubmit is created
+    val postAction = routes.ContactPreferencesController.updateRouteSubmit(id)
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { _ =>
         preferenceService.getContactPreference(journeyModel.regime).map {
@@ -62,20 +81,34 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
               form = contactPreferencesForm,
               journeyModel = journeyModel,
               postAction = postAction,
-              selectedPreference = Some(determineSelectedPreference(preferenceModel.preference)),
+              selectedPreference = determineSelectedPreference(Some(preferenceModel.preference)),
               currentPreference = Some(preferenceModel.preference)
             ))
-          case _ =>
-            Ok(displayPage(contactPreferencesForm, journeyModel, postAction))
+          case _ => errorHandler.showInternalServerError
         }
       }
     }
   }
 
-  private def determineSelectedPreference(currentPreference: Preference)(implicit request: Request[_]): Preference =
-    request.session.get(SessionKeys.preference).fold(currentPreference)(x => Preference(x))
+  val updateRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { user =>
+        Future.successful(contactPreferencesForm.bindFromRequest.fold(
+          formWithErrors =>
+            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.updateRouteShow(id))
+          ),
+          preference =>
+            Redirect(controllers.routes.ConfirmPreferencesController.updateRouteShow(id))
+              .addingToSession(SessionKeys.preference -> preference.value)
+        ))
+      }
+    }
+  }
 
-  def displayPage(form: Form[Preference],
+  private def determineSelectedPreference(currentPreference: Option[Preference])(implicit request: Request[_]): Option[Preference] =
+    request.session.get(SessionKeys.preference).fold(currentPreference)(x => Some(Preference(x)))
+
+  private def displayPage(form: Form[Preference],
                   journeyModel: Journey,
                   postAction: Call,
                   selectedPreference: Option[Preference] = None,
@@ -89,29 +122,6 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
       currentPreference = currentPreference,
       postAction = postAction
     )
-  }
-
-  val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
-    getJourneyContext(id) { journeyModel =>
-      authService.authorise(journeyModel.regime) { user =>
-        contactPreferencesForm.bindFromRequest.fold(
-          formWithErrors => Future.successful(
-            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id)))
-          ),
-          preference => {
-            auditConnector.sendExplicitAudit(
-              ContactPreferenceAuditModel.auditType,
-              ContactPreferenceAuditModel(journeyModel.regime, user.arn, journeyModel.email, preference)
-            )
-            preferenceService.storeJourneyPreference(id, preference).map {
-              case Right(_) => Redirect(controllers.routes.ConfirmPreferencesController.setRouteShow(id))
-                  .addingToSession(SessionKeys.preference -> preference.value)
-              case Left(_) => errorHandler.showInternalServerError
-            }
-          }
-        )
-      }
-    }
   }
 
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
