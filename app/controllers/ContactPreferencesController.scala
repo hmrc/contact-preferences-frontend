@@ -16,7 +16,7 @@
 
 package controllers
 
-import audit.models.ContactPreferenceAuditModel
+import audit.models.SubmitContactPreferenceAuditModel
 import config.{AppConfig, ErrorHandler, SessionKeys}
 import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService

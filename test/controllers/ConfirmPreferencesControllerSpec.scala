@@ -19,7 +19,7 @@ package controllers
 import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import assets.messages.ConfirmPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
-import audit.models.ContactPreferenceAuditModel
+import audit.models.SubmitContactPreferenceAuditModel
 import config.SessionKeys
 import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
 import connectors.httpParsers.{StoreContactPreferenceHttpParser, UpdateContactPreferenceHttpParser}
@@ -276,11 +276,12 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
             mockStoreJourneyPreference(journeyId, Email)(Right(StoreContactPreferenceHttpParser.Success))
 
             verifyExplicitAudit(
-              ContactPreferenceAuditModel.auditType,
-              ContactPreferenceAuditModel(
+              SubmitContactPreferenceAuditModel.auditType,
+              SubmitContactPreferenceAuditModel(
                 journeyModelMax.regime,
                 None,
                 journeyModelMax.email,
+                journeyModelMax.address,
                 Email
               )
             )
@@ -349,11 +350,12 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
             mockUpdateJourneyPreference(journeyModelMax.regime, Email)(Right(UpdateContactPreferenceHttpParser.Success))
 
             verifyExplicitAudit(
-              ContactPreferenceAuditModel.auditType,
-              ContactPreferenceAuditModel(
+              SubmitContactPreferenceAuditModel.auditType,
+              SubmitContactPreferenceAuditModel(
                 journeyModelMax.regime,
                 None,
                 journeyModelMax.email,
+                journeyModelMax.address,
                 Email
               )
             )

@@ -16,7 +16,7 @@
 
 package controllers
 
-import audit.models.ContactPreferenceAuditModel
+import audit.models.SubmitContactPreferenceAuditModel
 import config.{AppConfig, ErrorHandler, QueryStringKeys, SessionKeys}
 import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
@@ -105,8 +105,8 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
 
   private def auditPreference(journey: Journey, preference: Preference)(implicit user: User[_]): Unit =
     auditConnector.sendExplicitAudit(
-      ContactPreferenceAuditModel.auditType,
-      ContactPreferenceAuditModel(journey.regime, user.arn, journey.email, preference)
+      SubmitContactPreferenceAuditModel.auditType,
+      SubmitContactPreferenceAuditModel(journey.regime, user.arn, journey.email, journey.address, preference)
     )
 
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {

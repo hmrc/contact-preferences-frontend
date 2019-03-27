@@ -16,21 +16,23 @@
 
 package audit.models
 
-import assets.BaseTestConstants.{testArn, testVatNumber, testEmail}
+import assets.BaseTestConstants._
+import assets.AddressTestConstants._
 import models._
 import play.api.libs.json.Json
 import utils.TestUtils
 
-class ContactPreferenceAuditModelSpec extends TestUtils {
+class SubmitContactPreferenceAuditModelSpec extends TestUtils {
 
   "ContactPreferenceAuditModel.writes" when {
 
     "given the max audit model" should {
 
-      val input = ContactPreferenceAuditModel(
+      val input = SubmitContactPreferenceAuditModel(
         RegimeModel(MTDVAT, Id(VRN, testVatNumber)),
         Some(testArn),
         testEmail,
+        addressModelMax,
         Email
       )
 
@@ -41,6 +43,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
         "agentReferenceNumber" -> testArn,
         "isAgent" -> true,
         "emailAddress" -> testEmail,
+        "postalAddress" -> addressJsonMax,
         "contactPreference" -> Email.value
       )
 
@@ -51,10 +54,11 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
 
     "given the min audit model" should {
 
-      val input = ContactPreferenceAuditModel(
+      val input = SubmitContactPreferenceAuditModel(
         RegimeModel(MTDVAT, Id(VRN, testVatNumber)),
         None,
         testEmail,
+        addressModelMin,
         Email
       )
 
@@ -64,6 +68,7 @@ class ContactPreferenceAuditModelSpec extends TestUtils {
         "identifierValue" -> testVatNumber,
         "isAgent" -> false,
         "emailAddress" -> testEmail,
+        "postalAddress" -> addressJsonMin,
         "contactPreference" -> Email.value
       )
 
