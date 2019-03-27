@@ -20,9 +20,8 @@ import assets.BaseTestConstants.testVatNumber
 import assets.ContactPreferencesTestConstants._
 import assets.JourneyTestConstants._
 import connectors.httpParsers.UpdateContactPreferenceHttpParser.Success
-import connectors.httpParsers.{UpdateContactPreferenceHttpParser => UpdateHttpParser, GetContactPreferenceHttpParser => GetHttpParser, StoreContactPreferenceHttpParser => StoreHttpParser}
-import models.Digital
-import models.{MTDVAT, VRN}
+import connectors.httpParsers.{GetContactPreferenceHttpParser => GetHttpParser, StoreContactPreferenceHttpParser => StoreHttpParser, UpdateContactPreferenceHttpParser => UpdateHttpParser}
+import models.{Email, MTDVAT, VRN}
 import play.mvc.Http.Status
 import utils.{MockHttpClient, TestUtils}
 
@@ -151,10 +150,10 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
 
       "return Success" in {
 
-        mockHttpPut(Digital)(Right(Success))
+        mockHttpPut(Email)(Right(Success))
 
         val expectedResult = Right(Success)
-        val actualResult = await(TestContactPreferencesConnector.updateContactPreference(regimeModel, Digital))
+        val actualResult = await(TestContactPreferencesConnector.updateContactPreference(regimeModel, Email))
 
         actualResult shouldBe expectedResult
       }
@@ -169,7 +168,7 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
           mockHttpPutFailed()
 
           val expectedResult = Left(UpdateHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, "Unexpected Error: I Died"))
-          val actualResult = await(TestContactPreferencesConnector.updateContactPreference(regimeModel, Digital))
+          val actualResult = await(TestContactPreferencesConnector.updateContactPreference(regimeModel, Email))
 
           actualResult shouldBe expectedResult
 
