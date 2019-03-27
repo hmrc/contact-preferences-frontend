@@ -59,22 +59,13 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { user =>
-        contactPreferencesForm.bindFromRequest.fold(
-          formWithErrors => Future.successful(
-            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id)))
+        Future.successful(contactPreferencesForm.bindFromRequest.fold(
+          formWithErrors =>
+            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id))
           ),
-          preference => {
-            auditConnector.sendExplicitAudit(
-              ContactPreferenceAuditModel.auditType,
-              ContactPreferenceAuditModel(journeyModel.regime, user.arn, journeyModel.email, preference)
-            )
-            preferenceService.storeJourneyPreference(id, preference).map {
-              case Right(_) => Redirect(controllers.routes.ConfirmPreferencesController.setRouteShow(id))
-                  .addingToSession(SessionKeys.preference -> preference.value)
-              case Left(_) => errorHandler.showInternalServerError
-            }
-          }
-        )
+          preference => Redirect(controllers.routes.ConfirmPreferencesController.setRouteShow(id))
+            .addingToSession(SessionKeys.preference -> preference.value)
+        ))
       }
     }
   }
@@ -102,22 +93,14 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val updateRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
       authService.authorise(journeyModel.regime) { user =>
-        contactPreferencesForm.bindFromRequest.fold(
-          formWithErrors => Future.successful(
-            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.updateRouteShow(id)))
+        Future.successful(contactPreferencesForm.bindFromRequest.fold(
+          formWithErrors =>
+            BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.updateRouteShow(id))
           ),
-          preference => {
-            auditConnector.sendExplicitAudit(
-              ContactPreferenceAuditModel.auditType,
-              ContactPreferenceAuditModel(journeyModel.regime, user.arn, journeyModel.email, preference)
-            )
-            preferenceService.updateContactPreference(journeyModel.regime, preference).map {
-              case Right(_) => Redirect(controllers.routes.ConfirmPreferencesController.updateRouteShow(id))
-                .addingToSession(SessionKeys.preference -> preference.value)
-              case Left(_) => errorHandler.showInternalServerError
-            }
-          }
-        )
+          preference =>
+            Redirect(controllers.routes.ConfirmPreferencesController.updateRouteShow(id))
+              .addingToSession(SessionKeys.preference -> preference.value)
+        ))
       }
     }
   }

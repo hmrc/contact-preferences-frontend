@@ -16,14 +16,15 @@
 
 package controllers
 
-import config.{AppConfig, ErrorHandler, SessionKeys}
+import audit.models.ContactPreferenceAuditModel
+import config.{AppConfig, ErrorHandler, QueryStringKeys, SessionKeys}
 import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
 import javax.inject.{Inject, Singleton}
 import models._
+import models.requests.User
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{AnyContent, _}
-import play.twirl.api.HtmlFormat
 import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -40,6 +41,50 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              errorHandler: ErrorHandler,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
+  val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
+    displayPage(
+      id = id,
+      postAction = controllers.routes.ConfirmPreferencesController.setRouteSubmit(id),
+      changeUrl = controllers.routes.ContactPreferencesController.setRouteShow(id).url
+    )
+  }
+
+  val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { user =>
+        getPreferenceFromSession(controllers.routes.ContactPreferencesController.setRouteShow(id).url) { preference =>
+          auditPreference(journeyModel, preference)(user)
+          preferenceService.storeJourneyPreference(id, preference).map {
+            case Right(_) => Redirect(journeyModel.continueUrl, Map(QueryStringKeys.preferenceId -> Seq(id)))
+            case Left(_) => errorHandler.showInternalServerError
+          }
+        }
+      }
+    }
+  }
+
+  val updateRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
+    displayPage(
+      id = id,
+      postAction = controllers.routes.ConfirmPreferencesController.updateRouteSubmit(id),
+      changeUrl = controllers.routes.ContactPreferencesController.updateRouteShow(id).url
+    )
+  }
+
+  val updateRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
+    getJourneyContext(id) { journeyModel =>
+      authService.authorise(journeyModel.regime) { user =>
+        getPreferenceFromSession(controllers.routes.ContactPreferencesController.updateRouteShow(id).url) { preference =>
+          auditPreference(journeyModel, preference)(user)
+          preferenceService.updateContactPreference(journeyModel.regime, preference) map {
+            case Right(_) => Redirect(journeyModel.continueUrl, Map(QueryStringKeys.preferenceId -> Seq(id)))
+            case Left(_) => errorHandler.showInternalServerError
+          }
+        }
+      }
+    }
+  }
+
   private def displayPage(id: String, postAction: Call, changeUrl: String)(implicit request: Request[_]): Future[Result] = {
     getPreferenceFromSession(changeUrl) { preference =>
       getJourneyContext(id) { journeyModel =>
@@ -55,37 +100,11 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
     }
   }
 
-  val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
-    displayPage(
-      id = id,
-      postAction = controllers.routes.ConfirmPreferencesController.setRouteSubmit(id),
-      changeUrl = controllers.routes.ContactPreferencesController.setRouteShow(id).url
+  private def auditPreference(journey: Journey, preference: Preference)(implicit user: User[_]): Unit =
+    auditConnector.sendExplicitAudit(
+      ContactPreferenceAuditModel.auditType,
+      ContactPreferenceAuditModel(journey.regime, user.arn, journey.email, preference)
     )
-  }
-
-  val updateRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
-    displayPage(
-      id = id,
-      postAction = controllers.routes.ConfirmPreferencesController.updateRouteSubmit(id),
-      changeUrl = controllers.routes.ContactPreferencesController.updateRouteShow(id).url
-    )
-  }
-
-  val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
-    getJourneyContext(id) { journeyModel =>
-      authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Redirect(journeyModel.continueUrl, Map("preferenceId" -> Seq(id))))
-      }
-    }
-  }
-
-  val updateRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
-    getJourneyContext(id) { journeyModel =>
-      authService.authorise(journeyModel.regime) { _ =>
-        Future.successful(Redirect(journeyModel.continueUrl, Map("preferenceId" -> Seq(id))))
-      }
-    }
-  }
 
   private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
     journeyService.getJourney(id) flatMap {

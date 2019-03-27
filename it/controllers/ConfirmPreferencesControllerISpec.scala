@@ -95,23 +95,41 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
 
     "getJourney is successful" when {
 
-      "redirect to continueUrl" in {
+      "storePreference is successful" should {
 
-        ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
-        AuthStub.authorisedIndividual()
+        "redirect to continueUrl" in {
 
-        val res = await(post(s"/set/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(
-          toFormData(ContactPreferencesForm.contactPreferencesForm, Email)
-        ))
+          ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
+          AuthStub.authorisedIndividual()
+          ContactPreferencesStub.storePreferenceSuccess(journeyId)
 
-        res should have {
-          httpStatus(SEE_OTHER)
-          continueUrl("continue/url")
+          val res = await(post(s"/set/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(Map()))
+
+          res should have {
+            httpStatus(SEE_OTHER)
+            continueUrl("continue/url")
+          }
+        }
+      }
+
+      "storePreference is unsuccessful" should {
+
+        "render ISE" in {
+
+          ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
+          AuthStub.authorisedIndividual()
+          ContactPreferencesStub.storePreferenceFailed(journeyId)
+
+          val res = await(post(s"/set/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(Map()))
+
+          res should have {
+            httpStatus(INTERNAL_SERVER_ERROR)
+          }
         }
       }
     }
 
-    "getJourney is unsuccessul" should {
+    "getJourney is unsuccessful" should {
 
       "show an internal server error" in {
 
@@ -132,23 +150,41 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
 
     "getJourney is successful" when {
 
-      "redirect to continueUrl" in {
+      "updatePreference is successful" should {
 
-        ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
-        AuthStub.authorisedIndividual()
+        "redirect to continueUrl" in {
 
-        val res = await(post(s"/update/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(
-          toFormData(ContactPreferencesForm.contactPreferencesForm, Email)
-        ))
+          ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
+          AuthStub.authorisedIndividual()
+          ContactPreferencesStub.updatePreferenceSuccess(journeyModel.regime)
 
-        res should have {
-          httpStatus(SEE_OTHER)
-          continueUrl("continue/url")
+          val res = await(post(s"/update/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(Map()))
+
+          res should have {
+            httpStatus(SEE_OTHER)
+            continueUrl("continue/url")
+          }
+        }
+      }
+
+      "updatePreference is unsuccessful" should {
+
+        "render ISE" in {
+
+          ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
+          AuthStub.authorisedIndividual()
+          ContactPreferencesStub.updatePreferenceFailed(journeyModel.regime)
+
+          val res = await(post(s"/update/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(Map()))
+
+          res should have {
+            httpStatus(INTERNAL_SERVER_ERROR)
+          }
         }
       }
     }
 
-    "getJourney is unsuccessul" should {
+    "getJourney is unsuccessful" should {
 
       "show an internal server error" in {
 

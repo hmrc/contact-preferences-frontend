@@ -19,8 +19,10 @@ package controllers
 import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import assets.messages.ConfirmPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
+import audit.models.ContactPreferenceAuditModel
 import config.SessionKeys
 import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
+import connectors.httpParsers.{StoreContactPreferenceHttpParser, UpdateContactPreferenceHttpParser}
 import controllers.mocks.MockAuthService
 import models.{Email, Letter}
 import play.api.http.Status
@@ -258,16 +260,47 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
     "a journey can be retrieved from the backend" when {
 
-      "the user is authorised" should {
+      "the user is authorised" when {
 
-        lazy val result: Future[Result] = TestConfirmPreferencesController.setRouteSubmit(journeyId)(fakeRequest)
+        "a preference has been stored in session" should {
 
-        "return a SEE_OTHER (303)" in {
-          mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthenticated(EmptyPredicate)
+          lazy val request = fakeRequest.withSession(
+            SessionKeys.preference -> Email.value
+          )
 
-          status(result) shouldBe Status.SEE_OTHER
-          redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+          lazy val result: Future[Result] = TestConfirmPreferencesController.setRouteSubmit(journeyId)(request)
+
+          "return a SEE_OTHER (303)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+            mockStoreJourneyPreference(journeyId, Email)(Right(StoreContactPreferenceHttpParser.Success))
+
+            verifyExplicitAudit(
+              ContactPreferenceAuditModel.auditType,
+              ContactPreferenceAuditModel(
+                journeyModelMax.regime,
+                None,
+                journeyModelMax.email,
+                Email
+              )
+            )
+
+            status(result) shouldBe Status.SEE_OTHER
+            redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+          }
+        }
+
+        "a preference has NOT been stored in session" should {
+
+          lazy val result: Future[Result] = TestConfirmPreferencesController.setRouteSubmit(journeyId)(fakeRequest)
+
+          "return a SEE_OTHER (303)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+
+            status(result) shouldBe Status.SEE_OTHER
+            redirectLocation(result) shouldBe Some(controllers.routes.ContactPreferencesController.setRouteShow(journeyId).url)
+          }
         }
       }
 
@@ -300,16 +333,47 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
     "a journey can be retrieved from the backend" when {
 
-      "the user is authorised" should {
+      "the user is authorised" when {
 
-        lazy val result: Future[Result] = TestConfirmPreferencesController.updateRouteSubmit(journeyId)(fakeRequest)
+        "a preference has been stored in session" should {
 
-        "return a SEE_OTHER (303)" in {
-          mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthenticated(EmptyPredicate)
+          lazy val request = fakeRequest.withSession(
+            SessionKeys.preference -> Email.value
+          )
 
-          status(result) shouldBe Status.SEE_OTHER
-          redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+          lazy val result: Future[Result] = TestConfirmPreferencesController.updateRouteSubmit(journeyId)(request)
+
+          "return a SEE_OTHER (303)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+            mockUpdateJourneyPreference(journeyModelMax.regime, Email)(Right(UpdateContactPreferenceHttpParser.Success))
+
+            verifyExplicitAudit(
+              ContactPreferenceAuditModel.auditType,
+              ContactPreferenceAuditModel(
+                journeyModelMax.regime,
+                None,
+                journeyModelMax.email,
+                Email
+              )
+            )
+
+            status(result) shouldBe Status.SEE_OTHER
+            redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+          }
+        }
+
+        "a preference has NOT been stored in session" should {
+
+          lazy val result: Future[Result] = TestConfirmPreferencesController.updateRouteSubmit(journeyId)(fakeRequest)
+
+          "return a SEE_OTHER (303)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+
+            status(result) shouldBe Status.SEE_OTHER
+            redirectLocation(result) shouldBe Some(controllers.routes.ContactPreferencesController.updateRouteShow(journeyId).url)
+          }
         }
       }
 
