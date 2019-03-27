@@ -16,21 +16,19 @@
 
 package controllers
 
-import audit.models.{SubmitContactPreferenceAuditModel, ViewContactPreferenceAuditModel}
+import audit.models.ViewContactPreferenceAuditModel
 import config.{AppConfig, ErrorHandler, SessionKeys}
-import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
 import models._
 import models.requests.User
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.HtmlFormat
 import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.contact_preferences
 
 import scala.concurrent.Future
@@ -38,11 +36,11 @@ import scala.concurrent.Future
 @Singleton
 class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              authService: AuthService,
-                                             journeyService: JourneyService,
+                                             val journeyService: JourneyService,
                                              preferenceService: ContactPreferencesService,
-                                             errorHandler: ErrorHandler,
+                                             val errorHandler: ErrorHandler,
                                              auditConnector: AuditConnector,
-                                             implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
+                                             implicit val appConfig: AppConfig) extends BaseController {
 
   val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
@@ -132,13 +130,5 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
       currentPreference = currentPreference,
       postAction = postAction
     )
-  }
-
-  private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
-    journeyService.getJourney(id) flatMap {
-      case Right(journeyModel) => f(journeyModel)
-      case Left(Unauthorised) => Future.successful(Redirect(appConfig.signInUrl()))
-      case Left(_) => Future.successful(errorHandler.showInternalServerError)
-    }
   }
 }

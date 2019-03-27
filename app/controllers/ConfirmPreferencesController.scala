@@ -23,11 +23,10 @@ import controllers.actions.AuthService
 import javax.inject.{Inject, Singleton}
 import models._
 import models.requests.User
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, _}
 import services.{ContactPreferencesService, JourneyService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.confirm_preferences
 
 import scala.concurrent.Future
@@ -35,11 +34,11 @@ import scala.concurrent.Future
 @Singleton
 class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              authService: AuthService,
-                                             journeyService: JourneyService,
+                                             val journeyService: JourneyService,
                                              preferenceService: ContactPreferencesService,
                                              auditConnector: AuditConnector,
-                                             errorHandler: ErrorHandler,
-                                             implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
+                                             val errorHandler: ErrorHandler,
+                                             implicit val appConfig: AppConfig) extends BaseController {
 
   val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
     getPreferenceFromSession(controllers.routes.ContactPreferencesController.setRouteShow(id).url) { preference =>
@@ -108,19 +107,4 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
       SubmitContactPreferenceAuditModel.auditType,
       SubmitContactPreferenceAuditModel(journey.regime, user.arn, journey.email, journey.address, preference)
     )
-
-  private def getJourneyContext(id: String)(f: Journey => Future[Result])(implicit request: Request[_]): Future[Result] = {
-    journeyService.getJourney(id) flatMap {
-      case Right(journeyModel) => f(journeyModel)
-      case Left(Unauthorised) => Future.successful(Redirect(appConfig.signInUrl()))
-      case Left(_) => Future.successful(errorHandler.showInternalServerError)
-    }
-  }
-
-  private def getPreferenceFromSession(changeUrl: String)(f: Preference => Future[Result])(implicit request: Request[_]): Future[Result] = {
-    request.session.get(SessionKeys.preference) match {
-      case Some(preference) => f(Preference(preference))
-      case _ => Future.successful(Redirect(changeUrl))
-    }
-  }
 }
