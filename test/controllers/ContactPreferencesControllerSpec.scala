@@ -20,6 +20,7 @@ import assets.ContactPreferencesTestConstants.digitalPreferenceModel
 import assets.JourneyTestConstants.{journeyId, journeyModelMax, _}
 import assets.messages.ContactPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
+import audit.models.{SubmitContactPreferenceAuditModel, ViewContactPreferenceAuditModel}
 import config.SessionKeys
 import connectors.httpParsers.GetContactPreferenceHttpParser
 import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
@@ -55,6 +56,17 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
         "return an OK (200)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
           mockAuthenticated(EmptyPredicate)
+
+          verifyExplicitAudit(
+            ViewContactPreferenceAuditModel.auditType,
+            audit.models.ViewContactPreferenceAuditModel(
+              journeyModelMax.regime,
+              None,
+              journeyModelMax.email,
+              journeyModelMax.address,
+              None
+            )
+          )
 
           status(result) shouldBe Status.OK
         }
@@ -98,6 +110,18 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             mockJourney(journeyId)(Right(journeyModelMax))
             mockAuthenticated(individual)
             mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+
+            verifyExplicitAudit(
+              ViewContactPreferenceAuditModel.auditType,
+              ViewContactPreferenceAuditModel(
+                journeyModelMax.regime,
+                None,
+                journeyModelMax.email,
+                journeyModelMax.address,
+                Some(Email)
+              )
+            )
+
             status(result) shouldBe Status.OK
           }
 
@@ -123,6 +147,18 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             mockJourney(journeyId)(Right(journeyModelMax))
             mockAuthenticated(individual)
             mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+
+            verifyExplicitAudit(
+              ViewContactPreferenceAuditModel.auditType,
+              ViewContactPreferenceAuditModel(
+                journeyModelMax.regime,
+                None,
+                journeyModelMax.email,
+                journeyModelMax.address,
+                Some(Email)
+              )
+            )
+
             status(result) shouldBe Status.OK
           }
 

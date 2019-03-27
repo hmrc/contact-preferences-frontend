@@ -16,13 +16,14 @@
 
 package controllers
 
-import audit.models.SubmitContactPreferenceAuditModel
+import audit.models.{SubmitContactPreferenceAuditModel, ViewContactPreferenceAuditModel}
 import config.{AppConfig, ErrorHandler, SessionKeys}
 import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
 import forms.ContactPreferencesForm._
 import javax.inject.{Inject, Singleton}
 import models._
+import models.requests.User
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
@@ -45,7 +46,8 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
 
   val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
-      authService.authorisedNoPredicate(journeyModel.regime) { _ =>
+      authService.authorisedNoPredicate(journeyModel.regime) { user =>
+        auditPreference(journeyModel)(user)
         Future.successful(Ok(displayPage(
           form = contactPreferencesForm,
           journeyModel = journeyModel,
@@ -58,7 +60,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
 
   val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit request =>
     getJourneyContext(id) { journeyModel =>
-      authService.authorisedNoPredicate(journeyModel.regime) { user =>
+      authService.authorisedNoPredicate(journeyModel.regime) { _ =>
         Future.successful(contactPreferencesForm.bindFromRequest.fold(
           formWithErrors =>
             BadRequest(displayPage(formWithErrors, journeyModel, routes.ContactPreferencesController.setRouteSubmit(id))
@@ -74,9 +76,10 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
   val updateRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
     val postAction = routes.ContactPreferencesController.updateRouteSubmit(id)
     getJourneyContext(id) { journeyModel =>
-      authService.authorisedWithEnrolmentPredicate(journeyModel.regime) { _ =>
+      authService.authorisedWithEnrolmentPredicate(journeyModel.regime) { user =>
         preferenceService.getContactPreference(journeyModel.regime).map {
-          case Right(preferenceModel) =>
+          case Right(preferenceModel) => {
+            auditPreference(journeyModel, Some(preferenceModel.preference))(user)
             Ok(displayPage(
               form = contactPreferencesForm,
               journeyModel = journeyModel,
@@ -84,6 +87,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
               selectedPreference = determineSelectedPreference(Some(preferenceModel.preference)),
               currentPreference = Some(preferenceModel.preference)
             ))
+          }
           case _ => errorHandler.showInternalServerError
         }
       }
@@ -104,6 +108,12 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
       }
     }
   }
+
+  private def auditPreference(journey: Journey, preference: Option[Preference] = None)(implicit user: User[_]): Unit =
+    auditConnector.sendExplicitAudit(
+      ViewContactPreferenceAuditModel.auditType,
+      ViewContactPreferenceAuditModel(journey.regime, user.arn, journey.email, journey.address, preference)
+    )
 
   private def determineSelectedPreference(currentPreference: Option[Preference])(implicit request: Request[_]): Option[Preference] =
     request.session.get(SessionKeys.preference).fold(currentPreference)(x => Some(Preference(x)))
