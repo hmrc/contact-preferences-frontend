@@ -63,11 +63,12 @@ class ContactPreferencesConnector @Inject()(val http: HttpClient, implicit val a
   def updateContactPreference(regime: RegimeModel, preference: Preference)
                              (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[UpdateHttpParser.Response] = {
 
-    http.PUT(preferenceUrl(regime), preference)(Preference.writes, UpdateHttpParser.UpdateContactPreferenceHttpReads, hc, ec)
-      .recover {
-        case e =>
-          Logger.error(s"[ContactPreferencesConnector][updateContactPreference] Unexpected Error: ${e.getMessage}")
-          Left(UpdateHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
-      }
+    http.PUT(preferenceUrl(regime), ContactPreferenceModel(preference))(
+      ContactPreferenceModel.format, UpdateHttpParser.UpdateContactPreferenceHttpReads, hc, ec
+    ).recover {
+      case e =>
+        Logger.error(s"[ContactPreferencesConnector][updateContactPreference] Unexpected Error: ${e.getMessage}")
+        Left(UpdateHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, s"Unexpected Error: ${e.getMessage}"))
+    }
   }
 }

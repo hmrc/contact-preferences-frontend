@@ -21,7 +21,7 @@ import assets.ContactPreferencesTestConstants._
 import assets.JourneyTestConstants._
 import connectors.httpParsers.UpdateContactPreferenceHttpParser.Success
 import connectors.httpParsers.{GetContactPreferenceHttpParser => GetHttpParser, StoreContactPreferenceHttpParser => StoreHttpParser, UpdateContactPreferenceHttpParser => UpdateHttpParser}
-import models.{Email, MTDVAT, VRN}
+import models.{ContactPreferenceModel, Email, MTDVAT, VRN}
 import play.mvc.Http.Status
 import utils.{MockHttpClient, TestUtils}
 
@@ -150,7 +150,7 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
 
       "return Success" in {
 
-        mockHttpPut(Email)(Right(Success))
+        mockHttpPut(ContactPreferenceModel(Email))(Right(Success))
 
         val expectedResult = Right(Success)
         val actualResult = await(TestContactPreferencesConnector.updateContactPreference(regimeModel, Email))
