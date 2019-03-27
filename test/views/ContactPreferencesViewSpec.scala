@@ -22,6 +22,7 @@ import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import controllers.routes
 import forms.ContactPreferencesForm
 import _root_.utils.ViewTestUtils
+import config.SessionKeys
 import models.{Email, Letter}
 
 
@@ -103,7 +104,7 @@ class ContactPreferencesViewSpec extends ViewTestUtils {
     "the page has errors" should {
 
       lazy val document = parseView(views.html.contact_preferences(
-        ContactPreferencesForm.contactPreferencesForm.bind(Map("preference" -> "")),
+        ContactPreferencesForm.contactPreferencesForm.bind(Map(SessionKeys.preference -> "")),
         journeyModelMax.email,
         routes.ContactPreferencesController.setRouteSubmit(journeyId),
         address = AddressTestConstants.addressModelMax

@@ -16,8 +16,9 @@
 
 @import config.AppConfig
 @import uk.gov.hmrc.play.views.html.helpers.form
+@import models.Journey
 
-@(address: String, postAction: Call, changeUrl: String, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(journey: Journey, digitalPreference: Boolean, postAction: Call, changeUrl: String, serviceName: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @main_template(title = messages("confirmPreference.title"),
                serviceName = serviceName) {
@@ -28,7 +29,21 @@
         @messages("confirmPreference.title")
     </h1>
 
-    <p>@messages("confirmPreference.text", address)</p>
+    @if(digitalPreference) {
+        <p>@messages("confirmPreference.email.text")</p>
+        <p>@journey.email</p>
+    } else {
+        <p>@messages("confirmPreference.letter.text")</p>
+        <p>
+            @journey.address.line1<br>
+            @journey.address.line2<br>
+            @journey.address.line3.map{ line => @line <br>}
+            @journey.address.line4.map{ line => @line <br>}
+            @journey.address.postcode.map{ line => @line <br>}
+            @journey.address.countryCode<br>
+        </p>
+    }
+
 
     <p class="form-group">
         <a href="@changeUrl">

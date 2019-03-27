@@ -158,7 +158,6 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "display the correct page with no option selected" in {
             title(result) shouldBe pageTitle
-            //TODO make this actually check if the option has actually been selected
             selectElement(result, "#yes").hasAttr("checked") shouldBe false
             selectElement(result, "#no").hasAttr("checked") shouldBe false
           }
@@ -236,7 +235,8 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             }
 
             "redirect to the continueUrl posted as part of the JourneyModel" in {
-              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+              redirectLocation(result) shouldBe Some(controllers.routes.ConfirmPreferencesController.setRouteShow(journeyId).url)
+              session(result).get(SessionKeys.preference) shouldBe Some(Email.value)
             }
           }
 
@@ -295,7 +295,8 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
             }
 
             "redirect to the continueUrl posted as part of the JourneyModel" in {
-              redirectLocation(result) shouldBe Some(s"${journeyModelMax.continueUrl}?preferenceId=$journeyId")
+              redirectLocation(result) shouldBe Some(controllers.routes.ConfirmPreferencesController.setRouteShow(journeyId).url)
+              session(result).get(SessionKeys.preference) shouldBe Some(Letter.value)
             }
           }
 

@@ -19,6 +19,7 @@ package assets.messages
 object ConfirmPreferencesMessages {
 
   val title = "Confirm contact preference"
-  val text = "You have chosen to be contacted by email at the address"
+  val textEmail = "You would prefer to be contacted by email at this email address:"
+  val textLetter = "You would prefer to receive a letter to this address:"
   val link = s"Change contact preferences"
 }

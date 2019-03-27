@@ -26,38 +26,84 @@ class ConfirmPreferencesViewSpec extends ViewTestUtils {
 
   object Selectors {
     val pageHeading = "h1"
-    val text = "#content > article > p:nth-child(2)"
-    val link = "#content > article > p:nth-child(3) > a"
+    val text1 = "#content > article > p:nth-child(2)"
+    val text2 = "#content > article > p:nth-child(3)"
+    val link = "#content > article > p.form-group > a"
     val confirmAndContinue = "input"
   }
 
-  "The confirm preferences page" should {
+  "The confirm preferences page" when {
 
-    lazy val document = parseView(views.html.confirm_preferences(
-      journeyModelMax.email,
-      routes.ContactPreferencesController.updateRouteShow(journeyId), //TODO change this to the ConfirmPreferencesController.submit when created
-      routes.ContactPreferencesController.updateRouteShow(journeyId).url
-    ))
+    "given an email preference" should {
 
-    s"have the correct document title" in {
-      document.title shouldBe ConfirmPreferencesMessages.title
+      lazy val document = parseView(views.html.confirm_preferences(
+        journey = journeyModelMax,
+        digitalPreference = true,
+        postAction = routes.ContactPreferencesController.updateRouteShow(journeyId),
+        changeUrl = routes.ContactPreferencesController.updateRouteShow(journeyId).url
+      ))
+
+      s"have the correct document title" in {
+        document.title shouldBe ConfirmPreferencesMessages.title
+      }
+
+      s"have a the correct page heading" in {
+        document.select(Selectors.pageHeading).text() shouldBe ConfirmPreferencesMessages.title
+      }
+
+      s"have the correct first paragraph text" in {
+        document.select(Selectors.text1).text() shouldBe ConfirmPreferencesMessages.textEmail
+      }
+
+      s"have the correct paragraph text for email" in {
+        document.select(Selectors.text2).text() shouldBe journeyModelMax.email
+      }
+
+      s"have a the correct link with the correct text" in {
+        document.select(Selectors.link).text() shouldBe ConfirmPreferencesMessages.link
+        document.select(Selectors.link).attr("href") shouldBe routes.ContactPreferencesController.updateRouteShow(journeyId).url
+      }
+
+      s"have a the correct continue button" in {
+        document.select(Selectors.confirmAndContinue).attr("value") shouldBe CommonMessages.confirmAndContinue
+      }
     }
 
-    s"have a the correct page heading" in {
-      document.select(Selectors.pageHeading).text() shouldBe ConfirmPreferencesMessages.title
-    }
+    "given an letter preference" should {
 
-    s"have the correct paragraph text" in {
-      document.select(Selectors.text).text() shouldBe s"${ConfirmPreferencesMessages.text} ${journeyModelMax.email}"
-    }
+      lazy val document = parseView(views.html.confirm_preferences(
+        journey = journeyModelMax,
+        digitalPreference = false,
+        postAction = routes.ContactPreferencesController.updateRouteShow(journeyId),
+        changeUrl = routes.ContactPreferencesController.updateRouteShow(journeyId).url
+      ))
 
-    s"have a the correct link with the correct text" in {
-      document.select(Selectors.link).text() shouldBe ConfirmPreferencesMessages.link
-      document.select(Selectors.link).attr("href") shouldBe routes.ContactPreferencesController.updateRouteShow(journeyId).url
-    }
+      s"have the correct document title" in {
+        document.title shouldBe ConfirmPreferencesMessages.title
+      }
 
-    s"have a the correct continue button" in {
-      document.select(Selectors.confirmAndContinue).attr("value") shouldBe CommonMessages.confirmAndContinue
+      s"have a the correct page heading" in {
+        document.select(Selectors.pageHeading).text() shouldBe ConfirmPreferencesMessages.title
+      }
+
+      s"have the correct first paragraph text" in {
+        document.select(Selectors.text1).text() shouldBe ConfirmPreferencesMessages.textLetter
+      }
+
+      s"have the correct paragraph text for letter" in {
+        val address = journeyModelMax.address
+        document.select(Selectors.text2).text() shouldBe
+          s"${address.line1} ${address.line2} ${address.line3.get} ${address.line4.get} ${address.postcode.get} ${address.countryCode}"
+      }
+
+      s"have a the correct link with the correct text" in {
+        document.select(Selectors.link).text() shouldBe ConfirmPreferencesMessages.link
+        document.select(Selectors.link).attr("href") shouldBe routes.ContactPreferencesController.updateRouteShow(journeyId).url
+      }
+
+      s"have a the correct continue button" in {
+        document.select(Selectors.confirmAndContinue).attr("value") shouldBe CommonMessages.confirmAndContinue
+      }
     }
   }
 }

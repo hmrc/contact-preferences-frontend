@@ -27,7 +27,8 @@ error.contact_preferences.field  = Choose email or letter
 error.contact_preferences.summary = Choose email or letter, if you are ready to set your contact preferences
 
 confirmPreference.title = Confirm contact preference
-confirmPreference.text = You have chosen to be contacted by email at the address {0}
+confirmPreference.email.text = You would prefer to be contacted by email at this email address:
+confirmPreference.letter.text = You would prefer to receive a letter to this address:
 confirmPreference.link = Change contact preferences
 
 # Session Timeout
