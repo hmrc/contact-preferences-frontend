@@ -7,6 +7,11 @@ base.confirmAndContinue = Confirm and continue
 base.service-name = Update your contact preference
 base.sign-out = Sign out
 
+# Global overrides
+global.error.InternalServerError500.title = Sorry, there is a problem with the service
+global.error.InternalServerError500.heading = Sorry, there is a problem with the service
+global.error.InternalServerError500.message = Try again later.
+
 #Feedback
 feedback.before = This is a new service – your
 feedback.link = feedback
