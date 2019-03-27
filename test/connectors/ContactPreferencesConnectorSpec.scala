@@ -16,13 +16,12 @@
 
 package connectors
 
-import assets.ContactPreferencesTestConstants._
 import assets.BaseTestConstants.testVatNumber
+import assets.ContactPreferencesTestConstants._
 import assets.JourneyTestConstants._
-import connectors.httpParsers.{StoreContactPreferenceHttpParser => StoreHttpParser}
-import connectors.httpParsers.{GetContactPreferenceHttpParser => GetHttpParser}
-//import connectors.httpParsers.{StoreContactPreferenceHttpParser => StoreParser}
-import models.{MTDVAT, VRN}
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.Success
+import connectors.httpParsers.{GetContactPreferenceHttpParser => GetHttpParser, StoreContactPreferenceHttpParser => StoreHttpParser, UpdateContactPreferenceHttpParser => UpdateHttpParser}
+import models.{Email, MTDVAT, VRN}
 import play.mvc.Http.Status
 import utils.{MockHttpClient, TestUtils}
 
@@ -30,9 +29,31 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
 
   object TestContactPreferencesConnector extends ContactPreferencesConnector(mockHttpClient, appConfig)
 
-  "PreferenceConnector" when {
+  ".storePreferenceUrl" should {
 
-    "storeContactPreference() is successful" should {
+    "have the correct url" in {
+
+      val actualResult = TestContactPreferencesConnector.storePreferenceUrl("anId")
+      val expectedResult = "http://localhost:9592/contact-preferences/anId"
+
+      actualResult shouldBe expectedResult
+    }
+  }
+
+  ".preferenceUrl" should {
+
+    "have the correct url" in {
+
+      val expectedResult = s"http://localhost:9592/contact-preferences/${MTDVAT.id}/${VRN.value}/$testVatNumber"
+      val actualResult = TestContactPreferencesConnector.preferenceUrl(regimeModel)
+
+      actualResult shouldBe expectedResult
+    }
+  }
+
+  ".storeContactPreference()" when {
+
+    "is successful" should {
 
       "return a Preference model" in {
 
@@ -45,7 +66,7 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
       }
     }
 
-    "storeContactPreference() is unsuccessful" should {
+    "is unsuccessful" should {
 
       "return a NotFound ErrorResponse" when {
 
@@ -75,23 +96,11 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
 
       }
     }
-
-    "an id is given to journeyUrl" should {
-
-      "have the correct url" in {
-
-        val actualResult = TestContactPreferencesConnector.preferenceUrl("anId")
-        val expectedResult = "http://localhost:9592/contact-preferences/anId"
-
-        actualResult shouldBe expectedResult
-      }
-    }
   }
 
+  ".getContactPreference()" when {
 
-  "ContactPreferenceDesConnector" when {
-
-    "getContactPreference is successful" should {
+    "is successful" should {
 
       "return a ContactPreference model" in {
 
@@ -104,7 +113,7 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
       }
     }
 
-    "getContactPreferenceDes is unsuccessful" should {
+    "is unsuccessful" should {
 
       "return a NotFound ErrorResponse" when {
 
@@ -133,15 +142,37 @@ class ContactPreferencesConnectorSpec extends TestUtils with MockHttpClient {
         }
       }
     }
+  }
 
-    "an id is given to ContactPreferenceDesUrl" should {
+  ".updateContactPreference()" when {
 
-      "have the correct url" in {
+    "is successful" should {
 
-        val expectedResult = s"http://localhost:9592/contact-preferences/${MTDVAT.id}/${VRN.value}/$testVatNumber"
-        val actualResult = TestContactPreferencesConnector.contactPreferenceDesUrl(regimeModel)
+      "return Success" in {
+
+        mockHttpPut(Email)(Right(Success))
+
+        val expectedResult = Right(Success)
+        val actualResult = await(TestContactPreferencesConnector.updateContactPreference(regimeModel, Email))
 
         actualResult shouldBe expectedResult
+      }
+    }
+
+    "is unsuccessful" should {
+
+      "return a UnexpectedError" when {
+
+        "there is a failed future and exception thrown" in {
+
+          mockHttpPutFailed()
+
+          val expectedResult = Left(UpdateHttpParser.UnexpectedFailure(Status.INTERNAL_SERVER_ERROR, "Unexpected Error: I Died"))
+          val actualResult = await(TestContactPreferencesConnector.updateContactPreference(regimeModel, Email))
+
+          actualResult shouldBe expectedResult
+
+        }
       }
     }
   }
