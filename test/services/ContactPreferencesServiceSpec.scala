@@ -20,6 +20,7 @@ import assets.ContactPreferencesTestConstants.digitalPreferenceModel
 import assets.JourneyTestConstants._
 import connectors.httpParsers.{StoreContactPreferenceHttpParser => StoreHttpParser}
 import connectors.httpParsers.{GetContactPreferenceHttpParser => GetHttpParser}
+import connectors.httpParsers.{UpdateContactPreferenceHttpParser => UpdateHttpParser}
 import connectors.mocks.MockContactPreferencesConnector
 import models.Email
 
@@ -27,7 +28,7 @@ class ContactPreferencesServiceSpec extends MockContactPreferencesConnector {
 
   object TestContactPreferencesService extends ContactPreferencesService(connector)
 
-  "PreferenceService" should {
+  ".storeJourneyPreference()" should {
 
     "return a Journey model when getJourney is successful" in {
 
@@ -50,7 +51,7 @@ class ContactPreferencesServiceSpec extends MockContactPreferencesConnector {
     }
   }
 
-  "ContactPreferencesService" should {
+  ".getContactPreference()" should {
 
     "return a Contact Preference model when getContactPreference is successful" in {
 
@@ -66,6 +67,29 @@ class ContactPreferencesServiceSpec extends MockContactPreferencesConnector {
       mockGetContactPreference(regimeModel)(Left(GetHttpParser.InvalidJson))
       val actualResult = await(TestContactPreferencesService.getContactPreference(regimeModel))
       val expectedResult = Left(GetHttpParser.InvalidJson)
+
+      actualResult shouldBe expectedResult
+    }
+  }
+
+  ".updateContactPreference()" should {
+
+    "return a Success when update is successful" in {
+
+      mockUpdateContactPreference(regimeModel, Email)(Right(UpdateHttpParser.Success))
+
+      val actualResult = await(TestContactPreferencesService.updateContactPreference(regimeModel, Email))
+      val expectedResult = Right(UpdateHttpParser.Success)
+
+      actualResult shouldBe expectedResult
+    }
+
+    "return an Error model when update is unsuccessful" in {
+
+      mockUpdateContactPreference(regimeModel, Email)(Left(UpdateHttpParser.InvalidPreferencePayload))
+
+      val actualResult = await(TestContactPreferencesService.updateContactPreference(regimeModel, Email))
+      val expectedResult = Left(UpdateHttpParser.InvalidPreferencePayload)
 
       actualResult shouldBe expectedResult
     }
