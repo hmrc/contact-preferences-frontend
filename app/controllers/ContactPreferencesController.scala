@@ -105,7 +105,7 @@ class ContactPreferencesController @Inject()(val messagesApi: MessagesApi,
             )
             preferenceService.storeJourneyPreference(id, preference).map {
               case Right(_) => Redirect(controllers.routes.ConfirmPreferencesController.setRouteShow(id))
-                  .addingToSession("preference" -> preference.value)
+                  .addingToSession(SessionKeys.preference -> preference.value)
               case Left(_) => errorHandler.showInternalServerError
             }
           }

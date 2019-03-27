@@ -19,6 +19,7 @@ package controllers
 import assets.JourneyTestConstants.{journeyId, journeyModelMax}
 import assets.messages.ConfirmPreferencesMessages.{title => pageTitle}
 import audit.mocks.MockAuditConnector
+import config.SessionKeys
 import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
 import controllers.mocks.MockAuthService
 import models.{Email, Letter}
@@ -50,7 +51,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
     "a Email preference has been stored in session" when {
 
       lazy val request = fakeRequest.withSession(
-        "preference" -> Email.value
+        SessionKeys.preference -> Email.value
       )
 
       "a journey can be retrieved from the backend" when {
@@ -116,7 +117,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
     "a Letter preference has been stored in session" should {
 
       lazy val result: Future[Result] = TestConfirmPreferencesController.setRouteShow(journeyId)(fakeRequest.withSession(
-        "preference" -> Letter.value
+        SessionKeys.preference -> Letter.value
       ))
 
       "return a OK (200)" in {
@@ -154,7 +155,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
     "a Email preference has been stored in session" when {
 
       lazy val request = fakeRequest.withSession(
-        "preference" -> Email.value
+        SessionKeys.preference -> Email.value
       )
 
       "a journey can be retrieved from the backend" when {
@@ -220,7 +221,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
     "a Letter preference has been stored in session" should {
 
       lazy val result: Future[Result] = TestConfirmPreferencesController.updateRouteShow(journeyId)(fakeRequest.withSession(
-        "preference" -> Letter.value
+        SessionKeys.preference -> Letter.value
       ))
 
       "return a OK (200)" in {

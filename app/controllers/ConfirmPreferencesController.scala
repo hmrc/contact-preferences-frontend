@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.{AppConfig, ErrorHandler}
+import config.{AppConfig, ErrorHandler, SessionKeys}
 import connectors.httpParsers.JourneyHttpParser.Unauthorised
 import controllers.actions.AuthService
 import javax.inject.{Inject, Singleton}
@@ -96,7 +96,7 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
   }
 
   private def getPreferenceFromSession(changeUrl: String)(f: Preference => Future[Result])(implicit request: Request[_]): Future[Result] = {
-    request.session.get("preference") match {
+    request.session.get(SessionKeys.preference) match {
       case Some(preference) => f(Preference(preference))
       case _ => Future.successful(Redirect(changeUrl))
     }

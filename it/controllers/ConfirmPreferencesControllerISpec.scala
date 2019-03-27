@@ -17,8 +17,9 @@
 package controllers
 
 import assets.JourneyITConstants._
+import config.SessionKeys
 import forms.ContactPreferencesForm
-import models.{Email, Letter}
+import models.Email
 import play.api.http.Status._
 import stubs.{AuthStub, ContactPreferencesStub}
 import utils.ITUtils
@@ -35,7 +36,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
         ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
         AuthStub.authorisedIndividual()
 
-        val res = await(get(s"/set/confirm-preference/$journeyId", Map("preference" -> Email.value)))
+        val res = await(get(s"/set/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value)))
 
         res should have {
           httpStatus(OK)
@@ -49,7 +50,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
 
         ContactPreferencesStub.startJourneyFailed(journeyId)
 
-        val res = await(get(s"/set/confirm-preference/$journeyId", Map("preference" -> Email.value)))
+        val res = await(get(s"/set/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value)))
 
         res should have {
           httpStatus(INTERNAL_SERVER_ERROR)
@@ -67,7 +68,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
         ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
         AuthStub.authorisedIndividual()
 
-        val res = await(get(s"/update/confirm-preference/$journeyId", Map("preference" -> Email.value)))
+        val res = await(get(s"/update/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value)))
 
         res should have {
           httpStatus(OK)
@@ -81,7 +82,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
 
         ContactPreferencesStub.startJourneyFailed(journeyId)
 
-        val res = await(get(s"/update/confirm-preference/$journeyId", Map("preference" -> Email.value)))
+        val res = await(get(s"/update/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value)))
 
         res should have {
           httpStatus(INTERNAL_SERVER_ERROR)
@@ -99,7 +100,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
         ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
         AuthStub.authorisedIndividual()
 
-        val res = await(post(s"/set/confirm-preference/$journeyId", Map("preference" -> Email.value))(
+        val res = await(post(s"/set/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(
           toFormData(ContactPreferencesForm.contactPreferencesForm, Email)
         ))
 
@@ -116,7 +117,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
 
         ContactPreferencesStub.startJourneyFailed(journeyId)
 
-        val res = await(post(s"/set/confirm-preference/$journeyId", Map("preference" -> Email.value))(
+        val res = await(post(s"/set/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(
           toFormData(ContactPreferencesForm.contactPreferencesForm, Email)
         ))
 
@@ -136,7 +137,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
         ContactPreferencesStub.startJourneySuccess(journeyId)(journeyJson)
         AuthStub.authorisedIndividual()
 
-        val res = await(post(s"/update/confirm-preference/$journeyId", Map("preference" -> Email.value))(
+        val res = await(post(s"/update/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(
           toFormData(ContactPreferencesForm.contactPreferencesForm, Email)
         ))
 
@@ -153,7 +154,7 @@ class ConfirmPreferencesControllerISpec extends ITUtils {
 
         ContactPreferencesStub.startJourneyFailed(journeyId)
 
-        val res = await(post(s"/update/confirm-preference/$journeyId", Map("preference" -> Email.value))(
+        val res = await(post(s"/update/confirm-preference/$journeyId", Map(SessionKeys.preference -> Email.value))(
           toFormData(ContactPreferencesForm.contactPreferencesForm, Email)
         ))
 
