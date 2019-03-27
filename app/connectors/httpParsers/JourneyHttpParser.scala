@@ -33,7 +33,8 @@ object JourneyHttpParser {
         case Status.OK => {
           response.json.validate[Journey](Journey.format).fold(
             invalid => {
-              Logger.warn(s"[JourneyHttpParser][read] Invalid JSON returned from DES: $invalid")
+              Logger.debug(s"[JourneyHttpParser][read] Invalid JSON returned from DES: $invalid")
+              Logger.warn(s"[JourneyHttpParser][read] Invalid JSON returned from DES")
               Left(InvalidJson)
             },
             valid => Right(valid)
