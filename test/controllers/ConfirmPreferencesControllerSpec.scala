@@ -168,7 +168,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return an OK (200)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
 
             status(result) shouldBe Status.OK
           }
@@ -189,7 +189,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return an FORBIDDEN (403)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+            mockAuthorise(individual, retrievals)(Future.failed(InsufficientEnrolments()))
 
             status(result) shouldBe Status.FORBIDDEN
           }
@@ -229,7 +229,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
       "return a OK (200)" in {
 
         mockJourney(journeyId)(Right(journeyModelMax))
-        mockAuthenticated(EmptyPredicate)
+        mockAuthenticated(individual)
 
         status(result) shouldBe Status.OK
       }
@@ -345,7 +345,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return a SEE_OTHER (303)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
             mockUpdateJourneyPreference(journeyModelMax.regime, Email)(Right(UpdateContactPreferenceHttpParser.Success))
 
             verifyExplicitAudit(
@@ -369,7 +369,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return a SEE_OTHER (303)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
 
             status(result) shouldBe Status.SEE_OTHER
             redirectLocation(result) shouldBe Some(controllers.routes.ContactPreferencesController.updateRouteShow(journeyId).url)
@@ -383,7 +383,7 @@ class ConfirmPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
         "return an FORBIDDEN (403)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(individual, retrievals)(Future.failed(InsufficientEnrolments()))
 
           status(result) shouldBe Status.FORBIDDEN
         }

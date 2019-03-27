@@ -96,7 +96,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return an OK (200)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
             mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
             status(result) shouldBe Status.OK
           }
@@ -121,7 +121,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return an OK (200)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
             mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
             status(result) shouldBe Status.OK
           }
@@ -144,7 +144,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return a ISE (500)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
             mockGetContactPreference(regimeModel)(Left(GetContactPreferenceHttpParser.NotFound))
 
             status(result) shouldBe Status.INTERNAL_SERVER_ERROR
@@ -158,7 +158,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
         "return an FORBIDDEN (403)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(individual, retrievals)(Future.failed(InsufficientEnrolments()))
 
           status(result) shouldBe Status.FORBIDDEN
         }
@@ -294,20 +294,8 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
           ))
 
           "return an SEE_OTHER (303) status" in {
-
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
-            //              mockUpdateJourneyPreference(journeyModelMax.regime, Email)(Right(UpdateParser.Success))
-            //
-            //              verifyExplicitAudit(
-            //                ContactPreferenceAuditModel.auditType,
-            //                ContactPreferenceAuditModel(
-            //                  journeyModelMax.regime,
-            //                  None,
-            //                  journeyModelMax.email,
-            //                  Email
-            //                )
-            //              )
+            mockAuthenticated(individual)
 
             status(result) shouldBe Status.SEE_OTHER
           }
@@ -329,7 +317,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return an SEE_OTHER (303) status" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
 
             status(result) shouldBe Status.SEE_OTHER
           }
@@ -346,7 +334,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           "return a BAD_REQUEST (400)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
-            mockAuthenticated(EmptyPredicate)
+            mockAuthenticated(individual)
 
             val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/"))
 
@@ -359,7 +347,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
         "return an FORBIDDEN (403)" in {
           mockJourney(journeyId)(Right(journeyModelMax))
-          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(individual, retrievals)(Future.failed(InsufficientEnrolments()))
 
           val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
             ContactPreferencesForm.preference -> PreferenceMapping.option_letter

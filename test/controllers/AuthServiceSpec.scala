@@ -32,12 +32,12 @@ class AuthServiceSpec extends MockAuthConnector {
 
   object TestContactPreferencesAuthorised extends AuthService(mockAuthConnector, appConfig)
 
-  def result: Future[Result] = TestContactPreferencesAuthorised.authorise(regimeModel) {
-    implicit user =>
-      Future.successful(Ok)
-  }
+  "The ContactPreferencesAuthorised.authorisedNoPredicate" should {
 
-  "The ContactPreferencesAuthorised.async method" should {
+    def result: Future[Result] = TestContactPreferencesAuthorised.authorisedNoPredicate(regimeModel) {
+      implicit user =>
+        Future.successful(Ok)
+    }
 
     "For a Principal User" when {
 
@@ -45,17 +45,6 @@ class AuthServiceSpec extends MockAuthConnector {
 
         "Successfully authenticate and process the request" in {
           mockAuthenticated(EmptyPredicate)
-          status(result) shouldBe OK
-        }
-      }
-    }
-
-    "For an Agent User" when {
-
-      "they are Signed Up to MTD ContactPreferences" should {
-
-        "Successfully authenticate and process the request" in {
-          mockAuthRetrieveAgentServicesEnrolled(EmptyPredicate)
           status(result) shouldBe OK
         }
       }
@@ -85,4 +74,48 @@ class AuthServiceSpec extends MockAuthConnector {
       }
     }
   }
+
+  "The ContactPreferencesAuthorised.authorisedWithEnrolmentPredicate" should {
+
+    def result: Future[Result] = TestContactPreferencesAuthorised.authorisedWithEnrolmentPredicate(regimeModel) {
+      implicit user =>
+        Future.successful(Ok)
+    }
+
+    "For a Principal User" when {
+
+      "an authorised result is returned from the Auth Connector" should {
+
+        "Successfully authenticate and process the request" in {
+          mockAuthenticated(individual)
+          status(result) shouldBe OK
+        }
+      }
+    }
+
+    "For any type of user" when {
+
+      "a NoActiveSession exception is returned from the Auth Connector" should {
+
+        "Return a SEE_OTHER response" in {
+          mockAuthorise(individual, retrievals)(Future.failed(MissingBearerToken()))
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "Redirect to GG Sign In" in {
+          mockAuthorise(individual, retrievals)(Future.failed(MissingBearerToken()))
+          redirectLocation(result) shouldBe Some(appConfig.signInUrl())
+        }
+      }
+
+      "an InsufficientAuthority exception is returned from the Auth Connector" should {
+
+        "Return a forbidden response" in {
+          mockAuthorise(individual, retrievals)(Future.failed(InsufficientEnrolments()))
+          status(result) shouldBe FORBIDDEN
+        }
+      }
+    }
+  }
+
 }

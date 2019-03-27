@@ -23,22 +23,29 @@ import models.requests.User
 import play.api.Logger
 import play.api.i18n.Messages
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AuthService @Inject()(val authConnector: AuthConnector, implicit val appConfig: AppConfig)
   extends FrontendController with AuthorisedFunctions {
 
+  private def enrolmentCheck(regime: RegimeModel): Enrolment =
+    Enrolment(regime.`type`.enrolmentId)
+      .withIdentifier(regime.identifier.key.value, regime.identifier.value)
+
   private val arn: Enrolments => Option[String] = _.getEnrolment(Constants.AgentServicesEnrolment) flatMap {
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
-  def authorise(regime: RegimeModel)(f: User[_] => Future[Result])(implicit request : Request[_], messages: Messages): Future[Result] =
-    authorised().retrieve(Retrievals.allEnrolments) {
+  private def authorised(regime: RegimeModel, predicate: Predicate)(f: User[_] => Future[Result])
+               (implicit request : Request[_], messages: Messages): Future[Result] =
+    authorised(predicate).retrieve(Retrievals.allEnrolments) {
       enrolments =>
         f(User(regime.identifier.value, arn(enrolments))(request))
     } recover {
@@ -49,5 +56,15 @@ class AuthService @Inject()(val authConnector: AuthConnector, implicit val appCo
         Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
         Forbidden(views.html.unauthorised())
     }
+
+  def authorisedWithEnrolmentPredicate(regimeModel: RegimeModel)(f: User[_] => Future[Result])
+                                      (implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_], messages: Messages): Future[Result] = {
+    authorised(regimeModel, enrolmentCheck(regimeModel))(f)
+  }
+
+  def authorisedNoPredicate(regimeModel: RegimeModel)(f: User[_] => Future[Result])
+                           (implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_], messages: Messages): Future[Result] = {
+    authorised(regimeModel, EmptyPredicate)(f)
+  }
 
 }
