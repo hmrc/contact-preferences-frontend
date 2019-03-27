@@ -24,7 +24,8 @@ import audit.models.ContactPreferenceAuditModel
 import config.SessionKeys
 import connectors.httpParsers.GetContactPreferenceHttpParser
 import connectors.httpParsers.JourneyHttpParser.{NotFound, Unauthorised}
-import connectors.httpParsers.StoreContactPreferenceHttpParser.{InvalidPreferencePayload, Success}
+import connectors.httpParsers.{StoreContactPreferenceHttpParser => StoreParser}
+import connectors.httpParsers.{UpdateContactPreferenceHttpParser => UpdateParser}
 import controllers.mocks.MockAuthService
 import forms.{ContactPreferencesForm, PreferenceMapping}
 import models.{Email, Letter}
@@ -46,7 +47,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
     messagesApi, mockAuthService, mockJourneyService, mockContactPreferencesService, errorHandler, mockAuditConnector, appConfig
   )
 
-  "ContactPreferencesController.show" when {
+  "ContactPreferencesController.setRouteShow" when {
 
     def result: Future[Result] = TestContactPreferencesController.setRouteShow(journeyId)(fakeRequest)
 
@@ -86,7 +87,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
   }
 
-  "ContactPreferencesController.showAuthenticated" when {
+  "ContactPreferencesController.updateRouteShow" when {
 
     "a journey can be retrieved from the backend" when {
 
@@ -144,22 +145,12 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
           lazy val result: Future[Result] = TestContactPreferencesController.updateRouteShow(journeyId)(fakeRequest)
 
-          "return an OK (200)" in {
+          "return a ISE (500)" in {
             mockJourney(journeyId)(Right(journeyModelMax))
             mockAuthenticated(EmptyPredicate)
             mockGetContactPreference(regimeModel)(Left(GetContactPreferenceHttpParser.NotFound))
-            status(result) shouldBe Status.OK
-          }
 
-          "return HTML" in {
-            contentType(result) shouldBe Some("text/html")
-            charset(result) shouldBe Some("utf-8")
-          }
-
-          "display the correct page with no option selected" in {
-            title(result) shouldBe pageTitle
-            selectElement(result, "#yes").hasAttr("checked") shouldBe false
-            selectElement(result, "#no").hasAttr("checked") shouldBe false
+            status(result) shouldBe Status.INTERNAL_SERVER_ERROR
           }
         }
       }
@@ -201,7 +192,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
     }
   }
 
-  "ContactPreferencesController.submit" when {
+  "ContactPreferencesController.setRouteSubmit" when {
 
     "a journey can be retrieved from the backend" when {
 
@@ -219,7 +210,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Email)(Right(Success))
+              mockStoreJourneyPreference(journeyId, Email)(Right(StoreParser.Success))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -250,7 +241,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Email)(Left(InvalidPreferencePayload))
+              mockStoreJourneyPreference(journeyId, Email)(Left(StoreParser.InvalidPreferencePayload))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -279,7 +270,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Letter)(Right(Success))
+              mockStoreJourneyPreference(journeyId, Letter)(Right(StoreParser.Success))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -310,7 +301,7 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
 
               mockJourney(journeyId)(Right(journeyModelMax))
               mockAuthenticated(EmptyPredicate)
-              mockStoreJourneyPreference(journeyId, Letter)(Left(InvalidPreferencePayload))
+              mockStoreJourneyPreference(journeyId, Letter)(Left(StoreParser.InvalidPreferencePayload))
 
               verifyExplicitAudit(
                 ContactPreferenceAuditModel.auditType,
@@ -368,4 +359,173 @@ class ContactPreferencesControllerSpec extends ControllerTestUtils with MockCont
       }
     }
   }
+
+  "ContactPreferencesController.updateRouteSubmit" when {
+
+    "a journey can be retrieved from the backend" when {
+
+      "the user is authorised" when {
+
+        "'Email' option is entered" when {
+
+          "A success response is returned from the PreferenceService" should {
+
+            lazy val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.preference -> PreferenceMapping.option_email
+            ))
+
+            "return an SEE_OTHER (303) status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthenticated(EmptyPredicate)
+              mockUpdateJourneyPreference(journeyModelMax.regime, Email)(Right(UpdateParser.Success))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Email
+                )
+              )
+
+              status(result) shouldBe Status.SEE_OTHER
+            }
+
+            "redirect to the confirm preference update route" in {
+              redirectLocation(result) shouldBe Some(controllers.routes.ConfirmPreferencesController.updateRouteShow(journeyId).url)
+              session(result).get(SessionKeys.preference) shouldBe Some(Email.value)
+            }
+          }
+
+          "An error response is returned from the PreferenceService" should {
+
+            lazy val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.preference -> PreferenceMapping.option_email
+            ))
+
+            "return the error status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthenticated(EmptyPredicate)
+              mockUpdateJourneyPreference(journeyModelMax.regime, Email)(Left(UpdateParser.InvalidPreferencePayload))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Email
+                )
+              )
+
+              status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+            }
+          }
+        }
+
+        "'Letter' option is entered" when {
+
+          "A success response is returned from the PreferenceService" should {
+
+            lazy val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.preference -> PreferenceMapping.option_letter
+            ))
+
+            "return an SEE_OTHER (303) status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthenticated(EmptyPredicate)
+              mockUpdateJourneyPreference(journeyModelMax.regime, Letter)(Right(UpdateParser.Success))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Letter
+                )
+              )
+
+              status(result) shouldBe Status.SEE_OTHER
+            }
+
+            "redirect to the confirm preference update route" in {
+              redirectLocation(result) shouldBe Some(controllers.routes.ConfirmPreferencesController.updateRouteShow(journeyId).url)
+              session(result).get(SessionKeys.preference) shouldBe Some(Letter.value)
+            }
+          }
+
+          "An error response is returned from the PreferenceService" should {
+
+            lazy val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+              ContactPreferencesForm.preference -> PreferenceMapping.option_letter
+            ))
+
+            "return the error status" in {
+
+              mockJourney(journeyId)(Right(journeyModelMax))
+              mockAuthenticated(EmptyPredicate)
+              mockUpdateJourneyPreference(journeyModelMax.regime, Letter)(Left(UpdateParser.InvalidPreferencePayload))
+
+              verifyExplicitAudit(
+                ContactPreferenceAuditModel.auditType,
+                ContactPreferenceAuditModel(
+                  journeyModelMax.regime,
+                  None,
+                  journeyModelMax.email,
+                  Letter
+                )
+              )
+
+              status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+            }
+          }
+        }
+
+        "no radio option is selected" should {
+
+          "return a BAD_REQUEST (400)" in {
+            mockJourney(journeyId)(Right(journeyModelMax))
+            mockAuthenticated(EmptyPredicate)
+
+            val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/"))
+
+            status(result) shouldBe Status.BAD_REQUEST
+          }
+        }
+      }
+
+      "the user is NOT authorised" should {
+
+        "return an FORBIDDEN (403)" in {
+          mockJourney(journeyId)(Right(journeyModelMax))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+
+          val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+            ContactPreferencesForm.preference -> PreferenceMapping.option_letter
+          ))
+
+          status(result) shouldBe Status.FORBIDDEN
+        }
+      }
+    }
+
+    "a journey can NOT be retrieved from the backend" when {
+
+      "return an NOT_FOUND (404)" in {
+        mockJourney(journeyId)(Left(NotFound))
+
+        val result = TestContactPreferencesController.updateRouteSubmit(journeyId)(FakeRequest("POST", "/").withFormUrlEncodedBody(
+          ContactPreferencesForm.preference -> PreferenceMapping.option_email
+        ))
+
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+  }
+
 }
