@@ -42,16 +42,25 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
                                              implicit val appConfig: AppConfig) extends FrontendController with I18nSupport {
 
   val setRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
-    displayPage(
-      id = id,
-      postAction = controllers.routes.ConfirmPreferencesController.setRouteSubmit(id),
-      changeUrl = controllers.routes.ContactPreferencesController.setRouteShow(id).url
-    )
+    getPreferenceFromSession(controllers.routes.ContactPreferencesController.setRouteShow(id).url) { preference =>
+      getJourneyContext(id) { journeyModel =>
+        authService.authorisedNoPredicate(journeyModel.regime) { _ =>
+          Future.successful(Ok(
+            confirm_preferences(
+              journey = journeyModel,
+              digitalPreference = preference == Email,
+              postAction = controllers.routes.ConfirmPreferencesController.setRouteSubmit(id),
+              changeUrl = controllers.routes.ContactPreferencesController.setRouteShow(id).url
+            )
+          ))
+        }
+      }
+    }
   }
 
   val setRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
     getJourneyContext(id) { journeyModel =>
-      authService.authorise(journeyModel.regime) { user =>
+      authService.authorisedNoPredicate(journeyModel.regime) { user =>
         getPreferenceFromSession(controllers.routes.ContactPreferencesController.setRouteShow(id).url) { preference =>
           auditPreference(journeyModel, preference)(user)
           preferenceService.storeJourneyPreference(id, preference).map {
@@ -64,37 +73,31 @@ class ConfirmPreferencesController @Inject()(val messagesApi: MessagesApi,
   }
 
   val updateRouteShow: String => Action[AnyContent] = id => Action.async { implicit request =>
-    displayPage(
-      id = id,
-      postAction = controllers.routes.ConfirmPreferencesController.updateRouteSubmit(id),
-      changeUrl = controllers.routes.ContactPreferencesController.updateRouteShow(id).url
-    )
+    getPreferenceFromSession(controllers.routes.ContactPreferencesController.updateRouteShow(id).url) { preference =>
+      getJourneyContext(id) { journeyModel =>
+        authService.authorisedWithEnrolmentPredicate(journeyModel.regime) { _ =>
+          Future.successful(Ok(
+            confirm_preferences(
+              journey = journeyModel,
+              digitalPreference = preference == Email,
+              postAction = controllers.routes.ConfirmPreferencesController.updateRouteSubmit(id),
+              changeUrl = controllers.routes.ContactPreferencesController.updateRouteShow(id).url
+            )
+          ))
+        }
+      }
+    }
   }
 
   val updateRouteSubmit: String => Action[AnyContent] = id => Action.async { implicit requests =>
     getJourneyContext(id) { journeyModel =>
-      authService.authorise(journeyModel.regime) { user =>
+      authService.authorisedWithEnrolmentPredicate(journeyModel.regime) { user =>
         getPreferenceFromSession(controllers.routes.ContactPreferencesController.updateRouteShow(id).url) { preference =>
           auditPreference(journeyModel, preference)(user)
           preferenceService.updateContactPreference(journeyModel.regime, preference) map {
             case Right(_) => Redirect(journeyModel.continueUrl, Map(QueryStringKeys.preferenceId -> Seq(id)))
             case Left(_) => errorHandler.showInternalServerError
           }
-        }
-      }
-    }
-  }
-
-  private def displayPage(id: String, postAction: Call, changeUrl: String)(implicit request: Request[_]): Future[Result] = {
-    getPreferenceFromSession(changeUrl) { preference =>
-      getJourneyContext(id) { journeyModel =>
-        authService.authorise(journeyModel.regime) { _ =>
-          Future.successful(Ok(confirm_preferences(
-            journey = journeyModel,
-            digitalPreference = preference == Email,
-            postAction = postAction,
-            changeUrl = changeUrl
-          )))
         }
       }
     }

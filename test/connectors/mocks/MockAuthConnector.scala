@@ -17,6 +17,7 @@
 package connectors.mocks
 
 import assets.BaseTestConstants._
+import assets.JourneyTestConstants.journeyModelMax
 import config.Constants
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
@@ -50,10 +51,8 @@ trait MockAuthConnector extends TestUtils with MockitoSugar {
 
   val retrievals: Retrieval[Enrolments] = Retrievals.allEnrolments
 
-  def mockAuthRetrieveAgentServicesEnrolled(predicate: Predicate = EmptyPredicate): Unit =
-    mockAuthorise(predicate, retrievals)(
-      Future.successful(Enrolments(Set(testAgentServicesEnrolment)))
-    )
+  val individual: Enrolment = Enrolment(journeyModelMax.regime.`type`.enrolmentId)
+    .withIdentifier(journeyModelMax.regime.identifier.key.value, journeyModelMax.regime.identifier.value)
 
   def mockAuthenticated(predicate: Predicate = EmptyPredicate): Unit =
     mockAuthorise(predicate = predicate, retrievals = retrievals)(
